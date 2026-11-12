@@ -11,7 +11,7 @@ def test_hub_lists_every_registry_game(client: FlaskClient) -> None:
     html = client.get("/").get_data(as_text=True)
     for game in GAMES:
         assert game.title in html
-    assert html.count("Coming soon") >= 2
+    assert html.count("Coming soon") >= 1
     assert 'href="/games/flag-reveal/"' in html
 
 
@@ -39,7 +39,7 @@ def test_styleguide(client: FlaskClient) -> None:
 
 
 def test_no_external_assets(client: FlaskClient) -> None:
-    for url in ("/", "/styleguide", "/games/flag-reveal/"):
+    for url in ("/", "/styleguide", "/games/flag-reveal/", "/games/border-bridge/"):
         html = client.get(url).get_data(as_text=True)
         assert "http://" not in html.replace("http://www.w3.org", "")
         assert "https://" not in html.replace("https://www.w3.org", "")

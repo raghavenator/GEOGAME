@@ -12,7 +12,8 @@ from app import create_app
 
 @pytest.fixture()
 def app(tmp_path: Path) -> Iterator[Flask]:
-    app = create_app({"TESTING": True, "DATABASE": str(tmp_path / "test.sqlite3"), "FLAG_REVEAL_SEED": 1234})
+    app = create_app({"TESTING": True, "DATABASE": str(tmp_path / "test.sqlite3"), "FLAG_REVEAL_SEED": 1234,
+                      "BORDER_BRIDGE_SEED": 1234})
     yield app
 
 

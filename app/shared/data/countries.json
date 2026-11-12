@@ -3,31 +3,41 @@
   "code": "af",
   "name": "Afghanistan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "AFG",
+  "ccn3": "004"
  },
  {
   "code": "al",
   "name": "Albania",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ALB",
+  "ccn3": "008"
  },
  {
   "code": "dz",
   "name": "Algeria",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "DZA",
+  "ccn3": "012"
  },
  {
   "code": "ad",
   "name": "Andorra",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "AND",
+  "ccn3": "020"
  },
  {
   "code": "ao",
   "name": "Angola",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "AGO",
+  "ccn3": "024"
  },
  {
   "code": "ag",
@@ -35,25 +45,33 @@
   "region": "Americas",
   "aliases": [
    "Antigua"
-  ]
+  ],
+  "cca3": "ATG",
+  "ccn3": "028"
  },
  {
   "code": "ar",
   "name": "Argentina",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ARG",
+  "ccn3": "032"
  },
  {
   "code": "am",
   "name": "Armenia",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ARM",
+  "ccn3": "051"
  },
  {
   "code": "au",
   "name": "Australia",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "AUS",
+  "ccn3": "036"
  },
  {
   "code": "at",
@@ -61,13 +79,17 @@
   "region": "Europe",
   "aliases": [
    "Österreich"
-  ]
+  ],
+  "cca3": "AUT",
+  "ccn3": "040"
  },
  {
   "code": "az",
   "name": "Azerbaijan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "AZE",
+  "ccn3": "031"
  },
  {
   "code": "bs",
@@ -75,25 +97,33 @@
   "region": "Americas",
   "aliases": [
    "The Bahamas"
-  ]
+  ],
+  "cca3": "BHS",
+  "ccn3": "044"
  },
  {
   "code": "bh",
   "name": "Bahrain",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BHR",
+  "ccn3": "048"
  },
  {
   "code": "bd",
   "name": "Bangladesh",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BGD",
+  "ccn3": "050"
  },
  {
   "code": "bb",
   "name": "Barbados",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BRB",
+  "ccn3": "052"
  },
  {
   "code": "by",
@@ -101,19 +131,25 @@
   "region": "Europe",
   "aliases": [
    "Byelorussia"
-  ]
+  ],
+  "cca3": "BLR",
+  "ccn3": "112"
  },
  {
   "code": "be",
   "name": "Belgium",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BEL",
+  "ccn3": "056"
  },
  {
   "code": "bz",
   "name": "Belize",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BLZ",
+  "ccn3": "084"
  },
  {
   "code": "bj",
@@ -121,19 +157,25 @@
   "region": "Africa",
   "aliases": [
    "Dahomey"
-  ]
+  ],
+  "cca3": "BEN",
+  "ccn3": "204"
  },
  {
   "code": "bt",
   "name": "Bhutan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BTN",
+  "ccn3": "064"
  },
  {
   "code": "bo",
   "name": "Bolivia",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BOL",
+  "ccn3": "068"
  },
  {
   "code": "ba",
@@ -142,13 +184,17 @@
   "aliases": [
    "Bosnia",
    "BiH"
-  ]
+  ],
+  "cca3": "BIH",
+  "ccn3": "070"
  },
  {
   "code": "bw",
   "name": "Botswana",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BWA",
+  "ccn3": "072"
  },
  {
   "code": "br",
@@ -156,7 +202,9 @@
   "region": "Americas",
   "aliases": [
    "Brasil"
-  ]
+  ],
+  "cca3": "BRA",
+  "ccn3": "076"
  },
  {
   "code": "bn",
@@ -164,13 +212,17 @@
   "region": "Asia",
   "aliases": [
    "Brunei Darussalam"
-  ]
+  ],
+  "cca3": "BRN",
+  "ccn3": "096"
  },
  {
   "code": "bg",
   "name": "Bulgaria",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BGR",
+  "ccn3": "100"
  },
  {
   "code": "bf",
@@ -178,13 +230,17 @@
   "region": "Africa",
   "aliases": [
    "Upper Volta"
-  ]
+  ],
+  "cca3": "BFA",
+  "ccn3": "854"
  },
  {
   "code": "bi",
   "name": "Burundi",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "BDI",
+  "ccn3": "108"
  },
  {
   "code": "cv",
@@ -192,7 +248,9 @@
   "region": "Africa",
   "aliases": [
    "Cape Verde"
-  ]
+  ],
+  "cca3": "CPV",
+  "ccn3": "132"
  },
  {
   "code": "kh",
@@ -200,19 +258,25 @@
   "region": "Asia",
   "aliases": [
    "Kampuchea"
-  ]
+  ],
+  "cca3": "KHM",
+  "ccn3": "116"
  },
  {
   "code": "cm",
   "name": "Cameroon",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "CMR",
+  "ccn3": "120"
  },
  {
   "code": "ca",
   "name": "Canada",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "CAN",
+  "ccn3": "124"
  },
  {
   "code": "cf",
@@ -220,19 +284,25 @@
   "region": "Africa",
   "aliases": [
    "CAR"
-  ]
+  ],
+  "cca3": "CAF",
+  "ccn3": "140"
  },
  {
   "code": "td",
   "name": "Chad",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "TCD",
+  "ccn3": "148"
  },
  {
   "code": "cl",
   "name": "Chile",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "CHL",
+  "ccn3": "152"
  },
  {
   "code": "cn",
@@ -241,25 +311,33 @@
   "aliases": [
    "PRC",
    "People's Republic of China"
-  ]
+  ],
+  "cca3": "CHN",
+  "ccn3": "156"
  },
  {
   "code": "co",
   "name": "Colombia",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "COL",
+  "ccn3": "170"
  },
  {
   "code": "km",
   "name": "Comoros",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "COM",
+  "ccn3": "174"
  },
  {
   "code": "cr",
   "name": "Costa Rica",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "CRI",
+  "ccn3": "188"
  },
  {
   "code": "hr",
@@ -267,19 +345,25 @@
   "region": "Europe",
   "aliases": [
    "Hrvatska"
-  ]
+  ],
+  "cca3": "HRV",
+  "ccn3": "191"
  },
  {
   "code": "cu",
   "name": "Cuba",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "CUB",
+  "ccn3": "192"
  },
  {
   "code": "cy",
   "name": "Cyprus",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "CYP",
+  "ccn3": "196"
  },
  {
   "code": "cz",
@@ -287,7 +371,9 @@
   "region": "Europe",
   "aliases": [
    "Czech Republic"
-  ]
+  ],
+  "cca3": "CZE",
+  "ccn3": "203"
  },
  {
   "code": "ci",
@@ -296,7 +382,9 @@
   "aliases": [
    "Ivory Coast",
    "Cote dIvoire"
-  ]
+  ],
+  "cca3": "CIV",
+  "ccn3": "384"
  },
  {
   "code": "cd",
@@ -308,43 +396,57 @@
    "Congo-Kinshasa",
    "Zaire",
    "Congo DR"
-  ]
+  ],
+  "cca3": "COD",
+  "ccn3": "180"
  },
  {
   "code": "dk",
   "name": "Denmark",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "DNK",
+  "ccn3": "208"
  },
  {
   "code": "dj",
   "name": "Djibouti",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "DJI",
+  "ccn3": "262"
  },
  {
   "code": "dm",
   "name": "Dominica",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "DMA",
+  "ccn3": "212"
  },
  {
   "code": "do",
   "name": "Dominican Republic",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "DOM",
+  "ccn3": "214"
  },
  {
   "code": "ec",
   "name": "Ecuador",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ECU",
+  "ccn3": "218"
  },
  {
   "code": "eg",
   "name": "Egypt",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "EGY",
+  "ccn3": "818"
  },
  {
   "code": "sv",
@@ -352,25 +454,33 @@
   "region": "Americas",
   "aliases": [
    "Salvador"
-  ]
+  ],
+  "cca3": "SLV",
+  "ccn3": "222"
  },
  {
   "code": "gq",
   "name": "Equatorial Guinea",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "GNQ",
+  "ccn3": "226"
  },
  {
   "code": "er",
   "name": "Eritrea",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ERI",
+  "ccn3": "232"
  },
  {
   "code": "ee",
   "name": "Estonia",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "EST",
+  "ccn3": "233"
  },
  {
   "code": "sz",
@@ -378,7 +488,9 @@
   "region": "Africa",
   "aliases": [
    "Swaziland"
-  ]
+  ],
+  "cca3": "SWZ",
+  "ccn3": "748"
  },
  {
   "code": "et",
@@ -386,13 +498,17 @@
   "region": "Africa",
   "aliases": [
    "Abyssinia"
-  ]
+  ],
+  "cca3": "ETH",
+  "ccn3": "231"
  },
  {
   "code": "fj",
   "name": "Fiji",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "FJI",
+  "ccn3": "242"
  },
  {
   "code": "fi",
@@ -400,19 +516,25 @@
   "region": "Europe",
   "aliases": [
    "Suomi"
-  ]
+  ],
+  "cca3": "FIN",
+  "ccn3": "246"
  },
  {
   "code": "fr",
   "name": "France",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "FRA",
+  "ccn3": "250"
  },
  {
   "code": "ga",
   "name": "Gabon",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "GAB",
+  "ccn3": "266"
  },
  {
   "code": "gm",
@@ -420,7 +542,9 @@
   "region": "Africa",
   "aliases": [
    "The Gambia"
-  ]
+  ],
+  "cca3": "GMB",
+  "ccn3": "270"
  },
  {
   "code": "ge",
@@ -428,7 +552,9 @@
   "region": "Asia",
   "aliases": [
    "Sakartvelo"
-  ]
+  ],
+  "cca3": "GEO",
+  "ccn3": "268"
  },
  {
   "code": "de",
@@ -436,13 +562,17 @@
   "region": "Europe",
   "aliases": [
    "Deutschland"
-  ]
+  ],
+  "cca3": "DEU",
+  "ccn3": "276"
  },
  {
   "code": "gh",
   "name": "Ghana",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "GHA",
+  "ccn3": "288"
  },
  {
   "code": "gr",
@@ -450,19 +580,25 @@
   "region": "Europe",
   "aliases": [
    "Hellas"
-  ]
+  ],
+  "cca3": "GRC",
+  "ccn3": "300"
  },
  {
   "code": "gd",
   "name": "Grenada",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "GRD",
+  "ccn3": "308"
  },
  {
   "code": "gt",
   "name": "Guatemala",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "GTM",
+  "ccn3": "320"
  },
  {
   "code": "gn",
@@ -470,43 +606,57 @@
   "region": "Africa",
   "aliases": [
    "Guinea-Conakry"
-  ]
+  ],
+  "cca3": "GIN",
+  "ccn3": "324"
  },
  {
   "code": "gw",
   "name": "Guinea-Bissau",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "GNB",
+  "ccn3": "624"
  },
  {
   "code": "gy",
   "name": "Guyana",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "GUY",
+  "ccn3": "328"
  },
  {
   "code": "ht",
   "name": "Haiti",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "HTI",
+  "ccn3": "332"
  },
  {
   "code": "hn",
   "name": "Honduras",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "HND",
+  "ccn3": "340"
  },
  {
   "code": "hu",
   "name": "Hungary",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "HUN",
+  "ccn3": "348"
  },
  {
   "code": "is",
   "name": "Iceland",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ISL",
+  "ccn3": "352"
  },
  {
   "code": "in",
@@ -514,13 +664,17 @@
   "region": "Asia",
   "aliases": [
    "Bharat"
-  ]
+  ],
+  "cca3": "IND",
+  "ccn3": "356"
  },
  {
   "code": "id",
   "name": "Indonesia",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "IDN",
+  "ccn3": "360"
  },
  {
   "code": "ir",
@@ -528,13 +682,17 @@
   "region": "Asia",
   "aliases": [
    "Persia"
-  ]
+  ],
+  "cca3": "IRN",
+  "ccn3": "364"
  },
  {
   "code": "iq",
   "name": "Iraq",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "IRQ",
+  "ccn3": "368"
  },
  {
   "code": "ie",
@@ -543,13 +701,17 @@
   "aliases": [
    "Eire",
    "Republic of Ireland"
-  ]
+  ],
+  "cca3": "IRL",
+  "ccn3": "372"
  },
  {
   "code": "il",
   "name": "Israel",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ISR",
+  "ccn3": "376"
  },
  {
   "code": "it",
@@ -557,13 +719,17 @@
   "region": "Europe",
   "aliases": [
    "Italia"
-  ]
+  ],
+  "cca3": "ITA",
+  "ccn3": "380"
  },
  {
   "code": "jm",
   "name": "Jamaica",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "JAM",
+  "ccn3": "388"
  },
  {
   "code": "jp",
@@ -571,37 +737,49 @@
   "region": "Asia",
   "aliases": [
    "Nippon"
-  ]
+  ],
+  "cca3": "JPN",
+  "ccn3": "392"
  },
  {
   "code": "jo",
   "name": "Jordan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "JOR",
+  "ccn3": "400"
  },
  {
   "code": "kz",
   "name": "Kazakhstan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "KAZ",
+  "ccn3": "398"
  },
  {
   "code": "ke",
   "name": "Kenya",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "KEN",
+  "ccn3": "404"
  },
  {
   "code": "ki",
   "name": "Kiribati",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "KIR",
+  "ccn3": "296"
  },
  {
   "code": "kw",
   "name": "Kuwait",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "KWT",
+  "ccn3": "414"
  },
  {
   "code": "kg",
@@ -610,7 +788,9 @@
   "aliases": [
    "Kyrgyz Republic",
    "Kirghizia"
-  ]
+  ],
+  "cca3": "KGZ",
+  "ccn3": "417"
  },
  {
   "code": "la",
@@ -619,109 +799,145 @@
   "aliases": [
    "Lao PDR",
    "Lao"
-  ]
+  ],
+  "cca3": "LAO",
+  "ccn3": "418"
  },
  {
   "code": "lv",
   "name": "Latvia",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "LVA",
+  "ccn3": "428"
  },
  {
   "code": "lb",
   "name": "Lebanon",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "LBN",
+  "ccn3": "422"
  },
  {
   "code": "ls",
   "name": "Lesotho",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "LSO",
+  "ccn3": "426"
  },
  {
   "code": "lr",
   "name": "Liberia",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "LBR",
+  "ccn3": "430"
  },
  {
   "code": "ly",
   "name": "Libya",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "LBY",
+  "ccn3": "434"
  },
  {
   "code": "li",
   "name": "Liechtenstein",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "LIE",
+  "ccn3": "438"
  },
  {
   "code": "lt",
   "name": "Lithuania",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "LTU",
+  "ccn3": "440"
  },
  {
   "code": "lu",
   "name": "Luxembourg",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "LUX",
+  "ccn3": "442"
  },
  {
   "code": "mg",
   "name": "Madagascar",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MDG",
+  "ccn3": "450"
  },
  {
   "code": "mw",
   "name": "Malawi",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MWI",
+  "ccn3": "454"
  },
  {
   "code": "my",
   "name": "Malaysia",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MYS",
+  "ccn3": "458"
  },
  {
   "code": "mv",
   "name": "Maldives",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MDV",
+  "ccn3": "462"
  },
  {
   "code": "ml",
   "name": "Mali",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MLI",
+  "ccn3": "466"
  },
  {
   "code": "mt",
   "name": "Malta",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MLT",
+  "ccn3": "470"
  },
  {
   "code": "mh",
   "name": "Marshall Islands",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MHL",
+  "ccn3": "584"
  },
  {
   "code": "mr",
   "name": "Mauritania",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MRT",
+  "ccn3": "478"
  },
  {
   "code": "mu",
   "name": "Mauritius",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MUS",
+  "ccn3": "480"
  },
  {
   "code": "mx",
@@ -729,7 +945,9 @@
   "region": "Americas",
   "aliases": [
    "México"
-  ]
+  ],
+  "cca3": "MEX",
+  "ccn3": "484"
  },
  {
   "code": "fm",
@@ -737,43 +955,57 @@
   "region": "Oceania",
   "aliases": [
    "Federated States of Micronesia"
-  ]
+  ],
+  "cca3": "FSM",
+  "ccn3": "583"
  },
  {
   "code": "md",
   "name": "Moldova",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MDA",
+  "ccn3": "498"
  },
  {
   "code": "mc",
   "name": "Monaco",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MCO",
+  "ccn3": "492"
  },
  {
   "code": "mn",
   "name": "Mongolia",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MNG",
+  "ccn3": "496"
  },
  {
   "code": "me",
   "name": "Montenegro",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MNE",
+  "ccn3": "499"
  },
  {
   "code": "ma",
   "name": "Morocco",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MAR",
+  "ccn3": "504"
  },
  {
   "code": "mz",
   "name": "Mozambique",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "MOZ",
+  "ccn3": "508"
  },
  {
   "code": "mm",
@@ -781,25 +1013,33 @@
   "region": "Asia",
   "aliases": [
    "Burma"
-  ]
+  ],
+  "cca3": "MMR",
+  "ccn3": "104"
  },
  {
   "code": "na",
   "name": "Namibia",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "NAM",
+  "ccn3": "516"
  },
  {
   "code": "nr",
   "name": "Nauru",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "NRU",
+  "ccn3": "520"
  },
  {
   "code": "np",
   "name": "Nepal",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "NPL",
+  "ccn3": "524"
  },
  {
   "code": "nl",
@@ -808,7 +1048,9 @@
   "aliases": [
    "Holland",
    "The Netherlands"
-  ]
+  ],
+  "cca3": "NLD",
+  "ccn3": "528"
  },
  {
   "code": "nz",
@@ -816,25 +1058,33 @@
   "region": "Oceania",
   "aliases": [
    "Aotearoa"
-  ]
+  ],
+  "cca3": "NZL",
+  "ccn3": "554"
  },
  {
   "code": "ni",
   "name": "Nicaragua",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "NIC",
+  "ccn3": "558"
  },
  {
   "code": "ne",
   "name": "Niger",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "NER",
+  "ccn3": "562"
  },
  {
   "code": "ng",
   "name": "Nigeria",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "NGA",
+  "ccn3": "566"
  },
  {
   "code": "kp",
@@ -844,7 +1094,9 @@
    "DPRK",
    "Democratic People's Republic of Korea",
    "Korea DPR"
-  ]
+  ],
+  "cca3": "PRK",
+  "ccn3": "408"
  },
  {
   "code": "mk",
@@ -852,31 +1104,41 @@
   "region": "Europe",
   "aliases": [
    "Macedonia"
-  ]
+  ],
+  "cca3": "MKD",
+  "ccn3": "807"
  },
  {
   "code": "no",
   "name": "Norway",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "NOR",
+  "ccn3": "578"
  },
  {
   "code": "om",
   "name": "Oman",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "OMN",
+  "ccn3": "512"
  },
  {
   "code": "pk",
   "name": "Pakistan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "PAK",
+  "ccn3": "586"
  },
  {
   "code": "pw",
   "name": "Palau",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "PLW",
+  "ccn3": "585"
  },
  {
   "code": "ps",
@@ -885,13 +1147,17 @@
   "aliases": [
    "State of Palestine",
    "Palestinian Territories"
-  ]
+  ],
+  "cca3": "PSE",
+  "ccn3": "275"
  },
  {
   "code": "pa",
   "name": "Panama",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "PAN",
+  "ccn3": "591"
  },
  {
   "code": "pg",
@@ -899,19 +1165,25 @@
   "region": "Oceania",
   "aliases": [
    "PNG"
-  ]
+  ],
+  "cca3": "PNG",
+  "ccn3": "598"
  },
  {
   "code": "py",
   "name": "Paraguay",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "PRY",
+  "ccn3": "600"
  },
  {
   "code": "pe",
   "name": "Peru",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "PER",
+  "ccn3": "604"
  },
  {
   "code": "ph",
@@ -919,25 +1191,33 @@
   "region": "Asia",
   "aliases": [
    "The Philippines"
-  ]
+  ],
+  "cca3": "PHL",
+  "ccn3": "608"
  },
  {
   "code": "pl",
   "name": "Poland",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "POL",
+  "ccn3": "616"
  },
  {
   "code": "pt",
   "name": "Portugal",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "PRT",
+  "ccn3": "620"
  },
  {
   "code": "qa",
   "name": "Qatar",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "QAT",
+  "ccn3": "634"
  },
  {
   "code": "cg",
@@ -947,13 +1227,17 @@
    "Congo",
    "Congo-Brazzaville",
    "Congo Republic"
-  ]
+  ],
+  "cca3": "COG",
+  "ccn3": "178"
  },
  {
   "code": "ro",
   "name": "Romania",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ROU",
+  "ccn3": "642"
  },
  {
   "code": "ru",
@@ -961,13 +1245,17 @@
   "region": "Europe",
   "aliases": [
    "Russian Federation"
-  ]
+  ],
+  "cca3": "RUS",
+  "ccn3": "643"
  },
  {
   "code": "rw",
   "name": "Rwanda",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "RWA",
+  "ccn3": "646"
  },
  {
   "code": "kn",
@@ -977,7 +1265,9 @@
    "St Kitts",
    "Saint Kitts",
    "St Kitts and Nevis"
-  ]
+  ],
+  "cca3": "KNA",
+  "ccn3": "659"
  },
  {
   "code": "lc",
@@ -985,7 +1275,9 @@
   "region": "Americas",
   "aliases": [
    "St Lucia"
-  ]
+  ],
+  "cca3": "LCA",
+  "ccn3": "662"
  },
  {
   "code": "vc",
@@ -995,7 +1287,9 @@
    "St Vincent",
    "Saint Vincent",
    "St Vincent and the Grenadines"
-  ]
+  ],
+  "cca3": "VCT",
+  "ccn3": "670"
  },
  {
   "code": "ws",
@@ -1003,13 +1297,17 @@
   "region": "Oceania",
   "aliases": [
    "Western Samoa"
-  ]
+  ],
+  "cca3": "WSM",
+  "ccn3": "882"
  },
  {
   "code": "sm",
   "name": "San Marino",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SMR",
+  "ccn3": "674"
  },
  {
   "code": "sa",
@@ -1017,37 +1315,49 @@
   "region": "Asia",
   "aliases": [
    "KSA"
-  ]
+  ],
+  "cca3": "SAU",
+  "ccn3": "682"
  },
  {
   "code": "sn",
   "name": "Senegal",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SEN",
+  "ccn3": "686"
  },
  {
   "code": "rs",
   "name": "Serbia",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SRB",
+  "ccn3": "688"
  },
  {
   "code": "sc",
   "name": "Seychelles",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SYC",
+  "ccn3": "690"
  },
  {
   "code": "sl",
   "name": "Sierra Leone",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SLE",
+  "ccn3": "694"
  },
  {
   "code": "sg",
   "name": "Singapore",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SGP",
+  "ccn3": "702"
  },
  {
   "code": "sk",
@@ -1055,13 +1365,17 @@
   "region": "Europe",
   "aliases": [
    "Slovak Republic"
-  ]
+  ],
+  "cca3": "SVK",
+  "ccn3": "703"
  },
  {
   "code": "si",
   "name": "Slovenia",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SVN",
+  "ccn3": "705"
  },
  {
   "code": "sb",
@@ -1069,13 +1383,17 @@
   "region": "Oceania",
   "aliases": [
    "Solomons"
-  ]
+  ],
+  "cca3": "SLB",
+  "ccn3": "090"
  },
  {
   "code": "so",
   "name": "Somalia",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SOM",
+  "ccn3": "706"
  },
  {
   "code": "za",
@@ -1083,7 +1401,9 @@
   "region": "Africa",
   "aliases": [
    "RSA"
-  ]
+  ],
+  "cca3": "ZAF",
+  "ccn3": "710"
  },
  {
   "code": "kr",
@@ -1093,13 +1413,17 @@
    "Korea",
    "Republic of Korea",
    "ROK"
-  ]
+  ],
+  "cca3": "KOR",
+  "ccn3": "410"
  },
  {
   "code": "ss",
   "name": "South Sudan",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SSD",
+  "ccn3": "728"
  },
  {
   "code": "es",
@@ -1107,7 +1431,9 @@
   "region": "Europe",
   "aliases": [
    "España"
-  ]
+  ],
+  "cca3": "ESP",
+  "ccn3": "724"
  },
  {
   "code": "lk",
@@ -1115,13 +1441,17 @@
   "region": "Asia",
   "aliases": [
    "Ceylon"
-  ]
+  ],
+  "cca3": "LKA",
+  "ccn3": "144"
  },
  {
   "code": "sd",
   "name": "Sudan",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SDN",
+  "ccn3": "729"
  },
  {
   "code": "sr",
@@ -1129,13 +1459,17 @@
   "region": "Americas",
   "aliases": [
    "Surinam"
-  ]
+  ],
+  "cca3": "SUR",
+  "ccn3": "740"
  },
  {
   "code": "se",
   "name": "Sweden",
   "region": "Europe",
-  "aliases": []
+  "aliases": [],
+  "cca3": "SWE",
+  "ccn3": "752"
  },
  {
   "code": "ch",
@@ -1143,7 +1477,9 @@
   "region": "Europe",
   "aliases": [
    "Swiss Confederation"
-  ]
+  ],
+  "cca3": "CHE",
+  "ccn3": "756"
  },
  {
   "code": "sy",
@@ -1151,7 +1487,9 @@
   "region": "Asia",
   "aliases": [
    "Syrian Arab Republic"
-  ]
+  ],
+  "cca3": "SYR",
+  "ccn3": "760"
  },
  {
   "code": "st",
@@ -1160,13 +1498,17 @@
   "aliases": [
    "Sao Tome",
    "Sao Tome and Principe"
-  ]
+  ],
+  "cca3": "STP",
+  "ccn3": "678"
  },
  {
   "code": "tj",
   "name": "Tajikistan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "TJK",
+  "ccn3": "762"
  },
  {
   "code": "tz",
@@ -1174,7 +1516,9 @@
   "region": "Africa",
   "aliases": [
    "United Republic of Tanzania"
-  ]
+  ],
+  "cca3": "TZA",
+  "ccn3": "834"
  },
  {
   "code": "th",
@@ -1182,7 +1526,9 @@
   "region": "Asia",
   "aliases": [
    "Siam"
-  ]
+  ],
+  "cca3": "THA",
+  "ccn3": "764"
  },
  {
   "code": "tl",
@@ -1190,19 +1536,25 @@
   "region": "Asia",
   "aliases": [
    "East Timor"
-  ]
+  ],
+  "cca3": "TLS",
+  "ccn3": "626"
  },
  {
   "code": "tg",
   "name": "Togo",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "TGO",
+  "ccn3": "768"
  },
  {
   "code": "to",
   "name": "Tonga",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "TON",
+  "ccn3": "776"
  },
  {
   "code": "tt",
@@ -1210,25 +1562,33 @@
   "region": "Americas",
   "aliases": [
    "Trinidad"
-  ]
+  ],
+  "cca3": "TTO",
+  "ccn3": "780"
  },
  {
   "code": "tn",
   "name": "Tunisia",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "TUN",
+  "ccn3": "788"
  },
  {
   "code": "tm",
   "name": "Turkmenistan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "TKM",
+  "ccn3": "795"
  },
  {
   "code": "tv",
   "name": "Tuvalu",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "TUV",
+  "ccn3": "798"
  },
  {
   "code": "tr",
@@ -1237,13 +1597,17 @@
   "aliases": [
    "Turkey",
    "Turkiye"
-  ]
+  ],
+  "cca3": "TUR",
+  "ccn3": "792"
  },
  {
   "code": "ug",
   "name": "Uganda",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "UGA",
+  "ccn3": "800"
  },
  {
   "code": "ua",
@@ -1251,7 +1615,9 @@
   "region": "Europe",
   "aliases": [
    "The Ukraine"
-  ]
+  ],
+  "cca3": "UKR",
+  "ccn3": "804"
  },
  {
   "code": "ae",
@@ -1260,7 +1626,9 @@
   "aliases": [
    "UAE",
    "Emirates"
-  ]
+  ],
+  "cca3": "ARE",
+  "ccn3": "784"
  },
  {
   "code": "gb",
@@ -1272,7 +1640,9 @@
    "Britain",
    "GB",
    "United Kingdom of Great Britain and Northern Ireland"
-  ]
+  ],
+  "cca3": "GBR",
+  "ccn3": "826"
  },
  {
   "code": "us",
@@ -1284,25 +1654,33 @@
    "United States of America",
    "America",
    "The States"
-  ]
+  ],
+  "cca3": "USA",
+  "ccn3": "840"
  },
  {
   "code": "uy",
   "name": "Uruguay",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "URY",
+  "ccn3": "858"
  },
  {
   "code": "uz",
   "name": "Uzbekistan",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "UZB",
+  "ccn3": "860"
  },
  {
   "code": "vu",
   "name": "Vanuatu",
   "region": "Oceania",
-  "aliases": []
+  "aliases": [],
+  "cca3": "VUT",
+  "ccn3": "548"
  },
  {
   "code": "va",
@@ -1311,13 +1689,17 @@
   "aliases": [
    "Holy See",
    "Vatican"
-  ]
+  ],
+  "cca3": "VAT",
+  "ccn3": "336"
  },
  {
   "code": "ve",
   "name": "Venezuela",
   "region": "Americas",
-  "aliases": []
+  "aliases": [],
+  "cca3": "VEN",
+  "ccn3": "862"
  },
  {
   "code": "vn",
@@ -1325,24 +1707,32 @@
   "region": "Asia",
   "aliases": [
    "Viet Nam"
-  ]
+  ],
+  "cca3": "VNM",
+  "ccn3": "704"
  },
  {
   "code": "ye",
   "name": "Yemen",
   "region": "Asia",
-  "aliases": []
+  "aliases": [],
+  "cca3": "YEM",
+  "ccn3": "887"
  },
  {
   "code": "zm",
   "name": "Zambia",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ZMB",
+  "ccn3": "894"
  },
  {
   "code": "zw",
   "name": "Zimbabwe",
   "region": "Africa",
-  "aliases": []
+  "aliases": [],
+  "cca3": "ZWE",
+  "ccn3": "716"
  }
 ]

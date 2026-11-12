@@ -64,6 +64,36 @@
   --gradient-hero: linear-gradient(135deg, #f4f7ff 0%, #f6f7fb 55%, #f3fbf8 100%);
   --gradient-accent: linear-gradient(135deg, #4a7bff 0%, #3768f0 50%, #2f5ad8 100%);
 
+  /* ---- maps (read by canvas renderers via getComputedStyle) ---- */
+  --map-ocean: #e3eaf3;
+  --map-ocean-light: #f1f5fa;
+  --map-ocean-deep: #c9d6e6;
+  --map-land: #f7f5f0;
+  --map-land-border: #cdd2da;
+  --map-coast: #b8c3d1;
+  --map-graticule: rgba(98, 120, 152, 0.12);
+  --map-atmosphere: rgba(110, 160, 255, 0.32);
+  --map-shade: rgba(30, 45, 75, 0.16);
+  --map-sheen: rgba(255, 255, 255, 0.3);
+  --map-label: #111827;
+  --map-label-halo: rgba(255, 255, 255, 0.92);
+  --map-a: #3768f0;
+  --map-a-stroke: #2449b8;
+  --map-a-soft: #e9effe;
+  --map-a-text: #2449b8;
+  --map-b: #ec7a3c;
+  --map-b-stroke: #b4531f;
+  --map-b-soft: #fdeee4;
+  --map-b-text: #a64a18;
+  --map-found: #22a873;
+  --map-found-stroke: #17805a;
+  --map-found-soft: #e3f6ec;
+  --map-found-text: #17805a;
+  --map-revealed: #a78bfa;
+  --map-revealed-stroke: #6d4fd1;
+  --map-revealed-soft: #f0ebff;
+  --map-revealed-text: #5b3fc0;
+
   /* ---- focus ---- */
   --focus-ring: 0 0 0 3px rgba(55, 104, 240, 0.35);
   --focus-ring-error: 0 0 0 3px rgba(229, 83, 75, 0.3);
@@ -123,6 +153,7 @@
   --dur-base: 200ms;
   --dur-slow: 420ms;
   --dur-reveal: 650ms;
+  --dur-camera: 1100ms;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
