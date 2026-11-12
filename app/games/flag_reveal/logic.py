@@ -89,6 +89,8 @@ class Round:
     questions: list[Question]
     index: int = 0
     recorded: bool = False
+    begun: bool = False                  # set by begin(): the player tapped play
+    paused_at: float | None = None
     extra: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -167,8 +169,37 @@ def new_round(round_id: str, settings: dict[str, Any], index: CountryIndex, rng:
     codes = pick_questions(pool, settings["questions"], rng)
     questions = [Question(code=c, token=make_token(), reveal=pick_reveal_plan(rng),
                           options=pick_options(c, pool, index, rng)) for c in codes]
-    questions[0].served_at = now
     return Round(id=round_id, settings=dict(settings), questions=questions)
+
+
+# --------------------------------------------------------------------------- play clock
+# A round can be prepared long before it's played (the feed preloads it). The
+# clock that scores speed starts at begin(), and time spent paused (the card
+# scrolled away) is shifted out by moving the current question's start forward.
+def begin(rnd: Round, now: float) -> bool:
+    """Start play. Idempotent: returns False if the round had already begun."""
+    if rnd.begun:
+        return False
+    rnd.begun = True
+    rnd.current.served_at = now
+    return True
+
+
+def pause(rnd: Round, now: float) -> bool:
+    if not rnd.begun or rnd.paused_at is not None:
+        return False
+    rnd.paused_at = now
+    return True
+
+
+def resume(rnd: Round, now: float) -> bool:
+    if rnd.paused_at is None:
+        return False
+    q = rnd.current
+    if q.served_at is not None:
+        q.served_at += max(0.0, now - rnd.paused_at)
+    rnd.paused_at = None
+    return True
 
 
 def validate_stage(stage: Any, config: FlagRevealConfig = CONFIG) -> int:
@@ -262,7 +293,7 @@ def advance(rnd: Round, from_index: int, now: float = 0.0) -> bool:
     if rnd.current.status == "active":
         raise QuestionActive()
     rnd.index += 1
-    rnd.current.served_at = now
+    rnd.current.served_at = now if rnd.paused_at is None else rnd.paused_at
     return True
 
 

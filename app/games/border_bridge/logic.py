@@ -292,6 +292,8 @@ class Round:
     index: int = 0
     finished: bool = False
     recorded: bool = False
+    begun: bool = False                  # set by begin(): the player tapped play
+    paused_at: float | None = None
     extra: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -339,13 +341,41 @@ def new_round(round_id: str, settings: dict[str, Any], graph: BorderGraph, rng: 
     pairs = pick_pairs(pool, settings["puzzles"], rng)
     puzzles = [Puzzle(a=p.a, b=p.b, between=p.between, revealed=[p.a, p.b]) for p in pairs]
     rnd = Round(id=round_id, settings=settings, puzzles=puzzles)
-    _begin(graph, rnd.current, rng, clock())
+    _deal(graph, rnd.current, rng)
     return rnd
 
 
-def _begin(graph: BorderGraph, p: Puzzle, rng: random.Random, now: float) -> None:
+def _deal(graph: BorderGraph, p: Puzzle, rng: random.Random) -> None:
     p.options = generate_options(graph, p.revealed, p.a, p.b, p.eliminated, rng)
-    p.started_at = now
+
+
+# --------------------------------------------------------------------------- play clock
+# Rounds can be prepared long before they're played (the feed preloads them).
+# Puzzle time starts at begin(); paused time is shifted out of the active puzzle.
+def begin(rnd: Round, now: float) -> bool:
+    """Start play. Idempotent: returns False if the round had already begun."""
+    if rnd.begun:
+        return False
+    rnd.begun = True
+    rnd.current.started_at = now
+    return True
+
+
+def pause(rnd: Round, now: float) -> bool:
+    if not rnd.begun or rnd.paused_at is not None:
+        return False
+    rnd.paused_at = now
+    return True
+
+
+def resume(rnd: Round, now: float) -> bool:
+    if rnd.paused_at is None:
+        return False
+    p = rnd.current
+    if p.status == "active" and p.started_at is not None:
+        p.started_at += max(0.0, now - rnd.paused_at)
+    rnd.paused_at = None
+    return True
 
 
 @dataclass(frozen=True)
@@ -411,7 +441,8 @@ def advance(graph: BorderGraph, rnd: Round, from_index: int, rng: random.Random,
         rnd.finished = True
         return
     rnd.index += 1
-    _begin(graph, rnd.current, rng, now)
+    _deal(graph, rnd.current, rng)
+    rnd.current.started_at = now if rnd.paused_at is None else rnd.paused_at
 
 
 def trail(graph: BorderGraph, p: Puzzle) -> tuple[list[str], list[str]]:

@@ -204,7 +204,8 @@ def test_new_round_puzzles_are_valid() -> None:
     g = get_graph()
     settings = {"difficulty": "easy", "puzzles": 8, "region": "all", "view": "both", "borders": "on"}
     rnd = L.new_round("r", settings, g, random.Random(3), lambda: 100.0)
-    assert len(rnd.puzzles) == 8 and rnd.current.started_at == 100.0
+    assert len(rnd.puzzles) == 8 and rnd.current.started_at is None   # clock starts at begin()
+    assert L.begin(rnd, 100.0) and rnd.current.started_at == 100.0
     assert all(p.between == 1 for p in rnd.puzzles)
     assert rnd.max_score == 8 * (10 + 5 + 15)
     assert len(rnd.current.options) == 4

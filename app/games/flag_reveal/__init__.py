@@ -20,9 +20,11 @@ from . import routes  # noqa: E402,F401  (registers views on bp)
 GAME = GameSpec(
     id="flag-reveal",
     title="Flag Reveal",
-    description="A flag appears a third at a time. Name the country early for more points.",
+    description="A flag appears a third at a time. Pick the country early and fast for more points.",
     icon="flag",
     tagline="15 · 10 · 5 pts",
     blueprint=bp,
     settings_schema=SETTINGS_SCHEMA,
+    embed_template="flag_reveal/_embed.html",
+    embed_context=routes.embed_context,
 )

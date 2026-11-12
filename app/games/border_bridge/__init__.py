@@ -18,4 +18,6 @@ GAME = GameSpec(
     blueprint=bp,
     settings_schema=SETTINGS_SCHEMA,
     tagline="Globe + map",
+    embed_template="border_bridge/_embed.html",
+    embed_context=routes.embed_context,
 )

@@ -234,3 +234,57 @@ kbd {
 .bb-row__meta .icon { vertical-align: -2px; }
 .bb-summary__actions { display: grid; gap: var(--space-3); }
 @media (min-width: 480px) { .bb-summary__actions { grid-template-columns: 1fr 1fr; } }
+
+/* ---------------------------------------------------------------- skeletons, controls, paused */
+.bb-play { position: relative; }
+.bb-hud__names { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--space-2); }
+.bb-hud__blank { display: inline-block; width: 4.5rem; height: 0.9em; border-radius: var(--radius-xs); background: var(--shimmer-base); }
+.bb-option--skeleton { pointer-events: none; border-color: transparent; box-shadow: none; animation: none; }
+.bb-views { position: relative; }
+.bb-mapctl {
+  position: absolute; top: var(--space-2); right: var(--space-2); z-index: 2; display: flex; flex-direction: column;
+  gap: 1px; border-radius: var(--radius-sm); overflow: hidden; box-shadow: var(--shadow-sm);
+  background: var(--color-border);
+}
+.bb-mapctl__btn {
+  display: grid; place-items: center; width: 2.25rem; height: 2.25rem; padding: 0; border: 0; cursor: pointer;
+  color: var(--color-text-muted); background: var(--color-surface);
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.bb-mapctl__btn:hover { background: var(--color-surface-muted); color: var(--color-text); }
+.bb-mapctl__btn:focus-visible { box-shadow: inset var(--focus-ring); }
+
+/* ---------------------------------------------------------------- feed card (portrait)
+   Header strip, then the map zone (~48% of the card), then chips + options. The
+   map zone has a clear border: gestures inside it move the map, never the feed. */
+.bb--embed { height: 100%; display: flex; flex-direction: column; padding: var(--space-3); max-width: none; }
+.bb--embed .bb-play { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.bb--embed .bb-hud { flex: none; flex-wrap: nowrap; padding: var(--space-3) var(--space-4); gap: var(--space-2); }
+.bb--embed .bb-hud__title { flex: 1; }
+.bb--embed .bb-hud__pair { font-size: var(--text-lg); }
+.bb--embed .bb-hud__stats { gap: var(--space-3); }
+.bb--embed .bb-stat__value { font-size: var(--text-base); }
+.bb--embed .bb-stat__of { font-size: var(--text-xs); }
+.bb--embed .bb-time { min-width: 2.5rem; }
+.bb--embed .bb-hud .eyebrow { font-size: 0.625rem; }
+.bb-tabs.bb-tabs--hud { display: inline-flex; flex: none; }
+.bb-tabs--hud .bb-tab { min-height: 2rem; padding: 0 var(--space-2); }
+.bb-tabs--hud .bb-tab span { display: none; }
+.bb--embed .bb-main { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: stretch; gap: var(--space-3); }
+.bb--embed .bb-stage { flex: 0 0 50%; min-height: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.bb--embed .bb-views { height: 100%; grid-template-columns: 1fr; gap: 0; overscroll-behavior: contain; touch-action: none; }
+.bb--embed .bb-pane, .bb--embed .bb-views[data-view] .bb-pane {
+  height: 100%; border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-inset), inset 0 0 0 3px var(--color-surface);
+}
+.bb--embed .bb-views[data-tab="globe"] .bb-pane--flat,
+.bb--embed .bb-views[data-tab="flat"] .bb-pane--globe { display: none !important; }
+.bb--embed .bb-pane__tag { display: none; }
+.bb--embed .bb-panel { flex: 1; min-height: 0; overflow-y: auto; padding: var(--space-3) var(--space-1) 0; gap: var(--space-3);
+  border: 0; background: transparent; box-shadow: none; position: static; }
+.bb--embed .bb-options { gap: var(--space-2); }
+.bb--embed .bb-option { min-height: 3.5rem; font-size: var(--text-sm); }
+.bb--embed .bb-prompt { display: none; }
+.bb--embed .bb-keys { display: none; }
+.bb--embed .bb-summary { height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-5); box-shadow: none; }
+.bb--embed .bb-summary__score strong { font-size: var(--text-5xl); }

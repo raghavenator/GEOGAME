@@ -16,7 +16,7 @@ from app.shared import highscores
 from app.shared.api import ApiError, json_body, register_error_handlers, require_int, require_str
 from app.shared.countries import get_index
 from app.shared.round_store import RoundStore
-from app.shared.settings import SettingsError, defaults, schema_to_json, settings_key, validate_settings
+from app.shared.settings import SettingsError, defaults, settings_key, validate_settings
 
 from . import bp
 from . import logic
@@ -70,6 +70,13 @@ def _load_round(data: dict[str, Any]) -> Round:
     return rnd
 
 
+def _require_begun(rnd: Round) -> None:
+    if not rnd.begun:
+        raise ApiError(409, "not_started", "This round hasn't started yet.")
+    # A pick or timeout while paused means the player is back: resume the clock first.
+    logic.resume(rnd, _now())
+
+
 def _question_json(rnd: Round) -> dict[str, Any]:
     q = rnd.current
     return {
@@ -96,17 +103,17 @@ def _ended_json(rnd: Round) -> dict[str, Any]:
 
 
 # --------------------------------------------------------------------------- pages
-@bp.get("/")
-def play() -> str:
+def embed_context() -> dict[str, Any]:
+    """What the embed macros (templates/flag_reveal/_embed.html) need, for the page and the feed."""
     from app.games.registry import get_game
 
-    return render_template(
-        "flag_reveal/play.html",
-        game=get_game(GAME_ID),
-        schema_json=schema_to_json(SETTINGS_SCHEMA),
-        settings_defaults=defaults(SETTINGS_SCHEMA),
-        config=CONFIG,
-    )
+    return {"game": get_game(GAME_ID), "config": CONFIG, "settings_defaults": defaults(SETTINGS_SCHEMA)}
+
+
+@bp.get("/")
+def play() -> str:
+    ctx = embed_context()
+    return render_template("flag_reveal/play.html", game=ctx["game"], ctx=ctx)
 
 
 @bp.get("/flag/<token>")
@@ -167,6 +174,7 @@ def pick() -> ResponseReturnValue:
     stage_seconds = rnd.settings["stage_seconds"]
     remaining_ms = require_int(data, "remaining_ms", 0, stage_seconds * 1000)
     with _store().lock(rnd.id):
+        _require_begun(rnd)
         q = rnd.current
         try:
             out = logic.apply_pick(q, option_id, stage, remaining_ms, stage_seconds, _now())
@@ -194,6 +202,7 @@ def timeout() -> ResponseReturnValue:
     rnd = _load_round(data)
     stage = require_int(data, "stage", 1, CONFIG.stages)
     with _store().lock(rnd.id):
+        _require_begun(rnd)
         q = rnd.current
         outcome = logic.apply_timeout(q, stage)
         body: dict[str, Any] = {"stage": outcome.stage, "missed": outcome.missed, "stale": outcome.stale,
@@ -203,12 +212,37 @@ def timeout() -> ResponseReturnValue:
         return jsonify(body)
 
 
+@bp.post("/api/begin")
+def begin() -> ResponseReturnValue:
+    """The player tapped play: start the scoring clock for the prepared round."""
+    rnd = _load_round(json_body())
+    with _store().lock(rnd.id):
+        started = logic.begin(rnd, _now())
+        return jsonify({"started": started, "question": _question_json(rnd), "score": rnd.score})
+
+
+@bp.post("/api/pause")
+def pause() -> ResponseReturnValue:
+    rnd = _load_round(json_body())
+    with _store().lock(rnd.id):
+        return jsonify({"paused": logic.pause(rnd, _now()) or rnd.paused_at is not None})
+
+
+@bp.post("/api/resume")
+def resume() -> ResponseReturnValue:
+    rnd = _load_round(json_body())
+    with _store().lock(rnd.id):
+        logic.resume(rnd, _now())
+        return jsonify({"paused": False})
+
+
 @bp.post("/api/next")
 def next_question() -> ResponseReturnValue:
     data = json_body()
     rnd = _load_round(data)
     from_index = require_int(data, "from_index", 0, len(rnd.questions) - 1)
     with _store().lock(rnd.id):
+        _require_begun(rnd)
         try:
             logic.advance(rnd, from_index, _now())
         except logic.QuestionActive:

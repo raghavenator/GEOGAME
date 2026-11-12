@@ -33,7 +33,10 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     app.jinja_env.filters["schema_json"] = schema_to_json
 
     # Import lazily so test config (e.g. RNG seed) is set before blueprints initialise.
+    from app.feed import FEED, resolve_feed
     from app.games.registry import GAMES, get_game
+
+    feed_cards = resolve_feed(FEED, {g.id: g for g in GAMES})  # fails fast on a bad feed config
 
     for game in GAMES:
         if game.playable and game.blueprint is not None:
@@ -43,7 +46,14 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
     def _inject() -> dict[str, Any]:
         return {"all_games": GAMES}
 
+    feed_items = [{"id": c.item.id, "kind": c.item.kind, "gameId": c.item.game_id, "title": c.title,
+                   "tint": c.item.tint} for c in feed_cards]
+
     @app.get("/")
+    def feed() -> str:
+        return render_template("feed.html", cards=feed_cards, feed_items=feed_items)
+
+    @app.get("/games")
     def hub() -> str:
         return render_template("hub.html", games=GAMES)
 

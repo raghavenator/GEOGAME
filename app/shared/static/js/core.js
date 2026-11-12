@@ -1,5 +1,6 @@
 /* Geo Arcade shared browser helpers. Plain JS, no build step.
-   Exposes window.GeoArcade = { api, normalize, StageTimer, Autocomplete, countUp, reducedMotion }. */
+   Exposes window.GeoArcade = { api, normalize, StageTimer, pausableDelay, Autocomplete, countUp,
+   replayAnimation, reducedMotion, games, alpineEmbed }. */
 (function () {
   "use strict";
 
@@ -61,13 +62,16 @@
 
   /* ------------------------------------------------------------------ timer
      rAF-driven countdown. Pauses while the tab is hidden, can only expire once
-     per start(), and start() always cancels any previous run (no double timers). */
+     per start(), and start() always cancels any previous run (no double timers).
+     hold()/release() pause it on purpose (e.g. its feed card scrolled away); a
+     held timer stays paused even when the tab becomes visible again. */
   class StageTimer {
     constructor({ onTick = () => {}, onExpire = () => {} } = {}) {
       this.onTick = onTick;
       this.onExpire = onExpire;
       this.running = false;
       this.paused = false;
+      this.held = false;
       this._frame = this._frame.bind(this);
       this._onVisibility = () => (document.hidden ? this.pause() : this.resume());
       document.addEventListener("visibilitychange", this._onVisibility);
@@ -80,7 +84,7 @@
       this.running = true;
       this.paused = false;
       this.generation = (this.generation || 0) + 1;
-      if (document.hidden) this.pause();
+      if (document.hidden || this.held) this.pause();
       else this._raf = requestAnimationFrame(this._frame);
     }
     elapsed() {
@@ -106,7 +110,7 @@
       cancelAnimationFrame(this._raf);
     }
     resume() {
-      if (!this.running || !this.paused || document.hidden) return;
+      if (!this.running || !this.paused || document.hidden || this.held) return;
       this.paused = false;
       this.startedAt = performance.now();
       this._raf = requestAnimationFrame(this._frame);
@@ -116,17 +120,25 @@
       this.paused = false;
       cancelAnimationFrame(this._raf);
     }
+    hold() {
+      this.held = true;
+      this.pause();
+    }
+    release() {
+      this.held = false;
+      this.resume();
+    }
     destroy() {
       this.stop();
       document.removeEventListener("visibilitychange", this._onVisibility);
     }
   }
 
-  /** setTimeout that also pauses while the tab is hidden. */
+  /** setTimeout that also pauses while the tab is hidden (and on pause()). */
   function pausableDelay(ms, fn) {
     const t = new StageTimer({ onExpire: () => { t.destroy(); fn(); } });
     t.start(ms);
-    return { cancel: () => t.destroy() };
+    return { cancel: () => t.destroy(), pause: () => t.hold(), resume: () => t.release() };
   }
 
   /* ------------------------------------------------------------------ autocomplete
@@ -273,5 +285,50 @@
     });
   }
 
-  window.GeoArcade = { api, ApiError, normalize, StageTimer, pausableDelay, Autocomplete, countUp, replayAnimation, reducedMotion };
+  /* ------------------------------------------------------------------ embedding
+     Every game registers GeoArcade.games[id] = { mount(container, options) }.
+     mount() returns an instance the host (the feed, or a full game page) drives:
+       prepare()  create a round on the server and preload assets -> "ready"
+       start()    begin play (call from the player's tap)
+       pause() / resume()   stop/restart timers, loops and rendering
+       destroy()
+     options: { mode: "feed" | "page", onState(state), onRoundFinished(summary), onNextGame() }
+     States: idle | preparing | ready | playing | paused | finished | error.
+     alpineEmbed() adapts an Alpine component rendered server-side inside the
+     container ([data-game-root=id]) that implements attach/prepare/begin/pause/resume/destroy. */
+  const games = {};
+
+  function alpineEmbed(gameId) {
+    const selector = `[data-game-root="${gameId}"]`;
+    return {
+      mount(container, options = {}) {
+        const root = container.matches(selector) ? container : container.querySelector(selector);
+        if (!root) throw new Error(`No ${gameId} markup in this container`);
+        const c = Alpine.$data(root);
+        c.attach(options);
+        return {
+          root,
+          prepare: () => c.prepare(),
+          start: () => c.begin(),
+          pause: () => c.pause(),
+          resume: () => c.resume(),
+          destroy: () => c.destroy(),
+          get state() { return c.lifecycle; },
+        };
+      },
+    };
+  }
+
+  /** Full game pages: mount every game root in page mode (same module as the feed). */
+  document.addEventListener("alpine:initialized", () => {
+    for (const root of document.querySelectorAll("[data-game-root][data-mode='page']")) {
+      const g = games[root.dataset.gameRoot];
+      if (g) g.mount(root, { mode: "page" });
+    }
+  });
+
+  window.GeoArcade = Object.assign(window.GeoArcade || {}, {
+    api, ApiError, normalize, StageTimer, pausableDelay, Autocomplete, countUp, replayAnimation, reducedMotion,
+    games, alpineEmbed,
+  });
 })();

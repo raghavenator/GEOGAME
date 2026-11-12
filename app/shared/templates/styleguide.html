@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% import "_components.html" as ui %}
 {% block title %}Style guide · Geo Arcade{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/feed.css') }}">{% endblock %}
 
 {% block content %}
 <div class="container page stack stack--lg">
@@ -114,6 +115,81 @@
     <h2>Feedback</h2>
     <div class="alert" role="note">{{ icon('info') }}<span>Only 14 countries are available for this region.</span></div>
     <div class="shimmer" style="height: 4rem; border-radius: var(--radius-md)"></div>
+  </section>
+
+  <section class="card sg-section">
+    <h2>Feed</h2>
+    <p class="muted">The homepage feed (<code>feed.css</code>, <code>feed.js</code>): 9:16 card shells, the locked
+      "Tap to play" ready state, progress dots, the pull-to-refresh indicator and the end-of-feed card.</p>
+    <div class="sg-feed">
+      <figure class="sg-feed__item">
+        <div class="feed-card sg-feed__card">
+          <div class="feed-card__head">
+            <span class="feed-card__icon">{{ icon('flag', 'icon--sm') }}</span>
+            <h3 class="feed-card__title">Card shell</h3>
+            <span class="btn btn--icon btn--ghost btn--sm">{{ icon('settings-2', 'icon--sm') }}</span>
+          </div>
+          <div class="feed-card__body sg-feed__body">
+            <div class="feed-overlay feed-overlay--skeleton">
+              <span class="feed-skeleton__line shimmer"></span>
+              <span class="feed-skeleton__block shimmer"></span>
+              <span class="feed-skeleton__grid"><span class="shimmer"></span><span class="shimmer"></span><span class="shimmer"></span><span class="shimmer"></span></span>
+            </div>
+          </div>
+        </div>
+        <figcaption class="subtle">Card shell + loading skeleton</figcaption>
+      </figure>
+
+      <figure class="sg-feed__item">
+        <div class="feed-card sg-feed__card">
+          <div class="feed-card__body sg-feed__body">
+            <div class="feed-overlay feed-overlay--ready">
+              <span class="feed-play">
+                <span class="feed-play__ring" aria-hidden="true"></span>
+                <span class="feed-play__icon">{{ icon('play', 'icon--lg') }}</span>
+                <span class="feed-play__label">Tap to play</span>
+              </span>
+              <p class="feed-overlay__tagline">Preloaded and locked until the tap.</p>
+            </div>
+          </div>
+        </div>
+        <figcaption class="subtle">Ready overlay</figcaption>
+      </figure>
+
+      <figure class="sg-feed__item">
+        <div class="feed-card sg-feed__card">
+          <div class="feed-soon">
+            <svg class="feed-soon__art" viewBox="0 0 240 240" aria-hidden="true">
+              <circle class="feed-soon__halo" cx="120" cy="120" r="112"></circle>
+              <circle class="feed-soon__globe" cx="120" cy="120" r="84"></circle>
+              <ellipse class="feed-soon__line" cx="120" cy="120" rx="34" ry="84"></ellipse>
+              <line class="feed-soon__line" x1="36" y1="120" x2="204" y2="120"></line>
+              <circle class="feed-soon__dot feed-soon__dot--a" cx="78" cy="92" r="7"></circle>
+              <circle class="feed-soon__dot feed-soon__dot--b" cx="164" cy="146" r="7"></circle>
+            </svg>
+            <span class="badge badge--accent">{{ icon('sparkles') }}Coming soon</span>
+            <h3 class="feed-soon__title">More games on the way</h3>
+            <p class="feed-soon__end">{{ icon('check', 'icon--sm') }}You're all caught up</p>
+          </div>
+        </div>
+        <figcaption class="subtle">Coming-soon card</figcaption>
+      </figure>
+
+      <figure class="sg-feed__item sg-feed__item--small">
+        <div class="row" style="gap: var(--space-6); align-items: center">
+          <ol class="feed-dots">
+            <li><span class="feed-dot is-active"></span></li><li><span class="feed-dot"></span></li><li><span class="feed-dot"></span></li>
+          </ol>
+          <div class="sg-feed__pull">
+            <div class="feed-pull is-armed" style="--pull: 72px">
+              <span class="feed-pull__icon">{{ icon('refresh-cw', 'icon--sm') }}</span><span>Release for new questions</span>
+            </div>
+          </div>
+        </div>
+        <div class="sg-feed__hint"><span class="feed-hint">{{ icon('move-vertical', 'icon--sm') }}<span>Swipe outside the map to change game</span></span></div>
+        <figcaption class="subtle">Progress dots, pull indicator, hint</figcaption>
+      </figure>
+    </div>
   </section>
 </div>
 {% endblock %}

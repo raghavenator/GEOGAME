@@ -56,7 +56,10 @@ def correct_now(app: Flask, round_id: str) -> set[str]:
 
 
 def start(client: FlaskClient, **settings: Any) -> dict[str, Any]:
-    return post(client, "start", {"settings": {"difficulty": "easy", "puzzles": 3, **settings}})
+    """Create a round and begin play (the player's tap)."""
+    body = post(client, "start", {"settings": {"difficulty": "easy", "puzzles": 3, **settings}})
+    assert post(client, "begin", {"round_id": body["round_id"]})["started"]
+    return body
 
 
 def test_start_payload_has_no_answers(client: FlaskClient) -> None:
@@ -132,7 +135,7 @@ def test_full_round_flow(app: Flask, client: FlaskClient, clock: FakeClock) -> N
 
 
 def test_correct_pick_regenerates_options(app: Flask, client: FlaskClient) -> None:
-    r = post(client, "start", {"settings": {"difficulty": "hard", "puzzles": 1}})
+    r = start(client, difficulty="hard", puzzles=1)
     rid = r["round_id"]
     p = server_round(app, rid).current
     first = correct_now(app, rid) & {o["id"] for o in r["puzzle"]["options"]}

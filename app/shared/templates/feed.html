@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% from "_settings_modal.html" import settings_modal %}
+{% block title %}Geo Arcade · Swipe through geography games{% endblock %}
+{% block body_class %}feed-page{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/feed.css') }}">
+  {% for card in cards if card.game %}
+    {% import card.game.embed_template as embed %}{{ embed.styles() }}
+  {% endfor %}
+{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+<div class="feed-root" x-data="geoFeed({{ {'items': feed_items} | tojson | forceescape }})"
+     :data-tint="items[activeIndex].tint" :class="{ 'is-locked': locked }">
+
+  <div class="feed-backdrop" aria-hidden="true">
+    <span class="feed-backdrop__blob feed-backdrop__blob--1"></span>
+    <span class="feed-backdrop__blob feed-backdrop__blob--2"></span>
+  </div>
+  <div class="visually-hidden" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
+
+  {# ---------------------------------------------------------------- chrome #}
+  <header class="feed-bar">
+    <a class="logo" href="{{ url_for('feed') }}" aria-label="Geo Arcade home">
+      <span class="logo__mark">{{ icon('earth') }}</span>
+      <span class="feed-bar__name">Geo<span class="logo__accent">Arcade</span></span>
+    </a>
+    <a class="btn btn--ghost btn--sm feed-bar__all" href="{{ url_for('hub') }}">{{ icon('layout-grid', 'icon--sm') }}<span>All games</span></a>
+    <span class="feed-bar__spacer"></span>
+    <button type="button" class="btn btn--icon btn--ghost feed-bar__gear" x-show="activeItem().kind === 'game'"
+            @click="openSettings(activeItem().gameId, $el)" :disabled="settingsLocked(activeItem().gameId)"
+            :aria-label="'Settings for ' + activeItem().title">{{ icon('settings-2') }}</button>
+  </header>
+
+  <nav class="feed-nav" aria-label="Games feed">
+    <button type="button" class="feed-nav__btn" @click="go(activeIndex - 1)" :disabled="activeIndex === 0" aria-label="Previous game">{{ icon('chevron-up') }}</button>
+    <ol class="feed-dots">
+      <template x-for="(item, i) in items" :key="item.id">
+        <li>
+          <button type="button" class="feed-dot" :class="{ 'is-active': i === activeIndex }" @click="go(i)"
+                  :aria-label="item.title + ' (' + (i + 1) + ' of ' + items.length + ')'"
+                  :aria-current="i === activeIndex ? 'true' : 'false'"></button>
+        </li>
+      </template>
+    </ol>
+    <button type="button" class="feed-nav__btn" @click="go(activeIndex + 1)" :disabled="activeIndex === items.length - 1" aria-label="Next game">{{ icon('chevron-down') }}</button>
+  </nav>
+
+  <div class="feed-pull" :class="{ 'is-armed': pull >= pullThreshold, 'is-refreshing': refreshing }"
+       :style="'--pull:' + pull + 'px'" x-show="pull > 0 || refreshing" x-cloak aria-hidden="true">
+    <span class="feed-pull__icon">{{ icon('refresh-cw', 'icon--sm') }}</span>
+    <span x-text="refreshing ? 'Refreshing…' : pull >= pullThreshold ? 'Release for new questions' : 'Pull for new questions'"></span>
+  </div>
+
+  {# ---------------------------------------------------------------- cards #}
+  <div class="feed" x-ref="feed">
+    {% for card in cards %}
+      {% set item = card.item %}
+      <section class="feed-item" id="{{ item.id }}" data-index="{{ loop.index0 }}" data-kind="{{ item.kind }}"
+               :class="{ 'is-active': activeIndex === {{ loop.index0 }} }"
+               aria-roledescription="slide" aria-label="{{ card.title }}, {{ loop.index }} of {{ cards | length }}">
+        <div class="feed-card">
+          {% if card.game %}
+            {% set g = card.game %}
+            {% import g.embed_template as embed %}
+            <div class="feed-card__head">
+              <span class="feed-card__icon">{{ icon(g.icon, 'icon--sm') }}</span>
+              <h2 class="feed-card__title">{{ g.title }}</h2>
+              <button type="button" class="btn btn--icon btn--ghost btn--sm feed-card__gear"
+                      @click="openSettings('{{ g.id }}', $el)" :disabled="settingsLocked('{{ g.id }}')"
+                      aria-label="Settings for {{ g.title }}">{{ icon('settings-2', 'icon--sm') }}</button>
+            </div>
+            <div class="feed-card__body" data-card-game="{{ g.id }}">
+              {{ embed.panel(g.embed_context(), mode="feed") }}
+
+              <div class="feed-overlay feed-overlay--skeleton" x-show="states['{{ g.id }}'] === 'preparing'" x-transition.opacity aria-hidden="true">
+                <span class="feed-skeleton__line shimmer"></span>
+                <span class="feed-skeleton__block shimmer"></span>
+                <span class="feed-skeleton__line feed-skeleton__line--short shimmer"></span>
+                <span class="feed-skeleton__grid"><span class="shimmer"></span><span class="shimmer"></span><span class="shimmer"></span><span class="shimmer"></span></span>
+              </div>
+
+              <div class="feed-overlay feed-overlay--error" x-show="states['{{ g.id }}'] === 'error'" x-cloak role="alert">
+                <span class="feed-overlay__icon">{{ icon('info') }}</span>
+                <strong>Couldn't load {{ g.title }}</strong>
+                <span class="subtle" x-text="errors['{{ g.id }}'] || 'Check your connection and try again.'"></span>
+                <button type="button" class="btn btn--primary" @click="retry('{{ g.id }}')">{{ icon('rotate-ccw') }}Retry</button>
+              </div>
+
+              <div class="feed-overlay feed-overlay--ready" x-show="states['{{ g.id }}'] === 'ready'" x-cloak
+                   x-transition:leave="feed-ready-leave" x-transition:leave-start="feed-ready-from" x-transition:leave-end="feed-ready-to">
+                <button type="button" class="feed-play" @click="tapToPlay('{{ g.id }}')" data-tap-to-play="{{ g.id }}">
+                  <span class="feed-play__ring" aria-hidden="true"></span>
+                  <span class="feed-play__icon">{{ icon('play', 'icon--lg') }}</span>
+                  <span class="feed-play__label">Tap to play</span>
+                </button>
+                <p class="feed-overlay__tagline">{{ g.description }}</p>
+              </div>
+            </div>
+
+            {% if loop.first %}
+              <div class="feed-hint feed-hint--next" x-show="!hints.next && activeIndex === 0 && !['playing', 'paused', 'starting'].includes(states[items[0].gameId])" x-cloak x-transition.opacity aria-hidden="true">
+                {{ icon('chevron-up', 'icon--sm') }}<span class="feed-hint__touch">Swipe up for next game</span><span class="feed-hint__mouse">Scroll for next game</span>
+              </div>
+            {% endif %}
+            {% if g.id == "border-bridge" %}
+              <div class="feed-hint feed-hint--map" x-show="showMapHint && activeIndex === {{ loop.index0 }}" x-cloak x-transition.opacity aria-hidden="true">
+                {{ icon('move-vertical', 'icon--sm') }}<span>Swipe outside the map to change game</span>
+              </div>
+            {% endif %}
+          {% else %}
+            <div class="feed-soon">
+              <svg class="feed-soon__art" viewBox="0 0 240 240" aria-hidden="true">
+                <circle class="feed-soon__halo" cx="120" cy="120" r="112"></circle>
+                <circle class="feed-soon__globe" cx="120" cy="120" r="84"></circle>
+                <ellipse class="feed-soon__line" cx="120" cy="120" rx="34" ry="84"></ellipse>
+                <ellipse class="feed-soon__line" cx="120" cy="120" rx="66" ry="84"></ellipse>
+                <line class="feed-soon__line" x1="36" y1="120" x2="204" y2="120"></line>
+                <ellipse class="feed-soon__line" cx="120" cy="78" rx="73" ry="12"></ellipse>
+                <ellipse class="feed-soon__line" cx="120" cy="162" rx="73" ry="12"></ellipse>
+                <circle class="feed-soon__dot feed-soon__dot--a" cx="78" cy="92" r="7"></circle>
+                <circle class="feed-soon__dot feed-soon__dot--b" cx="164" cy="146" r="7"></circle>
+                <circle class="feed-soon__dot feed-soon__dot--c" cx="150" cy="70" r="5"></circle>
+              </svg>
+              <span class="badge badge--accent">{{ icon('sparkles') }}{{ item.badge }}</span>
+              <h2 class="feed-soon__title">{{ item.title }}</h2>
+              <p class="feed-soon__copy">{{ item.copy }}</p>
+              <p class="feed-soon__end">{{ icon('check', 'icon--sm') }}You're all caught up</p>
+              <div class="row row--center">
+                <button type="button" class="btn btn--soft" @click="go(0)">{{ icon('chevron-up', 'icon--sm') }}Back to the top</button>
+                <a class="btn" href="{{ url_for('hub') }}">{{ icon('layout-grid', 'icon--sm') }}All games</a>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+  {% for card in cards if card.game %}{{ settings_modal(card.game) }}{% endfor %}
+{% endblock %}
+
+{% block late_scripts %}
+  {% for card in cards if card.game %}
+    {% import card.game.embed_template as embed %}{{ embed.scripts() }}
+  {% endfor %}
+  <script src="{{ url_for('static', filename='js/feed.js') }}" defer></script>
+{% endblock %}

@@ -198,3 +198,26 @@
 .fr-breakdown__name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fr-summary__actions { display: grid; gap: var(--space-3); }
 @media (min-width: 480px) { .fr-summary__actions { grid-template-columns: 1fr 1fr; } }
+
+/* ---------------------------------------------------------------- skeleton + paused */
+.fr-play { position: relative; }
+.fr-option--skeleton { pointer-events: none; border-color: transparent; box-shadow: none; animation: none; }
+
+/* ---------------------------------------------------------------- feed card (portrait) */
+.fr--embed { height: 100%; display: flex; flex-direction: column; padding: var(--space-3); max-width: none; }
+.fr--embed .fr-play { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--space-3); }
+.fr--embed .fr-hud { padding: var(--space-3) var(--space-4); gap: var(--space-2) var(--space-3); }
+.fr--embed .fr-hud__value { font-size: var(--text-xl); }
+.fr--embed .fr-ring { --size: 3rem; }
+.fr--embed .fr-card { flex: 1; min-height: 0; padding: var(--space-3); gap: var(--space-3); box-shadow: var(--shadow-xs); container-type: size; }
+/* Full width, but never taller than ~half the card so the options always fit. */
+.fr--embed .fr-flag { flex: none; align-self: center; width: min(100%, 45cqh * 4 / 3); aspect-ratio: 4 / 3; }
+@container (max-height: 520px) {
+  .fr--embed .fr-option { min-height: 2.5rem; }
+  .fr--embed .fr-footer { min-height: 2rem; }
+}
+.fr--embed .fr-options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
+.fr--embed .fr-option { min-height: 3rem; }
+.fr--embed .fr-footer { margin-top: auto; min-height: 2.5rem; }
+.fr--embed .fr-summary { height: 100%; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-5); box-shadow: none; }
+.fr--embed .fr-summary__score strong { font-size: var(--text-5xl); }

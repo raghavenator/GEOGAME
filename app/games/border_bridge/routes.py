@@ -16,7 +16,7 @@ from flask.typing import ResponseReturnValue
 from app.shared import highscores
 from app.shared.api import ApiError, json_body, register_error_handlers, require_int, require_str
 from app.shared.round_store import RoundStore
-from app.shared.settings import SettingsError, defaults, schema_to_json, settings_key, validate_settings
+from app.shared.settings import SettingsError, settings_key, validate_settings
 
 from . import bp
 from . import logic
@@ -70,7 +70,14 @@ def _load_round(data: dict[str, Any]) -> Round:
     return rnd
 
 
+def _require_begun(rnd: Round) -> None:
+    if not rnd.begun:
+        raise ApiError(409, "not_started", "This round hasn't started yet.")
+    logic.resume(rnd, _now())  # acting while paused means the player is back
+
+
 def _current_puzzle(rnd: Round, data: dict[str, Any]) -> Puzzle:
+    _require_begun(rnd)
     index = require_int(data, "puzzle_index", 0, len(rnd.puzzles) - 1)
     if rnd.finished or index != rnd.index:
         raise ApiError(409, "puzzle_over", "That puzzle has already finished.")
@@ -126,17 +133,17 @@ def _ended_json(g: BorderGraph, rnd: Round, p: Puzzle, added: list[str] | None =
 
 
 # --------------------------------------------------------------------------- pages
-@bp.get("/")
-def play() -> str:
+def embed_context() -> dict[str, Any]:
+    """What the embed macros (templates/border_bridge/_embed.html) need, for the page and the feed."""
     from app.games.registry import get_game
 
-    return render_template(
-        "border_bridge/play.html",
-        game=get_game(GAME_ID),
-        schema_json=schema_to_json(SETTINGS_SCHEMA),
-        settings_defaults=defaults(SETTINGS_SCHEMA),
-        config=CONFIG,
-    )
+    return {"game": get_game(GAME_ID), "config": CONFIG}
+
+
+@bp.get("/")
+def play() -> str:
+    ctx = embed_context()
+    return render_template("border_bridge/play.html", game=ctx["game"], ctx=ctx)
 
 
 # --------------------------------------------------------------------------- API
@@ -223,6 +230,31 @@ def giveup() -> ResponseReturnValue:
         return jsonify({"result": "gave_up", **_ended_json(g, rnd, p, added)})
 
 
+@bp.post("/api/begin")
+def begin() -> ResponseReturnValue:
+    """The player tapped play: start the clock for the prepared round."""
+    rnd = _load_round(json_body())
+    g = get_graph()
+    with _store().lock(rnd.id):
+        started = logic.begin(rnd, _now())
+        return jsonify({"started": started, "puzzle": _puzzle_json(g, rnd), "score": rnd.score})
+
+
+@bp.post("/api/pause")
+def pause() -> ResponseReturnValue:
+    rnd = _load_round(json_body())
+    with _store().lock(rnd.id):
+        return jsonify({"paused": logic.pause(rnd, _now()) or rnd.paused_at is not None})
+
+
+@bp.post("/api/resume")
+def resume() -> ResponseReturnValue:
+    rnd = _load_round(json_body())
+    with _store().lock(rnd.id):
+        logic.resume(rnd, _now())
+        return jsonify({"paused": False})
+
+
 @bp.post("/api/next")
 def next_puzzle() -> ResponseReturnValue:
     data = json_body()
@@ -230,6 +262,7 @@ def next_puzzle() -> ResponseReturnValue:
     from_index = require_int(data, "from_index", 0, len(rnd.puzzles) - 1)
     g = get_graph()
     with _store().lock(rnd.id):
+        _require_begun(rnd)
         try:
             logic.advance(g, rnd, from_index, _rng(), _now())
         except logic.PuzzleActive:

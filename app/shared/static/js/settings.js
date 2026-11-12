@@ -1,13 +1,14 @@
-/* Generic per-game settings store, driven by the schema the server embeds in
-   <script id="game-settings">. Values persist in localStorage and are sent to
-   the server (which re-validates them) when a round starts. */
+/* Per-game settings stores, driven by the schema the server embeds in
+   <script type="application/json" data-game-settings>. Values persist in
+   localStorage and are sent to the server (which re-validates them) when a
+   round starts. A page can hold several games (the feed), so each game gets its
+   own store: in templates use the $settings magic, which resolves the store of
+   the nearest [data-game] ancestor; in JS use GeoArcade.settings(gameId). */
 (function () {
   "use strict";
+  const stores = {};
 
-  document.addEventListener("alpine:init", () => {
-    const el = document.getElementById("game-settings");
-    if (!el) return;
-    const { gameId, schema } = JSON.parse(el.textContent);
+  function makeStore(gameId, schema) {
     const storageKey = `geo-arcade:settings:${gameId}`;
     const defaults = Object.fromEntries(schema.map((f) => [f.key, f.default]));
 
@@ -39,7 +40,9 @@
       try { localStorage.setItem(storageKey, JSON.stringify(values)); } catch (e) { /* private mode */ }
     }
 
-    Alpine.store("settings", {
+    const modal = () => document.querySelector(`[data-settings-modal="${gameId}"]`);
+
+    return {
       gameId,
       schema,
       values: load(),
@@ -56,7 +59,7 @@
         this._returnFocus = trigger || document.activeElement;
         this.open = true;
         setTimeout(() => {
-          const first = document.querySelector(".modal__panel input, .modal__panel select");
+          const first = modal() && modal().querySelector(".modal__panel input, .modal__panel select");
           first && first.focus();
         }, 50);
       },
@@ -82,7 +85,7 @@
         this.values = sanitize(this.draft);
         persist(this.values);
         this.close();
-        window.dispatchEvent(new CustomEvent("settings-changed", { detail: { ...this.values } }));
+        window.dispatchEvent(new CustomEvent("settings-changed", { detail: { gameId, values: { ...this.values } } }));
       },
       reset() {
         this.draft = { ...defaults };
@@ -102,6 +105,20 @@
         if (f.type === "choice") return (f.choices.find((c) => c.value === v) || {}).label || v;
         return `${v}${f.unit || ""}`;
       },
+    };
+  }
+
+  window.GeoArcade = window.GeoArcade || {};
+  window.GeoArcade.settings = (gameId) => stores[gameId];
+
+  document.addEventListener("alpine:init", () => {
+    for (const el of document.querySelectorAll("script[data-game-settings]")) {
+      const { gameId, schema } = JSON.parse(el.textContent);
+      if (!stores[gameId]) stores[gameId] = Alpine.reactive(makeStore(gameId, schema));
+    }
+    Alpine.magic("settings", (el) => {
+      const host = el.closest("[data-game]");
+      return stores[host ? host.dataset.game : Object.keys(stores)[0]];
     });
   });
 })();

@@ -288,7 +288,29 @@ a.game-card:active { transform: translateY(-1px) scale(0.99); }
 .sg-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: var(--space-3); }
 .sg-swatch { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); background: var(--color-surface); font-size: var(--text-xs); }
 .sg-swatch__chip { height: 3.5rem; }
+.sg-feed { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); align-items: start; }
+.sg-feed__item { margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.sg-feed__card { height: 22rem; width: 100%; aspect-ratio: auto; border-radius: var(--radius-xl); box-shadow: var(--shadow-feed-card); border: 1px solid var(--color-border); }
+.sg-feed__card .feed-card__head { display: flex; }
+.sg-feed__body { padding-top: 0; }
+.sg-feed__body .feed-overlay--skeleton { padding-top: var(--space-4); }
+.sg-feed__card .feed-soon { padding: var(--space-6) var(--space-4); }
+.sg-feed__card .feed-soon__title { font-size: var(--text-xl); }
+.sg-feed__pull { position: relative; height: 3rem; flex: 1; }
+.sg-feed__pull .feed-pull { position: absolute; top: 0; left: 0; transform: none; white-space: nowrap; }
+.sg-feed__hint { position: relative; height: 3rem; }
+.sg-feed__hint .feed-hint { position: static; transform: none; display: inline-flex; }
 .sg-swatch__name { padding: var(--space-2) var(--space-3); font-family: ui-monospace, monospace; color: var(--color-text-muted); }
+
+/* ---------------------------------------------------------------- paused veil
+   Embedded games add .is-paused to their root while their feed card is off screen. */
+.game-paused { display: none; }
+.is-paused .game-paused {
+  position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center;
+  gap: var(--space-2); font-weight: var(--weight-semibold); color: var(--color-text-muted);
+  background: var(--color-veil); backdrop-filter: blur(var(--blur-veil)); -webkit-backdrop-filter: blur(var(--blur-veil));
+  border-radius: var(--radius-lg);
+}
 
 /* ---------------------------------------------------------------- animations */
 @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -50% 0; } }

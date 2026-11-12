@@ -1,6 +1,7 @@
 # Geo Arcade
 
 A small, polished website of browser geography games, built with **Flask**, Jinja2 and a little Alpine.js.
+The homepage is a vertical, Shorts-style feed: swipe or scroll from one game to the next, each preloaded and one tap from playing.
 
 - **Flag Reveal**: a flag is revealed one third at a time. Pick the country from 8 options; answering earlier and faster scores more.
 - **Border Bridge**: two countries light up on a globe and a flat map. Connect them by picking the countries in between, one land border at a time.
@@ -11,7 +12,7 @@ A small, polished website of browser geography games, built with **Flask**, Jinj
 python -m venv .venv
 # Windows: .venv\Scripts\activate    macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-flask run                 # http://127.0.0.1:5000
+flask run                 # http://127.0.0.1:5000 (the feed); /games lists every game
 pytest                    # run the test suite
 ```
 
@@ -29,23 +30,25 @@ There's no npm, no bundler and no CDN at runtime.
 
 ```
 app/
-  __init__.py              app factory: registers every game's blueprint from the registry
+  __init__.py              app factory: registers every game's blueprint; / is the feed, /games the hub
+  feed.py                  the homepage feed: ordered card config + validation against the registry
   games/
     registry.py            the list of games (playable + "coming soon")
     flag_reveal/
       __init__.py          GAME metadata + blueprint
       logic.py             pure rules: config, settings schema, scoring, stages, question picking
-      routes.py            page, JSON API, tokenised flag endpoint
-      templates/flag_reveal/play.html
-      static/              flag_reveal.css, flag_reveal.js
+      routes.py            page, JSON API (start/begin/pause/resume/pick/...), tokenised flag endpoint
+      templates/flag_reveal/_embed.html   the game's markup as macros (full page + feed card)
+      templates/flag_reveal/play.html     full page: renders the embed panel in page mode
+      static/              flag_reveal.css, flag_reveal.js (component), embed.js (registers the game)
     border_bridge/
       __init__.py          GAME metadata + blueprint
       graph.py             land-border graph: build rules, exclusion lists, BFS, data report
       logic.py             pure rules: config, settings, correct set, options, pairs, scoring
-      routes.py            page + JSON API
+      routes.py            page + JSON API (start/begin/pause/resume/pick/...)
       data/                trimmed mledoze/countries borders (+ licence)
-      templates/border_bridge/play.html
-      static/              border_bridge.css/.js, map_view.js (d3 canvas renderer),
+      templates/border_bridge/_embed.html, play.html
+      static/              border_bridge.css/.js, embed.js, map_view.js (d3 canvas renderer),
                            data/countries-50m.json (Natural Earth via world-atlas), data/geo_meta.json
   shared/
     countries.py           country loader + forgiving answer matcher (case/accents/aliases/typos)
@@ -54,20 +57,95 @@ app/
     highscores.py          SQLite best scores per (game, settings)
     round_store.py         thread-safe in-memory store for live rounds
     api.py                 JSON error helpers
-    game.py                GameSpec: the contract every game fulfils
+    game.py                GameSpec: the contract every game fulfils (incl. embed template/context)
     data/countries.json    195 countries (UN members + observers) with regions and aliases
-    templates/             base.html, hub, styleguide, settings modal, UI macros
+    templates/             base.html, feed.html, hub.html, styleguide, settings modal, UI macros
     static/css/tokens.css  design tokens (the only place raw colours live)
-    static/css/base.css    shared components
-    static/js/             core.js (API, timer, autocomplete), settings.js (settings store)
+    static/css/base.css    shared components;  static/css/feed.css  the feed
+    static/js/             core.js (API, timers, embed contract), settings.js (per-game settings stores),
+                           feed.js (feed controller)
     static/flags/          sanitised flag SVGs
 scripts/vendor_flags.py    re-import flags from the flag-icons package
 scripts/fetch_border_data.py   download + derive Border Bridge data and libraries
 scripts/verify_border_data.py  join report: shapes vs border graph vs countries.json
-tests/                     pytest: matching, game logic, settings, API flow, hub wiring
+tests/                     pytest: matching, game logic, settings, API flow, play clock, feed, hub wiring
 ```
 
 Visit `/styleguide` to see every shared component.
+
+## The feed (homepage)
+
+`/` is a full-screen feed of cards that snap one at a time (CSS scroll snap, `dvh` units), in the order set by
+`FEED` in `app/feed.py`: Flag Reveal, Border Bridge, then a "Coming soon" card. It doesn't loop.
+
+- **Preloaded, one tap to start.** On load every game card runs `prepare()` in parallel: it creates a round on the
+  server and loads what it needs (Flag Reveal fetches the first flag's bytes without rendering it; Border Bridge
+  loads the map and shows an idle, slowly turning globe). Each card shows a skeleton while preparing, a Retry button
+  if that fails, and a dimmed "Tap to play" overlay when ready. Nothing about the question is visible and no timer
+  runs before the tap.
+- **Only the active card is live.** An `IntersectionObserver` picks the card that's at least 60% visible. Every
+  other card is `inert` and its game is paused (timers held, map rendering stopped), and resumed when you come back.
+- **Navigation.** Swipe (native snap on touch), wheel/trackpad (one card per gesture, so momentum can't skip
+  cards), progress dots, up/down buttons on desktop, and keys ArrowUp/ArrowDown, PageUp/PageDown and J/K, which are
+  ignored while a text field or the map has focus. The URL hash follows the active card (`#border-bridge`) and is
+  honoured on load. A "Swipe up for next game" hint shows until your first scroll (remembered in localStorage).
+- **Pull to refresh.** At the top of the first card, pulling down (touch) or scrolling up past the top (wheel)
+  shows an indicator and, past a threshold, reloads with fresh rounds. It never starts from a map, while a text
+  field is focused, or while the first game is mid-round.
+- **Gesture zones.** In Border Bridge the map is a fully interactive zone (`data-gesture-zone="map"`,
+  `touch-action: none`, pointer capture): dragging, rotating, panning, pinching and wheel/trackpad zoom there never
+  move the feed. Everything else on the card (header strip, chips, options, margins) swipes as normal. The map sits
+  in the top half of the portrait card with a clear border, and a one-time hint says "Swipe outside the map to
+  change game". +/−/reset buttons, arrow buttons and keys are the non-gesture alternatives.
+- **Settings and summaries.** The gear on a card (or in the mobile top bar) opens that game's settings; saving
+  them discards the prepared round and prepares a new one. A finished round shows its summary in the card with
+  "Play again" and "Next game ↓".
+- **Mobile keyboard.** While a text field in a card is focused, feed scrolling and key navigation are locked and
+  the feed is sized from `visualViewport`, so the keyboard can't make the snap jump to another card.
+
+On desktop each card is a 9:16 portrait card with the logo on the left and the dots/arrows on the right, over a
+soft gradient tinted per card. On narrow screens the card fills the viewport under a slim floating top bar.
+
+### Embed contract
+
+Every game registers itself in the browser with `GeoArcade.games[id] = { mount(container, options) }` (each game's
+`static/embed.js`; the shared adapter is `GeoArcade.alpineEmbed` in `core.js`). `mount` returns an instance:
+
+| Method | What it does |
+| --- | --- |
+| `prepare()` | Create a round on the server, load data and assets, render the locked **ready** state. Resolves when ready. |
+| `start()` | Begin play (call it from the player's tap). Tells the server, which starts the scoring clock. |
+| `pause()` / `resume()` | Card left / came back: hold and release timers, animation loops and rendering. |
+| `destroy()` | Remove listeners and stop everything. |
+
+`options` = `{ mode: "feed" | "page", onState(state, detail), onRoundFinished(summary), onNextGame() }`, where state
+is one of `idle | preparing | ready | playing | paused | finished | error`.
+
+The same code serves both places: each game's markup lives in `templates/<game>/_embed.html` as macros
+(`styles()`, `scripts()`, `panel(ctx, mode)`). The full page (`/games/<id>/`) renders `panel(..., mode="page")` with
+its start screen, whose Start button runs `prepare()` then `start()`; the feed renders `mode="feed"` (compact
+portrait layout, no start screen). Settings are per game: templates use the `$settings` magic (the store of the
+nearest `[data-game]`), JS uses `GeoArcade.settings(id)`.
+
+### Play clock (server)
+
+A prepared round can sit idle for a long time, so scoring time starts at `POST api/begin`, not at `api/start`.
+`api/pause` and `api/resume` shift paused time out of the current question or puzzle (Flag Reveal's speed bonus,
+Border Bridge's countdown). Picks, timeouts and "next" before `begin` return `409 not_started`; acting while paused
+resumes first. If a prepared round expired from the `RoundStore` (2 h TTL), `begin` returns `404 round_not_found`
+and the client silently prepares a fresh round and begins that one.
+
+### How to add a game to the feed
+
+1. Make the game embeddable: put its markup in `templates/<game>/_embed.html` with macros `styles()`, `scripts()`
+   and `panel(ctx, mode)`; give its Alpine component `attach/prepare/begin/pause/resume/destroy` (copy the pattern
+   in `flag_reveal.js`); add `static/embed.js` with `GeoArcade.games["<id>"] = GeoArcade.alpineEmbed("<id>")`; add
+   `api/begin`, `api/pause` and `api/resume` and start its clock at `begin`.
+2. Set `embed_template="<game>/_embed.html"` and `embed_context=routes.embed_context` on its `GameSpec`.
+3. Add `game("<id>", tint="amber")` to `FEED` in `app/feed.py` (tints: blue, green, amber, violet). The app checks
+   the feed against the registry at startup and refuses unknown, unplayable or duplicate entries.
+4. If the game has a zone with its own gestures (like a map), mark it `data-gesture-zone="map"` and keep it to
+   about half of the card.
 
 ## Flag Reveal scoring
 
@@ -189,14 +267,16 @@ python scripts/verify_border_data.py    # join report
    ```
 2. **Register it.** In `app/games/registry.py`, import `GAME` and add it to `GAMES`, replacing its "coming soon" placeholder if there is one.
    The hub card, the `/games/<id>/` routes and the settings modal are all generated from that entry.
-3. **Build the page.** Put it in `templates/<your_game>/play.html`, extend `base.html` and pass `game=...` so the header and settings button appear.
+3. **Build the page.** Put the markup in `templates/<your_game>/_embed.html` (see "Embed contract" above) and a
+   thin `play.html` that extends `base.html`, passes `game=...` and renders the panel in page mode.
    Use the components from `/styleguide` and the tokens from `tokens.css`, with no hard-coded colours.
+   To put it in the homepage feed, follow "How to add a game to the feed".
 4. **Reuse the shared code:**
    - `get_index().match(text)` for forgiving country answers
    - `validate_settings(schema, raw)` for validating settings sent by the client
    - `highscores.record_score(...)` for best scores
    - `RoundStore` for round state
-   - `GeoArcade.StageTimer`, `GeoArcade.Autocomplete` and `GeoArcade.api` in the browser
+   - `GeoArcade.StageTimer` (with `hold()`/`release()`), `GeoArcade.api`, `GeoArcade.settings(id)` and `GeoArcade.alpineEmbed` in the browser
 5. **Test it.** Put the rules in a pure `logic.py` and unit-test them in `tests/`.
    `tests/test_site.py` already checks that every registry game appears on the hub and has its routes registered.
 

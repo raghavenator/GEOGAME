@@ -152,6 +152,8 @@
       this.anim = null;
       this.raf = 0;
       this.bindInput();
+      this.paused = false;
+      this.autoRotate = false;
       this.ro = new ResizeObserver(() => this.resize());
       this.ro.observe(canvas);
       this.resize();
@@ -175,8 +177,9 @@
     }
 
     resize() {
-      const rect = this.canvas.getBoundingClientRect();
-      const w = Math.round(rect.width), h = Math.round(rect.height);
+      // Layout size, not getBoundingClientRect: a feed card may be scaled by a CSS
+      // transform while it animates, and the canvas must not be sized to that.
+      const w = this.canvas.clientWidth, h = this.canvas.clientHeight;
       if (!w || !h) { this.w = this.h = 0; return; }
       if (w === this.w && h === this.h) return;
       this.w = w;
@@ -215,10 +218,42 @@
     }
 
     /** Fly the camera so the given shapes fit, framed around the core pair. */
-    frame(ids, core, animate = true) {
+    frame(ids, core, animate = true, durationMs) {
+      this.autoRotate = false;
       this.target = { ids: ids.filter((id) => this.world.shapes[id]), core };
       if (!this.w) return;  // hidden; resize() will jump there when shown
-      this.flyTo(this.computeFrame(this.target), animate);
+      this.flyTo(this.computeFrame(this.target), animate, durationMs);
+    }
+
+    /** Ready state: no puzzle, whole-world view, the globe slowly turning. */
+    idle() {
+      this.target = null;
+      this.anim = null;
+      this.camera = this.kind === "globe" ? { lon: this.camera.lon, lat: 18, k: 1 } : { lon: 10, lat: 15, k: 1 };
+      this.autoRotate = this.kind === "globe" && !reducedMotion();
+      this.request();
+    }
+
+    /** Stop all rendering and animation (card scrolled away); resume() picks up again. */
+    pause() {
+      this.paused = true;
+      cancelAnimationFrame(this.raf);
+      this.raf = 0;
+      clearTimeout(this._refine);
+    }
+
+    resume() {
+      if (!this.paused) return;
+      this.paused = false;
+      this._lastFrame = 0;
+      if (this.anim) this.anim.t0 = performance.now() - this.anim.elapsed;
+      this.request();
+    }
+
+    zoomBy(factor) {
+      this.anim = null;
+      this.autoRotate = false;
+      this.zoom(factor);
     }
 
     setFrameMax(k) {
@@ -273,7 +308,7 @@
       return cam;
     }
 
-    flyTo(target, animate) {
+    flyTo(target, animate, durationMs) {
       if (!animate || reducedMotion() || !this.w) {
         this.anim = null;
         this.camera = target;
@@ -283,13 +318,15 @@
       const from = { ...this.camera };
       const to = { lon: from.lon + wrapLon(target.lon - from.lon), lat: target.lat, k: target.k };
       const hop = d3.geoDistance([from.lon, from.lat], [target.lon, target.lat]);
-      this.anim = { t0: performance.now(), dur: cssMs("--dur-camera", 1100), from, to, bump: Math.min(0.55, hop / 2) };
+      this.anim = { t0: performance.now(), elapsed: 0, dur: durationMs || cssMs("--dur-camera", 1100), from, to,
+                    bump: durationMs ? 0 : Math.min(0.55, hop / 2) };
       this.request();
     }
 
     stepAnim(now) {
       const a = this.anim;
-      const t = clamp((now - a.t0) / a.dur, 0, 1);
+      a.elapsed = now - a.t0;
+      const t = clamp(a.elapsed / a.dur, 0, 1);
       const e = d3.easeCubicInOut(t);
       const logK = Math.log(a.from.k) + (Math.log(a.to.k) - Math.log(a.from.k)) * e;
       this.camera = {
@@ -306,7 +343,7 @@
       const c = this.canvas;
       const pointers = new Map();
       let pinch = 0;
-      const interact = () => { this.anim = null; this.onInteract(); };
+      const interact = () => { this.anim = null; this.autoRotate = false; this.onInteract(); };
       c.addEventListener("pointerdown", (e) => {
         c.setPointerCapture(e.pointerId);
         pointers.set(e.pointerId, [e.clientX, e.clientY]);
@@ -335,7 +372,8 @@
       c.addEventListener("wheel", (e) => {
         e.preventDefault();
         interact();
-        this.zoom(Math.exp(-e.deltaY * (e.deltaMode === 1 ? 0.05 : 0.0015)));
+        // Ctrl+wheel is a trackpad pinch: small deltas, so scale them up.
+        this.zoom(Math.exp(-e.deltaY * (e.deltaMode === 1 ? 0.05 : e.ctrlKey ? 0.01 : 0.0015)));
       }, { passive: false });
       c.addEventListener("keydown", (e) => {
         const moves = { ArrowLeft: [40, 0], ArrowRight: [-40, 0], ArrowUp: [0, 40], ArrowDown: [0, -40] };
@@ -371,6 +409,7 @@
 
     /* ---------------------------------------------------------------- render */
     request() {
+      if (this.paused) return;
       if (!this.raf) this.raf = requestAnimationFrame((t) => { this.raf = 0; this.draw(t); });
     }
 
@@ -402,9 +441,15 @@
     draw(now) {
       if (!this.w) return;
       let again = this.anim ? this.stepAnim(now) : false;
+      if (this.autoRotate) {
+        const dt = this._lastFrame ? Math.min(100, now - this._lastFrame) : 0;
+        this.camera = { ...this.camera, lon: wrapLon(this.camera.lon - dt * 0.006) };
+        again = true;
+      }
+      this._lastFrame = now;
       this.applyCamera(this.projection, this.camera);
       const cam = this.camera;
-      const moving = !!this.anim || now - (this.lastMove || 0) < 140;
+      const moving = !!this.anim || this.autoRotate || now - (this.lastMove || 0) < 140;
       const level = this.pickLevel(moving);
       const key = `${cam.lon.toFixed(3)},${cam.lat.toFixed(3)},${cam.k.toFixed(4)},${this.w},${this.h},${this.showBorders},${level},${moving}`;
       if (key !== this.baseKey) {

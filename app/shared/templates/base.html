@@ -12,12 +12,13 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   {% block head %}{% endblock %}
 </head>
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}"{% if game %} data-game="{{ game.id }}"{% endif %}>
   <a class="visually-hidden" href="#main">Skip to content</a>
 
+  {% block header %}
   <header class="site-header">
     <div class="container site-header__inner">
-      <a class="logo" href="{{ url_for('hub') }}" aria-label="Geo Arcade home">
+      <a class="logo" href="{{ url_for('feed') }}" aria-label="Geo Arcade home">
         <span class="logo__mark">{{ icon('earth') }}</span>
         <span>Geo<span class="logo__accent">Arcade</span></span>
       </a>
@@ -31,17 +32,18 @@
           <a class="btn btn--ghost" href="{{ url_for('hub') }}">{{ icon('arrow-left') }}<span>All games</span></a>
           {% if game.settings_schema %}
             <button type="button" class="btn btn--icon" x-data
-                    @click="$store.settings.openModal($el)"
-                    :disabled="$store.settings && $store.settings.locked"
-                    :title="$store.settings && $store.settings.locked ? 'Finish this round to change settings' : 'Settings'"
+                    @click="$settings.openModal($el)"
+                    :disabled="$settings && $settings.locked"
+                    :title="$settings && $settings.locked ? 'Finish this round to change settings' : 'Settings'"
                     aria-label="Settings">{{ icon('settings-2') }}</button>
           {% endif %}
         {% endif %}
       {% endblock %}
     </div>
   </header>
+  {% endblock %}
 
-  <main id="main">
+  <main id="main" class="{% block main_class %}{% endblock %}">
     {% block content %}{% endblock %}
   </main>
 
@@ -49,12 +51,11 @@
     {% from "_settings_modal.html" import settings_modal %}
     {{ settings_modal(game) }}
   {% endif %}
+  {% block modals %}{% endblock %}
 
   {% block scripts %}{% endblock %}
   <script src="{{ url_for('static', filename='js/core.js') }}" defer></script>
-  {% if game and game.settings_schema %}
-    <script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
-  {% endif %}
+  <script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
   {% block late_scripts %}{% endblock %}
   <script src="{{ url_for('static', filename='vendor/alpine/alpine.min.js') }}" defer></script>
 </body>

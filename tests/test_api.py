@@ -63,8 +63,11 @@ def pick(client: FlaskClient, rid: str, option: int, stage: int = 1, remaining_m
 
 
 def start(client: FlaskClient, **settings: Any) -> dict[str, Any]:
+    """Create a round and begin play (the player's tap)."""
     status, body = post(client, "start", {"settings": settings})
     assert status == 200, body
+    status, begun = post(client, "begin", {"round_id": body["round_id"]})
+    assert status == 200 and begun["started"], begun
     return body
 
 
