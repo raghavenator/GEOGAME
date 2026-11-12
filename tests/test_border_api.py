@@ -62,28 +62,28 @@ def start(client: FlaskClient, **settings: Any) -> dict[str, Any]:
 def test_start_payload_has_no_answers(client: FlaskClient) -> None:
     r = start(client)
     pz = r["puzzle"]
-    assert set(pz) == {"index", "number", "total", "a", "b", "between", "found", "options", "points",
-                       "max_points", "status", "trail"}
+    assert set(pz) == {"index", "number", "total", "a", "b", "between", "found", "options",
+                       "max_points", "status", "trail", "wrong"}
     assert pz["trail"] == {"a_side": [], "b_side": [], "remaining": 1}
     assert pz["between"] == 1 and pz["found"] == [] and len(pz["options"]) == 4
     for o in pz["options"]:
         assert set(o) == {"id", "name"}
     assert set(pz["a"]) == {"id", "shape", "name"}
-    assert r["max_score"] == 3 * 20 and r["best"] is None
+    assert r["max_score"] == 3 * 30 and r["best"] is None
 
 
 def test_full_round_flow(app: Flask, client: FlaskClient, clock: FakeClock) -> None:
     r = start(client)
     rid = r["round_id"]
 
-    # Puzzle 1: one wrong pick, then solve slowly -> 10 - 5 = 5, no bonuses.
+    # Puzzle 1: one wrong pick, then solve after the countdown -> 10 - 5 = 5, no bonuses.
     opts = [o["id"] for o in r["puzzle"]["options"]]
     good = correct_now(app, rid)
     wrong = next(o for o in opts if o not in good)
     w = post(client, "pick", {"round_id": rid, "puzzle_index": 0, "option_id": wrong})
     assert w["result"] in ("detour", "far") and not w["solved"]
     assert wrong not in [o["id"] for o in w["options"]] and len(w["options"]) == 3
-    assert w["points"] == 0 and w["delta"] == 0  # floored: nothing to deduct yet
+    assert w["penalty"] == 5 and w["wrong"] == 1 and w["score"] == 0
     if w["result"] == "detour":
         assert "but it's a detour" in w["message"] and w["via"]
     else:
@@ -104,10 +104,10 @@ def test_full_round_flow(app: Flask, client: FlaskClient, clock: FakeClock) -> N
     n2 = post(client, "next", {"round_id": rid, "from_index": 0})
     assert n1["puzzle"]["number"] == n2["puzzle"]["number"] == 2
 
-    # Puzzle 2: quick perfect solve -> 10 + 5 + 5.
+    # Puzzle 2: perfect solve 3 s in -> 10 + 5 + 12 seconds left.
     clock.t += 3
     c = post(client, "pick", {"round_id": rid, "puzzle_index": 1, "option_id": correct_now(app, rid).pop()})
-    assert c["solved"] and c["points"] == 20 and c["bonuses"] == {"perfect": 5, "speed": 5} and c["score"] == 25
+    assert c["solved"] and c["points"] == 27 and c["bonuses"] == {"perfect": 5, "time": 12} and c["score"] == 32
     post(client, "next", {"round_id": rid, "from_index": 1})
 
     # Puzzle 3: give up -> 0 and the chain is revealed.
@@ -119,14 +119,14 @@ def test_full_round_flow(app: Flask, client: FlaskClient, clock: FakeClock) -> N
     assert post(client, "next", {"round_id": rid, "from_index": 2})["finished"]
 
     s = post(client, "summary", {"round_id": rid})
-    assert s["score"] == 25 and s["max_score"] == 60 and s["is_new_best"]
-    assert [p["points"] for p in s["puzzles"]] == [5, 20, 0]
+    assert s["score"] == 32 and s["max_score"] == 90 and s["is_new_best"]
+    assert [p["points"] for p in s["puzzles"]] == [5, 27, 0]
     assert [p["status"] for p in s["puzzles"]] == ["solved", "solved", "gave_up"]
     assert len(s["puzzles"][0]["wrong"]) == 1 and s["puzzles"][0]["elapsed_ms"] == 40000
-    assert post(client, "summary", {"round_id": rid})["best"] == 25  # recorded once
+    assert post(client, "summary", {"round_id": rid})["best"] == 32  # recorded once
 
     best = post(client, "best", {"settings": {"difficulty": "easy", "puzzles": 3, "view": "globe"}})
-    assert best["best"] == 25  # view mode doesn't split high scores
+    assert best["best"] == 32  # view mode doesn't split high scores
     best = post(client, "best", {"settings": {"difficulty": "easy", "puzzles": 3, "borders": "off"}})
     assert best["best"] is None
 
@@ -138,7 +138,7 @@ def test_correct_pick_regenerates_options(app: Flask, client: FlaskClient) -> No
     first = correct_now(app, rid) & {o["id"] for o in r["puzzle"]["options"]}
     c = post(client, "pick", {"round_id": rid, "puzzle_index": 0, "option_id": sorted(first)[0]})
     assert c["result"] == "correct" and not c["solved"]
-    assert len(c["options"]) == 4 and c["points"] == 10 and c["delta"] == 10
+    assert len(c["options"]) == 4 and c["penalty"] == 0 and c["score"] == 0
     assert [f["id"] for f in c["found"]] == [sorted(first)[0]]
     assert {o["id"] for o in c["options"]} == set(p.options)
 

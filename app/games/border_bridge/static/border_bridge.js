@@ -27,7 +27,7 @@
       options: [],            // [{ id, name, state: "" | "wrong" | "leaving" | "correct" }]
       trail: { a_side: [], b_side: [], remaining: 0 },
       found: [],
-      points: 0,
+      wrong: 0,
       score: 0,
       elapsed: 0,
       ended: null,            // server result when a puzzle finishes
@@ -148,7 +148,7 @@
         this.ended = null;
         this.found = pz.found;
         this.trail = pz.trail;
-        this.points = pz.points;
+        this.wrong = pz.wrong;
         this.options = pz.options.map((o) => ({ ...o, state: "" }));
         this.setFeedback("", "");
         this.phase = "playing";
@@ -167,8 +167,12 @@
         this._clock = setInterval(() => { this.elapsed = performance.now() - t0; }, 100);
       },
       stopClock() { clearInterval(this._clock); },
-      elapsedText() { return formatTime(this.ended ? this.ended.elapsed_ms : this.elapsed); },
-      speedBonusLive() { return this.phase === "playing" && this.elapsed <= cfg.speedSeconds * 1000; },
+      /** Countdown from the time limit; the whole seconds left when solved are bonus points. */
+      secondsLeft() {
+        const ms = this.ended ? this.ended.elapsed_ms : this.elapsed;
+        return Math.max(0, Math.ceil(cfg.timeLimit - ms / 1000));
+      },
+      timeBonusLive() { return this.phase === "playing" && this.secondsLeft() > 0; },
 
       // ------------------------------------------------------------ picking
       async pick(opt) {
@@ -191,10 +195,8 @@
 
       async onCorrect(opt, r) {
         opt.state = "correct";
-        this.points = r.points;
         this.found = r.found;
         this.trail = r.trail;
-        this.showToast(`+${r.delta}`, "good");
         this.setFeedback(r.message, "success");
         this.announce(`Correct. ${r.message}${r.solved ? "" : ` ${r.trail.remaining} to go.`}`);
         if (r.solved) {
@@ -210,10 +212,10 @@
 
       async onWrong(opt, r) {
         opt.state = "wrong";
-        this.points = r.points;
-        if (r.delta < 0) this.showToast(`${r.delta}`, "bad");
+        this.wrong = r.wrong;
+        this.showToast(`−${r.penalty}`, "bad");
         this.setFeedback(r.message, "error");
-        this.announce(`${r.message} ${r.delta < 0 ? `Minus ${-r.delta} points.` : ""}`);
+        this.announce(`${r.message} Minus ${r.penalty} points.`);
         await sleep(420);
         opt.state = "leaving";
         await sleep(260);
@@ -240,7 +242,6 @@
         this.stopClock();
         this.ended = r;
         this.phase = "ended";
-        this.points = r.points;
         this.score = r.score;
         this.options = [];
         this.syncMaps();
@@ -278,12 +279,12 @@
       breakdown() {
         const r = this.ended;
         if (!r || r.result === "gave_up") return [];
-        const correct = this.found.length;
-        const wrongPts = correct * cfg.correctPoints - (r.points - Object.values(r.bonuses).reduce((a, b) => a + b, 0));
-        const rows = [{ label: `${correct} correct × ${cfg.correctPoints}`, value: `+${correct * cfg.correctPoints}` }];
-        if (wrongPts > 0) rows.push({ label: "Wrong picks", value: `−${wrongPts}` });
+        const bonus = Object.values(r.bonuses).reduce((a, b) => a + b, 0);
+        const lost = cfg.solvePoints - (r.points - bonus);  // wrong-pick penalty actually applied (floored)
+        const rows = [{ label: "Puzzle solved", value: `+${cfg.solvePoints}` }];
+        if (lost > 0) rows.push({ label: `Wrong picks (${this.wrong})`, value: `−${lost}` });
         if (r.bonuses.perfect) rows.push({ label: "No wrong picks", value: `+${r.bonuses.perfect}` });
-        if (r.bonuses.speed) rows.push({ label: `Under ${cfg.speedSeconds}s`, value: `+${r.bonuses.speed}` });
+        rows.push({ label: `Time left (${this.secondsLeft()}s)`, value: `+${r.bonuses.time || 0}` });
         return rows;
       },
 

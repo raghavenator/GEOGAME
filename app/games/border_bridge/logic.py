@@ -35,11 +35,10 @@ class Difficulty:
 
 @dataclass(frozen=True)
 class BorderBridgeConfig:
-    correct_points: int = 10
+    solve_points: int = 10          # per solved puzzle, however many countries it took
     wrong_penalty: int = 5
     perfect_bonus: int = 5
-    speed_bonus: int = 5
-    speed_bonus_seconds: float = 15.0
+    time_limit_seconds: int = 15    # countdown; each whole second left when solved = 1 point
     options_shown: int = 4
     max_correct_options: int = 2
     puzzles: int = 5
@@ -313,23 +312,25 @@ class Round:
 
 
 def max_points(between: int, cfg: BorderBridgeConfig = CONFIG) -> int:
-    return between * cfg.correct_points + cfg.perfect_bonus + cfg.speed_bonus
+    return cfg.solve_points + cfg.perfect_bonus + cfg.time_limit_seconds
 
 
-def live_points(p: Puzzle, cfg: BorderBridgeConfig = CONFIG) -> int:
-    """Running puzzle score, floored at 0."""
-    return max(0, p.correct_picks * cfg.correct_points - p.wrong_picks * cfg.wrong_penalty)
+def time_points(elapsed_s: float, cfg: BorderBridgeConfig = CONFIG) -> int:
+    """Seconds left on the countdown, rounded up (what the timer showed), 0 once it runs out."""
+    return max(0, math.ceil(cfg.time_limit_seconds - elapsed_s))
 
 
 def final_points(p: Puzzle, elapsed_s: float, cfg: BorderBridgeConfig = CONFIG) -> tuple[int, dict[str, int]]:
+    """Solve points minus wrong picks (floored at 0), plus the perfect and time bonuses."""
     if p.status != "solved":
         return 0, {}
     bonuses = {}
     if p.wrong_picks == 0:
         bonuses["perfect"] = cfg.perfect_bonus
-    if elapsed_s <= cfg.speed_bonus_seconds:
-        bonuses["speed"] = cfg.speed_bonus
-    return live_points(p, cfg) + sum(bonuses.values()), bonuses
+    if time_points(elapsed_s, cfg):
+        bonuses["time"] = time_points(elapsed_s, cfg)
+    base = max(0, cfg.solve_points - p.wrong_picks * cfg.wrong_penalty)
+    return base + sum(bonuses.values()), bonuses
 
 
 def new_round(round_id: str, settings: dict[str, Any], graph: BorderGraph, rng: random.Random,

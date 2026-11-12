@@ -85,11 +85,12 @@ All tunables (points per stage, default durations, feedback delays) live in `Fla
 
 Two countries A and B are highlighted. You get four options. Each option borders A, B or a country you've already found.
 
-- **Correct pick** (+10): the country joins the chain, animates onto the map and a fresh set of options appears.
+- **Correct pick**: the country joins the chain, animates onto the map and a fresh set of options appears.
 - **Wrong pick** (−5): that option disappears and isn't replaced. The feedback tells you why, for example "Italy borders France, but it's a detour."
-- **Solved**: the countries linked to A and the countries linked to B touch.
+- **Solved** (+10 per puzzle, however long the chain): the countries linked to A and the countries linked to B touch.
 - **Give up**: shows the shortest chain and scores 0.
-- **Bonuses**: a puzzle's score never drops below 0. Solving it with no wrong picks earns +5, and solving it in 15 s or less earns another +5.
+- **Time**: a clock counts down from 15 s. Every whole second left when you solve the puzzle is a bonus point.
+- **Bonuses**: wrong picks can only cancel the 10 solve points, never more. Solving with no wrong picks earns +5. A perfect, instant solve is worth 30.
 - All values live in `BorderBridgeConfig` in `app/games/border_bridge/logic.py`.
 
 **What counts as correct** (`logic.correct_set`, tested in `tests/test_border_logic.py`):

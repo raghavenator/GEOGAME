@@ -206,7 +206,7 @@ def test_new_round_puzzles_are_valid() -> None:
     rnd = L.new_round("r", settings, g, random.Random(3), lambda: 100.0)
     assert len(rnd.puzzles) == 8 and rnd.current.started_at == 100.0
     assert all(p.between == 1 for p in rnd.puzzles)
-    assert rnd.max_score == 8 * (10 + 5 + 5)
+    assert rnd.max_score == 8 * (10 + 5 + 15)
     assert len(rnd.current.options) == 4
 
 
@@ -217,21 +217,24 @@ def _solved(correct: int, wrong: int) -> L.Puzzle:
 
 
 def test_scoring_rules() -> None:
-    assert L.final_points(_solved(2, 0), 10.0) == (20 + 5 + 5, {"perfect": 5, "speed": 5})
-    assert L.final_points(_solved(2, 0), 15.0)[0] == 30          # 15 s still earns the speed bonus
-    assert L.final_points(_solved(2, 0), 15.1) == (25, {"perfect": 5})
-    assert L.final_points(_solved(2, 1), 30.0) == (15, {})        # 20 - 5
+    # 10 per solved puzzle (not per pick), -5 per wrong pick (floored at 0),
+    # +5 for no wrong picks, + whole seconds left on the 15 s countdown.
+    assert L.final_points(_solved(2, 0), 4.7) == (10 + 5 + 11, {"perfect": 5, "time": 11})
+    assert L.final_points(_solved(3, 0), 4.7)[0] == 26            # chain length doesn't matter
+    assert L.final_points(_solved(2, 0), 0.2) == (30, {"perfect": 5, "time": 15})
+    assert L.final_points(_solved(2, 0), 14.9) == (16, {"perfect": 5, "time": 1})
+    assert L.final_points(_solved(2, 0), 15.0) == (15, {"perfect": 5})
+    assert L.final_points(_solved(2, 1), 30.0) == (5, {})         # 10 - 5
     assert L.final_points(_solved(1, 3), 30.0) == (0, {})         # floored at 0
-    assert L.final_points(_solved(1, 3), 5.0) == (5, {"speed": 5})
+    assert L.final_points(_solved(1, 3), 10.0) == (5, {"time": 5})
     gave_up = _solved(1, 0)
     gave_up.status = "gave_up"
     assert L.final_points(gave_up, 1.0) == (0, {})
 
 
-def test_live_points_floor() -> None:
-    p = _solved(0, 2)
-    assert L.live_points(p) == 0
-    assert L.max_points(2) == 30
+def test_time_points_and_max() -> None:
+    assert [L.time_points(t) for t in (0, 0.5, 1.0, 7.2, 14.99, 15, 60)] == [15, 15, 14, 8, 1, 0, 0]
+    assert L.max_points(1) == L.max_points(4) == 30
 
 
 # --------------------------------------------------------------------------- settings

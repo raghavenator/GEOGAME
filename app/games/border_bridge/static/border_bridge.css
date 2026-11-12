@@ -55,6 +55,7 @@
 .bb-stat__of { color: var(--color-text-subtle); font-weight: var(--weight-semibold); font-size: var(--text-base); }
 .bb-time { min-width: 4.5rem; }
 .bb-time.is-bonus { color: var(--color-warning-text); }
+.bb-time.is-out { color: var(--color-text-subtle); }
 .bb-time__zap { display: inline-flex; color: var(--color-warning); }
 
 /* ---------------------------------------------------------------- layout */

@@ -86,7 +86,7 @@ def _country(g: BorderGraph, cca3: str | None) -> dict[str, str] | None:
 
 def _running_score(rnd: Round) -> int:
     p = rnd.current
-    return rnd.score + (logic.live_points(p) if p.status == "active" else 0)
+    return rnd.score
 
 
 def _trail_json(g: BorderGraph, p: Puzzle) -> dict[str, Any]:
@@ -107,7 +107,7 @@ def _puzzle_json(g: BorderGraph, rnd: Round) -> dict[str, Any]:
         "between": p.between,
         "found": [_country(g, c) for c in p.revealed[2:]],
         "options": [{"id": c, "name": g.nodes[c].name} for c in p.options],
-        "points": logic.live_points(p),
+        "wrong": p.wrong_picks,
         "max_points": logic.max_points(p.between),
         "status": p.status,
     }
@@ -175,7 +175,6 @@ def pick() -> ResponseReturnValue:
     g = get_graph()
     with _store().lock(rnd.id):
         p = _current_puzzle(rnd, data)
-        before = logic.live_points(p)
         try:
             out = logic.apply_pick(g, p, option, _rng(), _now())
         except logic.PuzzleOver:
@@ -196,12 +195,12 @@ def pick() -> ResponseReturnValue:
             "country": _country(g, option),
             "via": _country(g, touching[0] if touching else None),
             "message": message,
-            "delta": logic.live_points(p) - before if not out.solved else CONFIG.correct_points,
+            "penalty": CONFIG.wrong_penalty if out.kind != "correct" else 0,
+            "wrong": p.wrong_picks,
             "solved": out.solved,
             "found": [_country(g, c) for c in p.revealed[2:]],
             "trail": _trail_json(g, p),
             "options": [{"id": c, "name": g.nodes[c].name} for c in p.options],
-            "points": logic.live_points(p) if not out.solved else p.points,
             "score": _running_score(rnd),
         }
         if out.solved:

@@ -11,8 +11,8 @@
         'apiBase': url_for('border_bridge.play').rstrip('/') ~ '/api',
         'topoUrl': url_for('border_bridge.static', filename='data/countries-50m.json'),
         'metaUrl': url_for('border_bridge.static', filename='data/geo_meta.json'),
-        'correctPoints': config.correct_points,
-        'speedSeconds': config.speed_bonus_seconds,
+        'solvePoints': config.solve_points,
+        'timeLimit': config.time_limit_seconds,
      } | tojson | forceescape }})">
 
   <div class="visually-hidden" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
@@ -46,8 +46,9 @@
     </ol>
 
     <p class="muted bb-start__rules">
-      <strong>+{{ config.correct_points }}</strong> per correct pick, <strong>−{{ config.wrong_penalty }}</strong> per wrong pick.
-      Bonus <strong>+{{ config.perfect_bonus }}</strong> for no mistakes and <strong>+{{ config.speed_bonus }}</strong> for solving in {{ config.speed_bonus_seconds | int }}s or less.
+      <strong>+{{ config.solve_points }}</strong> for each puzzle you solve, <strong>−{{ config.wrong_penalty }}</strong> per wrong pick.
+      The clock counts down from {{ config.time_limit_seconds }}s: every second left when you finish is a bonus point,
+      plus <strong>+{{ config.perfect_bonus }}</strong> for no mistakes.
     </p>
 
     <div class="bb-settings-summary">
@@ -95,10 +96,11 @@
           <dd class="bb-stat__value" x-text="score"></dd>
         </div>
         <div class="bb-stat">
-          <dt class="eyebrow">Time</dt>
-          <dd class="bb-stat__value bb-time" :class="{ 'is-bonus': speedBonusLive() }">
-            <span class="bb-time__zap" x-show="speedBonusLive()" title="Speed bonus still available">{{ icon('zap', 'icon--sm') }}</span>
-            <span x-text="elapsedText()"></span>
+          <dt class="eyebrow">Time left</dt>
+          <dd class="bb-stat__value bb-time" :class="{ 'is-bonus': timeBonusLive(), 'is-out': !secondsLeft() }"
+              role="timer" :aria-label="secondsLeft() + ' seconds of bonus time left'">
+            <span class="bb-time__zap" x-show="timeBonusLive()" title="Seconds left become bonus points">{{ icon('zap', 'icon--sm') }}</span>
+            <span x-text="secondsLeft() + 's'"></span>
           </dd>
         </div>
       </dl>
@@ -229,7 +231,7 @@
                   <span x-text="row.status === 'gave_up' ? 'Gave up' : formatTime(row.elapsed_ms)"></span>
                   <span x-show="row.wrong.length" x-text="'· ' + row.wrong.length + ' wrong (' + row.wrong.map((c) => c.name).join(', ') + ')'"></span>
                   <span x-show="row.bonuses.perfect">· {{ icon('sparkles', 'icon--sm') }} perfect</span>
-                  <span x-show="row.bonuses.speed">· {{ icon('zap', 'icon--sm') }} fast</span>
+                  <span x-show="row.bonuses.time" x-text="'· +' + row.bonuses.time + ' time'"></span>
                 </span>
               </div>
               <span class="badge" :class="row.points > 0 ? 'badge--success' : 'badge--error'" x-text="row.points + ' / ' + row.max_points"></span>
