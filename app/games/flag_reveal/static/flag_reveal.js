@@ -1,10 +1,11 @@
-/* Flag Reveal client. Presentation only: the server picks countries, checks
-   answers and scores. This file runs the stage timer, drives the reveal,
-   animations and autocomplete, and reports what the player did. */
+/* Flag Reveal client. Presentation only: the server picks countries and options,
+   checks picks and scores. This file runs the stage timer, drives the reveal and
+   animations, and reports what the player did. */
 (function () {
   "use strict";
   const GA = window.GeoArcade;
   const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const sleep = (ms) => new Promise((r) => setTimeout(r, GA.reducedMotion() ? 0 : ms));
   const STAGE_WORDS = ["One third", "Two thirds", "The whole flag"];
 
   document.addEventListener("alpine:init", () => {
@@ -21,6 +22,7 @@
       q: { index: 0, number: 0, total: 0 },
       flagUrl: "",
       reveal: { orientation: "vertical", order: [0, 1, 2] },
+      options: [],              // [{ id, name, state: "" | "wrong" | "leaving" | "correct" | "answer" }]
       stage: 1,
       stageSeconds: 5,
       score: 0,
@@ -31,7 +33,7 @@
       feedbackKind: "",
       announcement: "",
       // ---- guards
-      guessPending: false,
+      picking: false,
       advancing: false,
       autoNext: null,
 
@@ -41,13 +43,9 @@
           onTick: (f, rem) => this.renderTimer(f, rem),
           onExpire: () => this.onStageExpired(),
         });
-        this.ac = new GA.Autocomplete(this.$refs.input, this.$refs.list, {
-          onPick: (name) => this.submitGuess(name),
-        });
-        this.api.get("countries").then((items) => this.ac.setItems(items)).catch(() => {});
-        this.maxScore = this.settings().questions * Math.max(...cfg.stagePoints);
         this.refreshBest();
         window.addEventListener("settings-changed", () => { this.error = ""; this.refreshBest(); });
+        window.addEventListener("keydown", (e) => this.onKey(e));
         this.$nextTick(() => this.$refs.startBtn && this.$refs.startBtn.focus());
       },
 
@@ -94,6 +92,7 @@
         this.stage = question.stage;
         this.q = question;
         this.reveal = question.reveal;
+        this.options = question.options.map((o) => ({ ...o, state: "" }));
         this.renderTimer(0, this.stageSeconds * 1000);
         await this.$nextTick();
         await nextFrame();                 // ensure the hidden state is painted before swapping src
@@ -108,10 +107,9 @@
         await nextFrame();
         GA.replayAnimation(this.$refs.card, "animate-question-in");
         this.phase = "question";
-        this.announce(`Question ${question.number} of ${question.total}. One third of the flag is showing.`);
-        this.$refs.input.value = "";
-        await this.$nextTick();
-        this.$refs.input.focus();
+        this.announce(`Question ${question.number} of ${question.total}. One third of the flag is showing. ` +
+          `Options: ${this.options.map((o, i) => `${i + 1}, ${o.name}`).join("; ")}.`);
+        this.focusFirstOption();
         this.timer.start(this.stageSeconds * 1000);
       },
 
@@ -154,55 +152,61 @@
         } catch (e) {
           return this.handleError(e);
         }
-        if (this.phase !== "question" || this.q.index !== index) return; // a guess won the race
+        if (this.phase !== "question" || this.q.index !== index) return; // a pick won the race
         if (r.status === "solved") return;
         if (r.missed) {
-          return this.endQuestion({ kind: "missed", name: r.country.name, points: 0, score: r.score, isLast: r.is_last });
+          return this.endQuestion({ kind: "missed", name: r.country.name, points: 0, score: r.score,
+                                    isLast: r.is_last, answerOption: r.answer_option });
         }
         this.stage = Math.max(this.stage, r.stage);
         this.announce(`${STAGE_WORDS[this.stage - 1]} of the flag ${this.stage === 3 ? "is" : "are"} now showing.`);
         this.timer.start(this.stageSeconds * 1000);
       },
 
-      // ------------------------------------------------------------ guessing
-      submitTyped() {
-        // If a suggestion is highlighted, Autocomplete handles Enter itself.
-        this.submitGuess(this.$refs.input.value);
-      },
-
-      async submitGuess(text) {
-        text = (text || "").trim();
-        if (!text || this.phase !== "question" || this.guessPending) return;
-        this.guessPending = true;
+      // ------------------------------------------------------------ picking
+      async pick(opt) {
+        if (!opt || opt.state || this.phase !== "question" || this.picking) return;
+        this.picking = true;
         const index = this.q.index;
+        const remaining = Math.max(0, Math.min(this.stageSeconds * 1000, Math.round(this.timer.remaining())));
         try {
-          const r = await this.api.post("guess", { round_id: this.roundId, guess: text, stage: this.stage });
+          const r = await this.api.post("pick", {
+            round_id: this.roundId, option_id: opt.id, stage: this.stage, remaining_ms: remaining,
+          });
           if (this.phase !== "question" || this.q.index !== index) return;
           if (r.correct) {
+            opt.state = "correct";
             this.endQuestion({
-              kind: "solved", name: r.country.name, points: r.points, stage: r.stage,
-              score: r.score, isLast: r.is_last, lookalike: r.lookalike_of || null,
+              kind: "solved", name: r.country.name, points: r.points, stagePoints: r.stage_points,
+              speed: r.speed_bonus, wrong: r.wrong, stage: r.stage, score: r.score, isLast: r.is_last,
             });
           } else {
             this.stage = Math.max(this.stage, r.stage);
-            const msg = r.recognised ? `Not quite. It's not ${r.guessed}.` : "Not quite. That's not a country we recognise.";
-            this.setFeedback(msg, "error");
-            this.announce(msg);
-            GA.replayAnimation(this.$refs.guessForm, "animate-shake");
-            this.$refs.input.value = "";
-            this.ac.close();
-            this.$refs.input.focus();
+            this.removeWrong(opt, r);
           }
         } catch (e) {
-          if (e.code !== "question_over") this.handleError(e);
+          if (e.code === "option_unavailable") this.setFeedback(e.message, "error");
+          else if (e.code !== "question_over") this.handleError(e);
         } finally {
-          this.guessPending = false;
+          this.picking = false;
         }
+      },
+
+      async removeWrong(opt, r) {
+        opt.state = "wrong";
+        const msg = `Not quite. It's not ${r.guessed}.`;
+        this.setFeedback(`${msg} −${r.penalty}`, "error");
+        this.announce(`${msg} Minus ${r.penalty} points.`);
+        this.popPoints(`−${r.penalty}`, "bad");
+        await sleep(420);
+        opt.state = "leaving";
+        await sleep(240);
+        this.options = this.options.filter((o) => o !== opt);
+        if (this.phase === "question") this.focusFirstOption();
       },
 
       endQuestion(result) {
         this.timer.stop();
-        this.ac.close();
         const before = this.score;
         this.score = result.score;
         this.result = result;
@@ -210,13 +214,15 @@
         this.renderTimer(1, 0); // fill the meter up to the stage it ended on
         GA.countUp(this.$refs.score, before, this.score);
         if (result.kind === "solved") {
-          const pop = this.$refs.pop;
-          pop.textContent = `+${result.points}`;
-          GA.replayAnimation(pop, "is-popping");
-          const extra = result.lookalike ? ` (${result.lookalike} has the same flag, so it counts!)` : "";
-          this.setFeedback(`Solved at stage ${result.stage}${extra}`, "success");
+          this.popPoints(`+${result.points}`, "good");
+          const parts = [`+${result.stagePoints} for stage ${result.stage}`];
+          if (result.wrong) parts.push(`${result.wrong} wrong`);
+          parts.push(`+${result.speed} speed bonus`);
+          this.setFeedback(parts.join(" · "), "success");
           this.announce(`Correct! It's ${result.name}. Plus ${result.points} points. Score ${this.score}.`);
         } else {
+          const answer = this.options.find((o) => o.id === result.answerOption);
+          if (answer) answer.state = "answer";
           this.setFeedback("No points this time.", "missed");
           this.announce(`Time's up. It was ${result.name}. No points.`);
         }
@@ -259,13 +265,38 @@
       verdict() {
         if (!this.summary) return "";
         const pct = this.summary.score / this.summary.max_score;
-        if (pct >= 0.9) return "Outstanding. You know your flags!";
-        if (pct >= 0.65) return "Great round. Sharp eyes.";
-        if (pct >= 0.35) return "Solid effort. Faster guesses score more.";
+        if (pct >= 0.8) return "Outstanding. You know your flags!";
+        if (pct >= 0.55) return "Great round. Sharp eyes.";
+        if (pct >= 0.3) return "Solid effort. Faster picks score more.";
         return "Every expert started somewhere. Go again!";
       },
 
       // ------------------------------------------------------------ helpers
+      onKey(e) {
+        if (this.screen !== "play" || this.phase !== "question" || Alpine.store("settings").open) return;
+        if (e.altKey || e.ctrlKey || e.metaKey || !/^[1-9]$/.test(e.key)) return;
+        const opt = this.options.filter((o) => o.state !== "leaving")[Number(e.key) - 1];
+        if (opt) {
+          e.preventDefault();
+          this.pick(opt);
+        }
+      },
+
+      focusFirstOption() {
+        this.$nextTick(() => {
+          const b = document.querySelector(".fr-option:not(:disabled)");
+          b && b.focus({ preventScroll: true });
+        });
+      },
+
+      popPoints(text, kind) {
+        const pop = this.$refs.pop;
+        if (!pop) return;
+        pop.textContent = text;
+        pop.classList.toggle("is-bad", kind === "bad");
+        GA.replayAnimation(pop, "is-popping");
+      },
+
       setFeedback(text, kind) {
         this.feedback = text;
         this.feedbackKind = kind;

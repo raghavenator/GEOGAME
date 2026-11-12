@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 import secrets
+import time
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +34,7 @@ def _setup(state: BlueprintSetupState) -> None:
     app.extensions["flag_reveal.rounds"] = RoundStore[Round]()
     seed = app.config.get("FLAG_REVEAL_SEED")
     app.extensions["flag_reveal.rng"] = random.Random(seed) if seed is not None else random.SystemRandom()
+    app.extensions["flag_reveal.clock"] = app.config.get("FLAG_REVEAL_CLOCK", time.monotonic)
 
 
 def _store() -> RoundStore[Round]:
@@ -41,6 +43,15 @@ def _store() -> RoundStore[Round]:
 
 def _rng() -> random.Random:
     return current_app.extensions["flag_reveal.rng"]
+
+
+def _now() -> float:
+    return current_app.extensions["flag_reveal.clock"]()
+
+
+def _score_key(settings: dict[str, Any]) -> str:
+    # "mode=choice" keeps multiple-choice bests apart from the old typed-answer scores.
+    return settings_key({**settings, "mode": "choice"})
 
 
 # --------------------------------------------------------------------------- helpers
@@ -68,6 +79,8 @@ def _question_json(rnd: Round) -> dict[str, Any]:
         "flag_url": url_for("flag_reveal.flag", token=q.token),
         "reveal": q.reveal.to_json(),
         "stage": q.stage,
+        "options": [{"id": i, "name": get_index().by_code[code].name}
+                    for i, code in enumerate(q.options) if i not in q.eliminated],
     }
 
 
@@ -78,7 +91,8 @@ def _country_json(code: str) -> dict[str, str]:
 
 def _ended_json(rnd: Round) -> dict[str, Any]:
     q = rnd.current
-    return {"country": _country_json(q.code), "score": rnd.score, "is_last": rnd.is_last}
+    return {"country": _country_json(q.code), "answer_option": q.options.index(q.code),
+            "score": rnd.score, "is_last": rnd.is_last}
 
 
 # --------------------------------------------------------------------------- pages
@@ -111,20 +125,12 @@ def flag(token: str) -> Response:
 
 
 # --------------------------------------------------------------------------- API
-@bp.get("/api/countries")
-def countries() -> ResponseReturnValue:
-    resp = jsonify(get_index().name_list())
-    resp.headers["Cache-Control"] = "public, max-age=86400"
-    return resp
-
-
 @bp.post("/api/best")
 def best() -> ResponseReturnValue:
     settings = _clean_settings(json_body().get("settings"))
-    n = settings["questions"]
     return jsonify({
-        "best": highscores.get_best(GAME_ID, settings_key(settings)),
-        "max_score": n * max(CONFIG.stage_points),
+        "best": highscores.get_best(GAME_ID, _score_key(settings)),
+        "max_score": logic.max_score_for(settings["questions"], settings["stage_seconds"]),
         "settings": settings,
     })
 
@@ -134,7 +140,7 @@ def start() -> ResponseReturnValue:
     settings = _clean_settings(json_body().get("settings"))
     round_id = secrets.token_urlsafe(12)
     try:
-        rnd = logic.new_round(round_id, settings, get_index(), _rng(), lambda: secrets.token_urlsafe(16))
+        rnd = logic.new_round(round_id, settings, get_index(), _rng(), lambda: secrets.token_urlsafe(16), _now())
     except ValueError as exc:
         raise ApiError(400, "invalid_settings", str(exc), {"fields": {"questions": str(exc)}}) from exc
     _store().put(round_id, rnd, aliases=[q.token for q in rnd.questions])
@@ -143,37 +149,42 @@ def start() -> ResponseReturnValue:
         "settings": settings,
         "stage_seconds": settings["stage_seconds"],
         "stage_points": list(CONFIG.stage_points),
+        "wrong_penalty": CONFIG.wrong_penalty,
         "feedback_ms": CONFIG.feedback_ms,
         "missed_feedback_ms": CONFIG.missed_feedback_ms,
         "max_score": rnd.max_score,
-        "best": highscores.get_best(GAME_ID, settings_key(settings)),
+        "best": highscores.get_best(GAME_ID, _score_key(settings)),
         "question": _question_json(rnd),
     })
 
 
-@bp.post("/api/guess")
-def guess() -> ResponseReturnValue:
+@bp.post("/api/pick")
+def pick() -> ResponseReturnValue:
     data = json_body()
     rnd = _load_round(data)
-    text = require_str(data, "guess", max_len=80)
     stage = require_int(data, "stage", 1, CONFIG.stages)
+    option_id = require_int(data, "option_id", 0, CONFIG.options_shown - 1)
+    stage_seconds = rnd.settings["stage_seconds"]
+    remaining_ms = require_int(data, "remaining_ms", 0, stage_seconds * 1000)
     with _store().lock(rnd.id):
-        matched = get_index().match(text)
+        q = rnd.current
         try:
-            outcome = logic.apply_guess(rnd.current, matched.code if matched else None, stage)
+            out = logic.apply_pick(q, option_id, stage, remaining_ms, stage_seconds, _now())
         except logic.QuestionOver:
             raise ApiError(409, "question_over", "This question has already ended.") from None
-        if outcome.correct:
-            body = {"correct": True, "points": outcome.points, "stage": outcome.stage, **_ended_json(rnd)}
-            if matched and matched.code != rnd.current.code:
-                body["lookalike_of"] = matched.name
-            return jsonify(body)
+        except logic.OptionUnavailable:
+            raise ApiError(409, "option_unavailable", "That option isn't available any more.") from None
+        if out.correct:
+            return jsonify({"correct": True, "option_id": option_id, "points": out.points,
+                            "stage_points": out.stage_points, "speed_bonus": out.speed_bonus,
+                            "stage": out.stage, "wrong": q.wrong_guesses, **_ended_json(rnd)})
         return jsonify({
             "correct": False,
-            "stage": outcome.stage,
-            "recognised": outcome.recognised,
-            "guessed": matched.name if matched else None,
-            "message": "Not quite" if outcome.recognised else "Not a country we recognise",
+            "option_id": option_id,
+            "stage": out.stage,
+            "guessed": get_index().by_code[out.code].name,
+            "penalty": CONFIG.wrong_penalty,
+            "wrong": q.wrong_guesses,
         })
 
 
@@ -199,7 +210,7 @@ def next_question() -> ResponseReturnValue:
     from_index = require_int(data, "from_index", 0, len(rnd.questions) - 1)
     with _store().lock(rnd.id):
         try:
-            logic.advance(rnd, from_index)
+            logic.advance(rnd, from_index, _now())
         except logic.QuestionActive:
             raise ApiError(409, "question_active", "Answer or run out the clock before moving on.") from None
         if rnd.finished:
@@ -213,7 +224,7 @@ def summary() -> ResponseReturnValue:
     with _store().lock(rnd.id):
         if not rnd.finished:
             raise ApiError(409, "round_in_progress", "The round isn't finished yet.")
-        key = settings_key(rnd.settings)
+        key = _score_key(rnd.settings)
         if not rnd.recorded:
             result = highscores.record_score(GAME_ID, key, rnd.score, rnd.max_score)
             rnd.recorded = True
@@ -233,6 +244,8 @@ def summary() -> ResponseReturnValue:
                 "points": q.points,
                 "status": q.status,
                 "solved_stage": q.solved_stage,
+                "wrong": q.wrong_guesses,
+                "speed_bonus": q.speed_bonus,
                 "label": logic.stage_label(q),
             }
             for i, q in enumerate(rnd.questions)

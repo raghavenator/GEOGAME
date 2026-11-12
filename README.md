@@ -2,7 +2,7 @@
 
 A small, polished website of browser geography games, built with **Flask**, Jinja2 and a little Alpine.js.
 
-- **Flag Reveal**: a flag is revealed one third at a time, and naming the country earlier scores more points (15 / 10 / 5).
+- **Flag Reveal**: a flag is revealed one third at a time. Pick the country from 8 options; answering earlier and faster scores more.
 - **Border Bridge**: two countries light up on a globe and a flat map. Connect them by picking the countries in between, one land border at a time.
 
 ## Run it
@@ -69,15 +69,26 @@ tests/                     pytest: matching, game logic, settings, API flow, hub
 
 Visit `/styleguide` to see every shared component.
 
+## Flag Reveal scoring
+
+You pick the country from 8 options. The wrong options come from the same region where possible, and a lookalike flag (Chad/Romania, Indonesia/Monaco) is never offered alongside its twin.
+
+- **Stage points:** 15 / 10 / 5, depending on how much of the flag is showing when you answer.
+- **Wrong pick:** −5. The option disappears and isn't replaced. Stage points never drop below 0.
+- **Speed bonus:** every whole second left in the current stage when you answer correctly is +1, so a 5-second stage can add up to 5.
+- **Time out:** 0, and the correct option is highlighted.
+- Multiple-choice best scores are stored separately from the old typed-answer ones.
+
 ## How Flag Reveal stays honest
 
-- The **server** picks non-repeating countries, matches answers, scores and stores high scores.
-  The client never receives the answer until the question ends.
+- The **server** picks non-repeating countries and the options, checks picks, scores and stores high scores.
+  The client never learns which option is correct until the question ends.
+- The speed bonus uses the client's timer, which pauses while the tab is hidden. The server caps it at what its own clock allows, plus a 0.75 s allowance for loading the flag.
 - Flags are served from `/games/flag-reveal/flag/<random-token>`, not `/flags/fr.svg`.
   The SVGs are also stripped of ids that would reveal the country.
 - The client reports which stage it's on. The server only lets the stage move forward, so a client can't claim an earlier stage to win more points.
   Timeouts and "next" are idempotent, so a double-fired timer or a double-clicked button can't skip anything.
-- The **client** only handles presentation: the stage timer (paused while the tab is hidden), the clip-path reveal, animations and autocomplete.
+- The **client** only handles presentation: the stage timer (paused while the tab is hidden), the clip-path reveal, animations and the option buttons (keys 1–8).
 
 All tunables (points per stage, default durations, feedback delays) live in `FlagRevealConfig` in `app/games/flag_reveal/logic.py`.
 
@@ -192,7 +203,7 @@ python scripts/verify_border_data.py    # join report
 ## Notes
 
 - Live rounds are kept in memory, which is fine for `flask run` (one process). To run several workers, put `RoundStore` behind Redis or SQLite.
-- Flags whose designs are effectively identical (Chad/Romania, Indonesia/Monaco) accept either answer.
+- Flags whose designs are effectively identical (Chad/Romania, Indonesia/Monaco) are never offered as options together.
 - To refresh flags: download the `flag-icons` npm package, extract it, and run `python scripts/vendor_flags.py <extracted>/package/flags/4x3`.
 - Licences:
   - flag-icons (MIT), Lucide (ISC), Inter (OFL), d3 and topojson-client (ISC).

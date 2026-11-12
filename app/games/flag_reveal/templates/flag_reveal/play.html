@@ -12,6 +12,7 @@
         'stagePoints': config.stage_points,
         'feedbackMs': config.feedback_ms,
         'missedFeedbackMs': config.missed_feedback_ms,
+        'wrongPenalty': config.wrong_penalty,
      } | tojson | forceescape }})">
 
   <div class="visually-hidden" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
@@ -38,8 +39,10 @@
       {% endfor %}
     </div>
     <p class="muted fr-start__rules">
-      Each stage lasts <strong x-text="$store.settings.display('stage_seconds')">{{ settings_defaults.stage_seconds }}s</strong>.
-      Wrong guesses are free, so keep trying until the clock runs out.
+      Pick the country from {{ config.options_shown }} options. Each stage lasts
+      <strong x-text="$store.settings.display('stage_seconds')">{{ settings_defaults.stage_seconds }}s</strong>,
+      and every second left on the clock when you answer is a <strong>bonus point</strong>.
+      Wrong picks cost <strong>{{ config.wrong_penalty }} points</strong> and that option disappears.
     </p>
 
     <div class="fr-settings-summary">
@@ -84,8 +87,7 @@
 
       <div class="fr-hud__stat fr-hud__stat--right">
         <span class="eyebrow">Score</span>
-        <strong class="fr-hud__value"><span x-ref="score">0</span></strong>
-        <span class="fr-points-pop" x-ref="pop" aria-hidden="true"></span>
+        <strong class="fr-hud__value fr-hud__score"><span x-ref="score">0</span><span class="fr-points-pop" x-ref="pop" aria-hidden="true"></span></strong>
       </div>
 
       <div class="fr-hud__meter" style="--segments: {{ config.stage_points | length }}">
@@ -134,23 +136,22 @@
         </div>
       </div>
 
-      <form class="fr-guess" @submit.prevent="submitTyped()" x-ref="guessForm" autocomplete="off">
-        <div class="fr-guess__field">
-          <label for="fr-guess-input" class="visually-hidden">Which country's flag is this?</label>
-          <input id="fr-guess-input" x-ref="input" class="input input--lg" type="text"
-                 placeholder="Which country is this?" autocomplete="off" autocapitalize="words"
-                 spellcheck="false" enterkeyhint="send" maxlength="80"
-                 :disabled="phase !== 'question'" :aria-invalid="feedbackKind === 'error'"
-                 aria-describedby="fr-feedback">
-          <ul id="fr-suggestions" class="suggestions" x-ref="list" hidden></ul>
-        </div>
-        <button type="submit" class="btn btn--primary btn--lg fr-guess__btn" :disabled="phase !== 'question'" aria-label="Submit guess">
-          {{ icon('chevron-right') }}<span class="fr-guess__btn-label">Guess</span>
-        </button>
-      </form>
+      <div class="fr-options" role="group" aria-label="Which country's flag is this?" aria-describedby="fr-feedback"
+           :class="{ 'is-loading': phase === 'loading' }">
+        <template x-for="(opt, i) in options" :key="q.index + '-' + opt.id">
+          <button type="button" class="fr-option" @click="pick(opt)" :style="'--i:' + i"
+                  :class="{ 'is-wrong': opt.state === 'wrong', 'is-leaving': opt.state === 'leaving',
+                            'is-correct': opt.state === 'correct', 'is-answer': opt.state === 'answer' }"
+                  :disabled="phase !== 'question' || !!opt.state" :aria-keyshortcuts="String(i + 1)">
+            <kbd class="fr-option__key" x-text="i + 1" aria-hidden="true"></kbd>
+            <span class="fr-option__name" x-text="opt.name"></span>
+          </button>
+        </template>
+      </div>
 
       <div class="fr-footer">
         <p id="fr-feedback" class="fr-feedback" :class="'is-' + feedbackKind" x-text="feedback"></p>
+        <p class="fr-keys subtle" x-show="phase === 'question' && !feedback">Tip: press <kbd>1</kbd>–<kbd>{{ config.options_shown }}</kbd> to pick.</p>
         <button type="button" class="btn btn--primary fr-next" x-show="phase === 'result'" x-ref="nextBtn" @click="next()">
           <span x-text="result && result.isLast ? 'See results' : 'Next'"></span>{{ icon('chevron-right') }}
         </button>

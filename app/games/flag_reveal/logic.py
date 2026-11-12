@@ -4,13 +4,14 @@ No Flask, no I/O: randomness and token generation are injected.
 """
 from __future__ import annotations
 
+import math
 import random
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from app.shared.countries import REGIONS, CountryIndex
-from app.shared.scoring import max_score, points_for_stage
+from app.shared.scoring import points_for_stage
 from app.shared.settings import ChoiceSetting, IntSetting, SettingsSchema
 
 
@@ -25,6 +26,10 @@ class FlagRevealConfig:
     feedback_ms: int = 1500                       # pause after a correct answer before moving on
     missed_feedback_ms: int = 2200
     horizontal_reveal_chance: float = 0.3
+    options_shown: int = 8                        # multiple-choice answers per flag
+    same_region_distractors: int = 4              # wrong options drawn from the answer's region first
+    wrong_penalty: int = 5                        # per wrong pick; stage points floor at 0
+    clock_grace_seconds: float = 0.75             # flag load time allowed on top of the server clock
 
     @property
     def stages(self) -> int:
@@ -65,11 +70,16 @@ class Question:
     code: str
     token: str
     reveal: RevealPlan
+    options: list[str] = field(default_factory=list)   # country codes; an option's id is its index
+    eliminated: set[int] = field(default_factory=set)
     stage: int = 1
     status: Status = "active"
     points: int = 0
+    stage_points: int = 0
+    speed_bonus: int = 0
     solved_stage: int | None = None
     wrong_guesses: int = 0
+    served_at: float | None = None                    # server clock when the question became current
 
 
 @dataclass
@@ -99,7 +109,12 @@ class Round:
 
     @property
     def max_score(self) -> int:
-        return max_score(len(self.questions), CONFIG.stage_points)
+        return max_score_for(len(self.questions), self.settings["stage_seconds"])
+
+
+def max_score_for(questions: int, stage_seconds: int, config: FlagRevealConfig = CONFIG) -> int:
+    """Best case per flag: first-stage points plus a full stage of speed bonus."""
+    return questions * (max(config.stage_points) + stage_seconds)
 
 
 # --------------------------------------------------------------------------- pure rules
@@ -128,10 +143,31 @@ def pick_reveal_plan(rng: random.Random, config: FlagRevealConfig = CONFIG) -> R
     return RevealPlan(orientation, (order[0], order[1], order[2]))
 
 
+def pick_options(answer: str, pool: Sequence[str], index: CountryIndex, rng: random.Random,
+                 config: FlagRevealConfig = CONFIG) -> list[str]:
+    """The answer plus distinct wrong options, shuffled. Wrong options come from the
+    answer's region first (harder), never include a lookalike flag, and stay within
+    the round's pool so a regional round only offers that region's countries."""
+    banned = {answer}.union(*(g for g in LOOKALIKE_FLAGS if answer in g))
+    candidates = sorted(set(pool) - banned)
+    need = min(config.options_shown - 1, len(candidates))
+    region = index.by_code[answer].region
+    near = [c for c in candidates if index.by_code[c].region == region]
+    wrong = rng.sample(near, min(config.same_region_distractors, len(near), need))
+    rest = [c for c in candidates if c not in wrong]
+    wrong += rng.sample(rest, need - len(wrong))
+    options = [answer, *wrong]
+    rng.shuffle(options)
+    return options
+
+
 def new_round(round_id: str, settings: dict[str, Any], index: CountryIndex, rng: random.Random,
-              make_token: Callable[[], str]) -> Round:
-    codes = pick_questions(region_pool(index, settings["region"]), settings["questions"], rng)
-    questions = [Question(code=c, token=make_token(), reveal=pick_reveal_plan(rng)) for c in codes]
+              make_token: Callable[[], str], now: float = 0.0) -> Round:
+    pool = region_pool(index, settings["region"])
+    codes = pick_questions(pool, settings["questions"], rng)
+    questions = [Question(code=c, token=make_token(), reveal=pick_reveal_plan(rng),
+                          options=pick_options(c, pool, index, rng)) for c in codes]
+    questions[0].served_at = now
     return Round(id=round_id, settings=dict(settings), questions=questions)
 
 
@@ -149,28 +185,51 @@ def is_correct(guess_code: str | None, answer_code: str) -> bool:
     return any({guess_code, answer_code} <= group for group in LOOKALIKE_FLAGS)
 
 
+def speed_bonus(stage: int, stage_seconds: int, client_remaining_ms: int, served_at: float | None, now: float,
+                config: FlagRevealConfig = CONFIG) -> int:
+    """Whole seconds left in the current stage (what the timer shows, rounded up).
+
+    The client's timer (which pauses while the tab is hidden) is trusted only up
+    to the server's own clock plus a small allowance for loading the flag."""
+    remaining = min(client_remaining_ms / 1000, stage_seconds)
+    if served_at is not None:
+        server_remaining = stage * stage_seconds - (now - served_at) + config.clock_grace_seconds
+        remaining = min(remaining, server_remaining)
+    return max(0, min(stage_seconds, math.ceil(remaining)))
+
+
 @dataclass(frozen=True)
-class GuessOutcome:
+class PickOutcome:
     correct: bool
-    points: int
+    code: str
     stage: int
-    recognised: bool       # was the text a real country at all?
+    points: int = 0
+    stage_points: int = 0
+    speed_bonus: int = 0
 
 
-def apply_guess(q: Question, guess_code: str | None, reported_stage: int,
-                config: FlagRevealConfig = CONFIG) -> GuessOutcome:
-    """Score a guess. The stage can only move forward: a client can't claim an
-    earlier stage than the server has already seen."""
+def apply_pick(q: Question, option_id: int, reported_stage: int, client_remaining_ms: int, stage_seconds: int,
+               now: float, config: FlagRevealConfig = CONFIG) -> PickOutcome:
+    """Score a multiple-choice pick. The stage only moves forward (a client can't
+    claim an earlier stage than the server has seen). A wrong option is eliminated
+    for good and costs ``wrong_penalty``; a correct pick scores stage points minus
+    penalties (floored at 0) plus the speed bonus."""
     if q.status != "active":
         raise QuestionOver()
     stage = max(validate_stage(reported_stage, config), q.stage)
+    if not 0 <= option_id < len(q.options) or option_id in q.eliminated:
+        raise OptionUnavailable()
     q.stage = stage
-    if is_correct(guess_code, q.code):
+    code = q.options[option_id]
+    if is_correct(code, q.code):
         q.status, q.solved_stage = "solved", stage
-        q.points = points_for_stage(config.stage_points, stage)
-        return GuessOutcome(True, q.points, stage, True)
+        q.stage_points = max(0, points_for_stage(config.stage_points, stage) - q.wrong_guesses * config.wrong_penalty)
+        q.speed_bonus = speed_bonus(stage, stage_seconds, client_remaining_ms, q.served_at, now, config)
+        q.points = q.stage_points + q.speed_bonus
+        return PickOutcome(True, code, stage, q.points, q.stage_points, q.speed_bonus)
+    q.eliminated.add(option_id)
     q.wrong_guesses += 1
-    return GuessOutcome(False, 0, stage, guess_code is not None)
+    return PickOutcome(False, code, stage)
 
 
 @dataclass(frozen=True)
@@ -192,7 +251,7 @@ def apply_timeout(q: Question, expired_stage: int, config: FlagRevealConfig = CO
     return TimeoutOutcome(q.stage, False, stale=False)
 
 
-def advance(rnd: Round, from_index: int) -> bool:
+def advance(rnd: Round, from_index: int, now: float = 0.0) -> bool:
     """Move to the next question. Returns True if it moved.
 
     Idempotent: a repeated call with an old ``from_index`` is a no-op, so a
@@ -203,11 +262,16 @@ def advance(rnd: Round, from_index: int) -> bool:
     if rnd.current.status == "active":
         raise QuestionActive()
     rnd.index += 1
+    rnd.current.served_at = now
     return True
 
 
 def stage_label(q: Question) -> str:
-    return f"Stage {q.solved_stage}" if q.status == "solved" else "Missed"
+    wrong = [f"{q.wrong_guesses} wrong"] if q.wrong_guesses else []
+    if q.status != "solved":
+        return " · ".join(["Missed", *wrong])
+    speed = [f"+{q.speed_bonus} speed"] if q.speed_bonus else []
+    return " · ".join([f"Stage {q.solved_stage}", *wrong, *speed])
 
 
 class QuestionOver(Exception):
@@ -215,4 +279,8 @@ class QuestionOver(Exception):
 
 
 class QuestionActive(Exception):
+    pass
+
+
+class OptionUnavailable(Exception):
     pass
