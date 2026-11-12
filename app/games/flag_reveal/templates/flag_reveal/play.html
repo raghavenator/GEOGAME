@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}{{ game.title }} · Geo Arcade{% endblock %}
+{% block description %}{{ game.description }}{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('flag_reveal.static', filename='flag_reveal.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container fr-container page"
+     x-data="flagReveal({{ {
+        'apiBase': url_for('flag_reveal.play').rstrip('/') ~ '/api',
+        'stagePoints': config.stage_points,
+        'feedbackMs': config.feedback_ms,
+        'missedFeedbackMs': config.missed_feedback_ms,
+     } | tojson | forceescape }})">
+
+  <div class="visually-hidden" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
+
+  {# ============================================================ START #}
+  <section class="card fr-start stack stack--lg" x-show="screen === 'start'" x-transition.opacity.duration.250ms>
+    <div class="fr-start__hero">
+      <span class="game-card__icon fr-start__icon">{{ icon(game.icon, 'icon--xl') }}</span>
+      <div class="stack stack--sm">
+        <h1>{{ game.title }}</h1>
+        <p class="muted">{{ game.description }}</p>
+      </div>
+    </div>
+
+    <div class="fr-how" role="list" aria-label="Scoring">
+      {% for pts in config.stage_points %}
+        <div class="fr-how__item" role="listitem">
+          <div class="fr-how__flag" data-visible="{{ loop.index }}" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <strong class="fr-how__pts">{{ pts }} pts</strong>
+          <span class="subtle">{{ ["One third", "Two thirds", "Full flag"][loop.index0] }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    <p class="muted fr-start__rules">
+      Each stage lasts <strong x-text="$store.settings.display('stage_seconds')">{{ settings_defaults.stage_seconds }}s</strong>.
+      Wrong guesses are free, so keep trying until the clock runs out.
+    </p>
+
+    <div class="fr-settings-summary">
+      <div class="row">
+        <span class="badge">{{ icon('flag') }}<span x-text="$store.settings.values.questions + ' questions'"></span></span>
+        <span class="badge">{{ icon('timer') }}<span x-text="$store.settings.display('stage_seconds') + ' per stage'"></span></span>
+        <span class="badge">{{ icon('map-pin') }}<span x-text="$store.settings.display('region')"></span></span>
+      </div>
+      <button type="button" class="btn btn--sm btn--soft" @click="$store.settings.openModal($el)">{{ icon('settings-2', 'icon--sm') }}Change</button>
+    </div>
+
+    <div class="fr-best">
+      {{ icon('trophy') }}
+      <span>Best for these settings:
+        <strong x-text="best === null ? 'No score yet' : best + ' / ' + maxScore"></strong>
+      </span>
+    </div>
+
+    <div class="alert" role="alert" x-show="error" x-cloak>{{ icon('info') }}<span x-text="error"></span></div>
+
+    <button type="button" class="btn btn--primary btn--lg btn--block" @click="start()" :disabled="busy" x-ref="startBtn">
+      {{ icon('play') }}<span x-text="busy ? 'Starting…' : 'Start'">Start</span>
+    </button>
+  </section>
+
+  {# ============================================================ PLAY #}
+  <section class="stack fr-play" x-show="screen === 'play'" x-cloak>
+    <div class="card card--flat fr-hud">
+      <div class="fr-hud__stat">
+        <span class="eyebrow">Question</span>
+        <strong class="fr-hud__value"><span x-text="q.number"></span><span class="fr-hud__of"> / <span x-text="q.total"></span></span></strong>
+      </div>
+
+      <div class="progress-ring fr-ring" x-ref="ring" style="--progress: 0" :class="{ 'progress-ring--paused': phase !== 'question' }"
+           role="timer" :aria-label="phase === 'question' ? 'Time left in this stage' : 'Timer stopped'">
+        <svg viewBox="0 0 80 80" aria-hidden="true">
+          <circle class="progress-ring__track" cx="40" cy="40" r="34" pathLength="100"></circle>
+          <circle class="progress-ring__bar" cx="40" cy="40" r="34" pathLength="100"></circle>
+        </svg>
+        <span class="progress-ring__label" x-ref="ringLabel" aria-hidden="true"></span>
+      </div>
+
+      <div class="fr-hud__stat fr-hud__stat--right">
+        <span class="eyebrow">Score</span>
+        <strong class="fr-hud__value"><span x-ref="score">0</span></strong>
+        <span class="fr-points-pop" x-ref="pop" aria-hidden="true"></span>
+      </div>
+
+      <div class="fr-hud__meter" style="--segments: {{ config.stage_points | length }}">
+        <div class="meter">
+          {% for pts in config.stage_points %}
+            <div class="meter__seg" :class="{ 'is-done': stage > {{ loop.index }} || (phase === 'result' && result && result.kind === 'missed') }"
+                 :data-solved="phase === 'result' && result && result.kind === 'solved' && result.stage === {{ loop.index }}">
+              <span class="meter__fill" x-ref="seg{{ loop.index }}"></span>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="meter__labels">
+          {% for pts in config.stage_points %}
+            <span class="meter__label" :class="{ 'is-current': stage === {{ loop.index }} && phase === 'question' }">{{ pts }} pts</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card fr-card" x-ref="card">
+      <div class="fr-flag" :data-orientation="reveal.orientation" :class="{ 'is-resetting': phase === 'loading' }"
+           role="img" :aria-label="flagLabel()">
+        <div class="fr-flag__shimmer shimmer" aria-hidden="true"></div>
+        <template x-for="i in [0, 1, 2]" :key="i">
+          <img class="fr-flag__slice" :data-slice="i" :src="flagUrl || ''" alt="" x-show="flagUrl"
+               :class="{ 'is-visible': sliceVisible(i) }" draggable="false">
+        </template>
+        {# Seamless single image once the whole flag is showing. #}
+        <img class="fr-flag__full" :src="flagUrl || ''" alt="" x-show="flagUrl" draggable="false"
+             :class="{ 'is-visible': phase === 'result' || (phase === 'question' && stage >= 3) }">
+
+        <div class="fr-result" x-show="phase === 'result' && result" x-cloak
+             x-transition:enter="fr-result-enter" x-transition:enter-start="fr-result-from" x-transition:enter-end="fr-result-to">
+          <template x-if="result">
+            <div class="fr-result__pill" :class="result.kind === 'solved' ? 'is-solved' : 'is-missed'">
+              <span class="fr-result__icon" x-show="result.kind === 'solved'">{{ icon('check') }}</span>
+              <span class="fr-result__icon" x-show="result.kind === 'missed'">{{ icon('timer') }}</span>
+              <span>
+                <span class="fr-result__kicker" x-text="result.kind === 'solved' ? 'Correct!' : 'Time\'s up, it was'"></span>
+                <strong class="fr-result__name" x-text="result.name"></strong>
+              </span>
+              <span class="badge" :class="result.kind === 'solved' ? 'badge--success' : 'badge--error'"
+                    x-text="result.kind === 'solved' ? '+' + result.points : '0 pts'"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <form class="fr-guess" @submit.prevent="submitTyped()" x-ref="guessForm" autocomplete="off">
+        <div class="fr-guess__field">
+          <label for="fr-guess-input" class="visually-hidden">Which country's flag is this?</label>
+          <input id="fr-guess-input" x-ref="input" class="input input--lg" type="text"
+                 placeholder="Which country is this?" autocomplete="off" autocapitalize="words"
+                 spellcheck="false" enterkeyhint="send" maxlength="80"
+                 :disabled="phase !== 'question'" :aria-invalid="feedbackKind === 'error'"
+                 aria-describedby="fr-feedback">
+          <ul id="fr-suggestions" class="suggestions" x-ref="list" hidden></ul>
+        </div>
+        <button type="submit" class="btn btn--primary btn--lg fr-guess__btn" :disabled="phase !== 'question'" aria-label="Submit guess">
+          {{ icon('chevron-right') }}<span class="fr-guess__btn-label">Guess</span>
+        </button>
+      </form>
+
+      <div class="fr-footer">
+        <p id="fr-feedback" class="fr-feedback" :class="'is-' + feedbackKind" x-text="feedback"></p>
+        <button type="button" class="btn btn--primary fr-next" x-show="phase === 'result'" x-ref="nextBtn" @click="next()">
+          <span x-text="result && result.isLast ? 'See results' : 'Next'"></span>{{ icon('chevron-right') }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  {# ============================================================ SUMMARY #}
+  <section class="card fr-summary stack stack--lg" x-show="screen === 'summary'" x-cloak>
+    <template x-if="summary">
+      <div class="stack stack--lg">
+        <div class="fr-summary__head">
+          <p class="eyebrow">Round complete</p>
+          <div class="fr-summary__score">
+            <strong x-ref="totalScore">0</strong><span>/ <span x-text="summary.max_score"></span></span>
+          </div>
+          <p class="muted" x-text="verdict()"></p>
+          <div class="row row--center">
+            <span class="badge badge--warning fr-new-best" x-show="summary.is_new_best && summary.score > 0">{{ icon('trophy') }}New best!</span>
+            <span class="badge" x-show="!(summary.is_new_best && summary.score > 0)">{{ icon('trophy') }}Best: <span x-text="summary.best + ' / ' + summary.max_score"></span></span>
+          </div>
+        </div>
+
+        <ol class="fr-breakdown" aria-label="Per-question results">
+          <template x-for="row in summary.questions" :key="row.number">
+            <li class="fr-breakdown__row" :style="'animation-delay:' + (row.number * 50) + 'ms'">
+              <span class="fr-breakdown__num" x-text="row.number"></span>
+              <img class="fr-breakdown__flag" :src="row.flag_url" :alt="'Flag of ' + row.country.name" loading="lazy">
+              <span class="fr-breakdown__name">
+                <strong x-text="row.country.name"></strong>
+                <span class="subtle" x-text="row.label"></span>
+              </span>
+              <span class="badge" :class="row.status === 'solved' ? 'badge--success' : 'badge--error'"
+                    x-text="row.points + ' pts'"></span>
+            </li>
+          </template>
+        </ol>
+
+        <div class="fr-summary__actions">
+          <button type="button" class="btn btn--primary btn--lg" @click="start()" :disabled="busy" x-ref="againBtn">{{ icon('rotate-ccw') }}Play again</button>
+          <a class="btn btn--lg" href="{{ url_for('hub') }}">{{ icon('house') }}Back to hub</a>
+        </div>
+      </div>
+    </template>
+  </section>
+</div>
+{% endblock %}
+
+{% block late_scripts %}
+  <script src="{{ url_for('flag_reveal.static', filename='flag_reveal.js') }}" defer></script>
+{% endblock %}

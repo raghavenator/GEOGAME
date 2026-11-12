@@ -1,0 +1,66 @@
+{#
+  Generic settings modal, rendered from a game's declared settings schema.
+  Works for any game: it only knows about "int" and "choice" field types.
+  State lives in Alpine.store('settings') (see static/js/settings.js).
+#}
+{% macro settings_modal(game) %}
+<script type="application/json" id="game-settings">{{ {"gameId": game.id, "schema": game.settings_schema | schema_json} | tojson }}</script>
+
+<div class="modal" x-data x-cloak x-show="$store.settings.open"
+     @keydown.escape.window="$store.settings.open && $store.settings.close()"
+     role="dialog" aria-modal="true" aria-labelledby="settings-title"
+     x-transition:enter="modal-enter" x-transition:enter-start="modal-from" x-transition:enter-end="modal-to"
+     x-transition:leave="modal-leave" x-transition:leave-start="modal-to" x-transition:leave-end="modal-from">
+  <div class="modal__backdrop" @click="$store.settings.close()"></div>
+  <form class="modal__panel" @submit.prevent="$store.settings.save()" x-ref="panel" novalidate>
+    <div class="modal__header">
+      <div>
+        <p class="eyebrow">{{ game.title }}</p>
+        <h2 id="settings-title">Settings</h2>
+      </div>
+      <button type="button" class="btn btn--icon btn--ghost" @click="$store.settings.close()" aria-label="Close settings">{{ icon('x') }}</button>
+    </div>
+
+    <div class="stack stack--lg">
+      {% for field in game.settings_schema | schema_json %}
+        {% set fid = "setting-" ~ field.key %}
+        <div class="field">
+          {% if field.type == "int" %}
+            <label class="field__label" for="{{ fid }}">
+              <span>{{ field.label }}</span>
+            </label>
+            <div class="row" style="flex-wrap: nowrap">
+              <input id="{{ fid }}" class="range" type="range"
+                     min="{{ field.min }}" max="{{ field.max }}" step="{{ field.step }}"
+                     x-model.number="$store.settings.draft['{{ field.key }}']"
+                     aria-describedby="{{ fid }}-help">
+              <input class="input number-input" type="number" inputmode="numeric"
+                     min="{{ field.min }}" max="{{ field.max }}" step="{{ field.step }}"
+                     x-model.number="$store.settings.draft['{{ field.key }}']"
+                     :aria-invalid="!!$store.settings.errors['{{ field.key }}']"
+                     aria-label="{{ field.label }}{% if field.unit %} ({{ field.unit }}){% endif %}">
+            </div>
+            <p class="field__help" id="{{ fid }}-help">{{ field.help }} ({{ field.min }}–{{ field.max }}{{ field.unit }})</p>
+          {% elif field.type == "choice" %}
+            <label class="field__label" for="{{ fid }}">{{ field.label }}</label>
+            <select id="{{ fid }}" class="select" x-model="$store.settings.draft['{{ field.key }}']"
+                    aria-describedby="{{ fid }}-help">
+              {% for choice in field.choices %}
+                <option value="{{ choice.value }}">{{ choice.label }}</option>
+              {% endfor %}
+            </select>
+            <p class="field__help" id="{{ fid }}-help">{{ field.help }}</p>
+          {% endif %}
+          <p class="field__error" role="alert" x-show="$store.settings.errors['{{ field.key }}']"
+             x-text="$store.settings.errors['{{ field.key }}']"></p>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="modal__footer">
+      <button type="button" class="btn btn--ghost" @click="$store.settings.reset()">{{ icon('rotate-ccw') }}Defaults</button>
+      <button type="submit" class="btn btn--primary">{{ icon('check') }}Save</button>
+    </div>
+  </form>
+</div>
+{% endmacro %}

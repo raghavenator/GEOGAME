@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% import "_components.html" as ui %}
+{% block title %}Style guide · Geo Arcade{% endblock %}
+
+{% block content %}
+<div class="container page stack stack--lg">
+  <header class="stack stack--sm">
+    <p class="eyebrow">Design system</p>
+    <h1>Style guide</h1>
+    <p class="muted">Every component is built from <code>tokens.css</code>. Use these when building a new game.</p>
+  </header>
+
+  <section class="card sg-section">
+    <h2>Colours</h2>
+    <div class="sg-swatches">
+      {% for t in ["bg", "surface", "surface-muted", "surface-sunken", "border", "text", "text-muted", "text-subtle",
+                   "accent", "accent-hover", "accent-soft", "success", "success-soft", "error", "error-soft", "warning", "warning-soft"] %}
+        <div class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--color-{{ t }})"></div>
+          <div class="sg-swatch__name">--color-{{ t }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card sg-section">
+    <h2>Typography</h2>
+    {% for size in ["5xl", "4xl", "3xl", "2xl", "xl", "lg", "base", "sm", "xs"] %}
+      <div class="row" style="align-items: baseline; flex-wrap: nowrap">
+        <span class="subtle" style="width: 4rem; flex: none">{{ size }}</span>
+        <span style="font-size: var(--text-{{ size }}); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); overflow:hidden; text-overflow: ellipsis; white-space: nowrap">Where in the world?</span>
+      </div>
+    {% endfor %}
+  </section>
+
+  <section class="card sg-section">
+    <h2>Buttons</h2>
+    <div class="row">
+      <button class="btn btn--primary">{{ icon('play') }}Primary</button>
+      <button class="btn">Secondary</button>
+      <button class="btn btn--soft">Soft</button>
+      <button class="btn btn--ghost">Ghost</button>
+      <button class="btn btn--success">{{ icon('check') }}Success</button>
+      <button class="btn btn--icon" aria-label="Settings">{{ icon('settings-2') }}</button>
+      <button class="btn" disabled>Disabled</button>
+    </div>
+    <div class="row">
+      <button class="btn btn--primary btn--lg">{{ icon('play') }}Large primary</button>
+      <button class="btn btn--sm">Small</button>
+    </div>
+  </section>
+
+  <section class="sg-section">
+    <h2>Cards</h2>
+    <div class="game-grid">
+      <div class="card"><h3>Default card</h3><p class="muted">White surface, soft layered shadow.</p></div>
+      <div class="card card--flat"><h3>Flat card</h3><p class="muted">For dense lists.</p></div>
+      <div class="card card--muted"><h3>Muted card</h3><p class="muted">For secondary content.</p></div>
+      <div class="card card--interactive"><h3>Interactive</h3><p class="muted">Lifts on hover.</p></div>
+    </div>
+  </section>
+
+  <section class="card sg-section">
+    <h2>Inputs</h2>
+    <div class="game-grid">
+      <div class="field">
+        <label class="field__label" for="sg-input">Text input</label>
+        <input id="sg-input" class="input" placeholder="Type a country…">
+      </div>
+      <div class="field">
+        <label class="field__label" for="sg-input-lg">Large input</label>
+        <input id="sg-input-lg" class="input input--lg" placeholder="Type a country…">
+      </div>
+      <div class="field">
+        <label class="field__label" for="sg-invalid">Invalid</label>
+        <input id="sg-invalid" class="input" aria-invalid="true" value="Narnia">
+        <p class="field__error">Not a country we recognise</p>
+      </div>
+      <div class="field">
+        <label class="field__label" for="sg-select">Select</label>
+        <select id="sg-select" class="select"><option>Whole world</option><option>Europe</option></select>
+      </div>
+      <div class="field">
+        <label class="field__label" for="sg-range">Range</label>
+        <input id="sg-range" class="range" type="range" min="1" max="50" value="5">
+      </div>
+    </div>
+  </section>
+
+  <section class="card sg-section">
+    <h2>Badges</h2>
+    <div class="row">
+      <span class="badge">Neutral</span>
+      <span class="badge badge--accent">{{ icon('sparkles') }}Accent</span>
+      <span class="badge badge--success">{{ icon('check') }}+15 pts</span>
+      <span class="badge badge--error">{{ icon('x') }}Missed</span>
+      <span class="badge badge--warning">{{ icon('trophy') }}New best</span>
+    </div>
+  </section>
+
+  <section class="card sg-section">
+    <h2>Progress ring</h2>
+    <div class="row" style="gap: var(--space-8)">
+      {{ ui.progress_ring(0.1, "5") }}
+      {{ ui.progress_ring(0.5, "3", attrs='data-urgency="warn"') }}
+      {{ ui.progress_ring(0.85, "1", attrs='data-urgency="danger"') }}
+      {{ ui.progress_ring(0.4, "", size="2.5rem") }}
+    </div>
+    <h3>Stage meter</h3>
+    <div style="max-width: 22rem">{{ ui.stage_meter([15, 10, 5], current=2, fills=[1, 0.45, 0]) }}</div>
+  </section>
+
+  <section class="card sg-section">
+    <h2>Feedback</h2>
+    <div class="alert" role="note">{{ icon('info') }}<span>Only 14 countries are available for this region.</span></div>
+    <div class="shimmer" style="height: 4rem; border-radius: var(--radius-md)"></div>
+  </section>
+</div>
+{% endblock %}

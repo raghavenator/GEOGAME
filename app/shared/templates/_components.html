@@ -1,0 +1,27 @@
+{# Reusable UI macros. Import with: {% import "_components.html" as ui %} #}
+
+{% macro progress_ring(progress=0, label="", size="4rem", attrs="") %}
+<div class="progress-ring" style="--size: {{ size }}; --progress: {{ progress }}" {{ attrs | safe }}>
+  <svg viewBox="0 0 80 80" aria-hidden="true">
+    <circle class="progress-ring__track" cx="40" cy="40" r="34" pathLength="100"></circle>
+    <circle class="progress-ring__bar" cx="40" cy="40" r="34" pathLength="100"></circle>
+  </svg>
+  <span class="progress-ring__label">{{ label }}</span>
+</div>
+{% endmacro %}
+
+{% macro stage_meter(points, current=1, fills=None) %}
+<div class="stack stack--sm" style="--segments: {{ points | length }}">
+  <div class="meter">
+    {% for p in points %}
+      <div class="meter__seg {{ 'is-done' if loop.index < current }}"
+           style="--fill: {{ (fills[loop.index0] if fills else (1 if loop.index < current else 0)) }}">
+        <span class="meter__fill"></span>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="meter__labels">
+    {% for p in points %}<span class="meter__label {{ 'is-current' if loop.index == current }}">{{ p }} pts</span>{% endfor %}
+  </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Geo Arcade · Geography games{% endblock %}
+
+{% block content %}
+<section class="hub-hero">
+  <span class="blob blob--1" aria-hidden="true"></span>
+  <span class="blob blob--2" aria-hidden="true"></span>
+  <span class="blob blob--3" aria-hidden="true"></span>
+  <div class="container hub-hero__inner animate-fade-up">
+    <span class="badge badge--accent">{{ icon('sparkles') }} {{ games | selectattr("playable") | list | length }} game{{ "s" if (games | selectattr("playable") | list | length) != 1 }} · more coming</span>
+    <h1>How well do you know the world?</h1>
+    <p>Quick, polished geography games. Pick one and beat your best score.</p>
+  </div>
+</section>
+
+<div class="container page">
+  <h2 class="visually-hidden">Games</h2>
+  <div class="game-grid">
+    {% for g in games %}
+      {% if g.playable %}
+        <a class="card card--interactive game-card animate-fade-up" style="animation-delay: {{ loop.index0 * 60 }}ms"
+           href="{{ url_for(g.blueprint.name ~ '.play') }}">
+          <div class="row row--between">
+            <span class="game-card__icon">{{ icon(g.icon, 'icon--lg') }}</span>
+            {% if g.tagline %}<span class="badge badge--accent">{{ g.tagline }}</span>{% endif %}
+          </div>
+          <div class="game-card__body">
+            <h3>{{ g.title }}</h3>
+            <p>{{ g.description }}</p>
+          </div>
+          <span class="btn btn--primary game-card__cta">{{ icon('play') }}Play</span>
+        </a>
+      {% else %}
+        <div class="card game-card is-disabled animate-fade-up" style="animation-delay: {{ loop.index0 * 60 }}ms" aria-disabled="true">
+          <div class="row row--between">
+            <span class="game-card__icon">{{ icon(g.icon, 'icon--lg') }}</span>
+            <span class="badge">{{ icon('lock') }} Coming soon</span>
+          </div>
+          <div class="game-card__body">
+            <h3>{{ g.title }}</h3>
+            <p>{{ g.description }}</p>
+          </div>
+          <span class="btn game-card__cta" aria-disabled="true">Coming soon</span>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <p class="subtle" style="text-align:center; margin-top: var(--space-12)">
+    Built with Flask · <a href="{{ url_for('styleguide') }}">Style guide</a>
+  </p>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Not found · Geo Arcade{% endblock %}
+{% block content %}
+<div class="container container--narrow page">
+  <div class="card stack animate-fade-up" style="text-align:center; align-items:center">
+    <span class="game-card__icon">{{ icon('compass', 'icon--lg') }}</span>
+    <h1>Off the map</h1>
+    <p class="muted">We couldn't find that page. It may be a game that's still being built.</p>
+    <a class="btn btn--primary" href="{{ url_for('hub') }}">{{ icon('house') }}Back to all games</a>
+  </div>
+</div>
+{% endblock %}

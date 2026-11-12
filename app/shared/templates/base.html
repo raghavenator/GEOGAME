@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{% block title %}Geo Arcade{% endblock %}</title>
+  <meta name="description" content="{% block description %}Bite-sized geography games you can play in your browser.{% endblock %}">
+  <meta name="theme-color" content="#f6f7fb">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="preload" href="{{ url_for('static', filename='vendor/inter/inter-latin-wght-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="visually-hidden" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="logo" href="{{ url_for('hub') }}" aria-label="Geo Arcade home">
+        <span class="logo__mark">{{ icon('earth') }}</span>
+        <span>Geo<span class="logo__accent">Arcade</span></span>
+      </a>
+      {% if game %}
+        <span class="header-divider" aria-hidden="true"></span>
+        <span class="header-title">{{ game.title }}</span>
+      {% endif %}
+      <span class="site-header__spacer"></span>
+      {% block header_actions %}
+        {% if game %}
+          <a class="btn btn--ghost" href="{{ url_for('hub') }}">{{ icon('arrow-left') }}<span>All games</span></a>
+          {% if game.settings_schema %}
+            <button type="button" class="btn btn--icon" x-data
+                    @click="$store.settings.openModal($el)"
+                    :disabled="$store.settings && $store.settings.locked"
+                    :title="$store.settings && $store.settings.locked ? 'Finish this round to change settings' : 'Settings'"
+                    aria-label="Settings">{{ icon('settings-2') }}</button>
+          {% endif %}
+        {% endif %}
+      {% endblock %}
+    </div>
+  </header>
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% if game and game.settings_schema %}
+    {% from "_settings_modal.html" import settings_modal %}
+    {{ settings_modal(game) }}
+  {% endif %}
+
+  {% block scripts %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/core.js') }}" defer></script>
+  {% if game and game.settings_schema %}
+    <script src="{{ url_for('static', filename='js/settings.js') }}" defer></script>
+  {% endif %}
+  {% block late_scripts %}{% endblock %}
+  <script src="{{ url_for('static', filename='vendor/alpine/alpine.min.js') }}" defer></script>
+</body>
+</html>
