@@ -290,6 +290,7 @@
      mount() returns an instance the host (the feed, or a full game page) drives:
        prepare()  create a round on the server and preload assets -> "ready"
        start()    begin play (call from the player's tap)
+       restart()  discard the round and start a fresh one (the restart button)
        pause() / resume()   stop/restart timers, loops and rendering
        destroy()
      options: { mode: "feed" | "page", onState(state), onRoundFinished(summary), onNextGame() }
@@ -310,6 +311,8 @@
           root,
           prepare: () => c.prepare(),
           start: () => c.begin(),
+          /** Discard the current round and start a fresh one with the current settings. */
+          restart: () => c.play(),
           pause: () => c.pause(),
           resume: () => c.resume(),
           destroy: () => c.destroy(),
@@ -320,15 +323,22 @@
   }
 
   /** Full game pages: mount every game root in page mode (same module as the feed). */
+  const pageGames = {};
   document.addEventListener("alpine:initialized", () => {
     for (const root of document.querySelectorAll("[data-game-root][data-mode='page']")) {
       const g = games[root.dataset.gameRoot];
-      if (g) g.mount(root, { mode: "page" });
+      if (g) pageGames[root.dataset.gameRoot] = g.mount(root, { mode: "page" });
     }
   });
 
+  /** The full page's restart button (site header). */
+  function restart(gameId) {
+    const instance = pageGames[gameId];
+    return instance ? instance.restart() : undefined;
+  }
+
   window.GeoArcade = Object.assign(window.GeoArcade || {}, {
     api, ApiError, normalize, StageTimer, pausableDelay, Autocomplete, countUp, replayAnimation, reducedMotion,
-    games, alpineEmbed,
+    games, alpineEmbed, restart,
   });
 })();

@@ -28,7 +28,8 @@ def test_game_page_and_redirect(client: FlaskClient) -> None:
     assert resp.status_code == 200 and "Flag Reveal" in html
     assert "Questions per round" in html  # settings schema rendered
     assert client.get("/games/flag-reveal").status_code in (301, 302, 308)
-    assert client.get("/games/capital-quest").status_code == 404
+    assert client.get("/games/capital-quest").status_code in (301, 302, 308)
+    assert client.get("/games/shape-shifter").status_code == 404   # coming soon
     assert client.get("/games/nope").status_code == 404
 
 
@@ -39,7 +40,8 @@ def test_styleguide(client: FlaskClient) -> None:
 
 
 def test_no_external_assets(client: FlaskClient) -> None:
-    for url in ("/", "/games", "/styleguide", "/games/flag-reveal/", "/games/border-bridge/"):
+    for url in ("/", "/games", "/styleguide", "/games/flag-reveal/", "/games/border-bridge/",
+                "/games/capital-quest/"):
         html = client.get(url).get_data(as_text=True)
         assert "http://" not in html.replace("http://www.w3.org", "")
         assert "https://" not in html.replace("https://www.w3.org", "")

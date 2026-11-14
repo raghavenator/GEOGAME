@@ -1,0 +1,233 @@
+{#
+  Capital Quest embed: the same markup and component serve the full page
+  (mode="page", with a start screen) and the feed card (mode="feed": portrait
+  layout, prepared in the background, started from the card's "Tap to play").
+  ctx = routes.embed_context(): {game, config, settings_defaults, world}
+#}
+{% macro styles() %}
+  <link rel="stylesheet" href="{{ url_for('capital_quest.static', filename='capital_quest.css') }}">
+{% endmacro %}
+
+{% macro scripts() %}
+  <script src="{{ url_for('static', filename='vendor/d3/d3.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='vendor/topojson/topojson-client.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/map_view.js') }}" defer></script>
+  <script src="{{ url_for('capital_quest.static', filename='capital_quest.js') }}" defer></script>
+  <script src="{{ url_for('capital_quest.static', filename='embed.js') }}" defer></script>
+{% endmacro %}
+
+{# The live points meter: a draining bar plus the number a correct pick would score now. #}
+{% macro points_meter(max_points) %}
+  <div class="cq-meter" :data-level="level" :class="{ 'is-stopped': phase !== 'question' }"
+       role="meter" aria-label="Points available" aria-valuemin="0" aria-valuemax="{{ max_points }}"
+       :aria-valuenow="potential" :aria-valuetext="potential + ' of {{ max_points }} points available'">
+    <span class="cq-meter__value" aria-hidden="true"><strong x-text="potential">{{ max_points }}</strong><span class="cq-meter__unit">pts</span></span>
+    <span class="cq-meter__track" aria-hidden="true"><span class="cq-meter__bar" x-ref="meterBar"></span></span>
+    <span class="cq-toast" x-ref="toast" :class="toast && 'is-' + toast.kind" x-text="toast && toast.text" aria-hidden="true"></span>
+  </div>
+{% endmacro %}
+
+{% macro panel(ctx, mode="page") %}
+{% set game = ctx.game %}
+{% set config = ctx.config %}
+{% set feed = mode == "feed" %}
+<div class="cq-container {{ 'cq--embed' if feed else 'container page' }}"
+     data-game-root="capital-quest" data-game="capital-quest" data-mode="{{ mode }}"
+     :class="{ 'is-paused': lifecycle === 'paused', 'is-ready': phase === 'ready' }"
+     x-data="capitalQuest({{ {
+        'apiBase': url_for('capital_quest.play').rstrip('/') ~ '/api',
+        'mode': mode,
+        'topoUrl': ctx.world.topoUrl,
+        'metaUrl': ctx.world.metaUrl,
+        'startPoints': config.start_points,
+        'wrongPenalty': config.wrong_penalty,
+        'minPoints': config.min_correct_points,
+        'resultMs': config.result_ms,
+     } | tojson | forceescape }})">
+
+  <div class="visually-hidden" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
+
+  {% if not feed %}
+  {# ============================================================ START (full page) #}
+  <section class="card cq-start stack stack--lg" x-show="screen === 'start'" x-transition.opacity.duration.250ms>
+    <div class="cq-start__hero">
+      <span class="game-card__icon cq-start__icon">{{ icon(game.icon, 'icon--xl') }}</span>
+      <div class="stack stack--sm">
+        <h1>{{ game.title }}</h1>
+        <p class="muted">{{ game.description }}</p>
+      </div>
+    </div>
+
+    <ol class="cq-steps" aria-label="How to play">
+      <li class="cq-step">
+        <span class="cq-step__icon">{{ icon('map-pin') }}</span>
+        <strong>A country lights up</strong>
+        <span class="subtle">No names on the map. Drag and zoom to get your bearings.</span>
+      </li>
+      <li class="cq-step">
+        <span class="cq-step__icon">{{ icon('landmark') }}</span>
+        <strong>Pick its capital</strong>
+        <span class="subtle">Choose from the options. A wrong one disappears, and the clock keeps running.</span>
+      </li>
+      <li class="cq-step">
+        <span class="cq-step__icon">{{ icon('zap') }}</span>
+        <strong>Be quick</strong>
+        <span class="subtle">Points drain away every second, so answer fast.</span>
+      </li>
+    </ol>
+
+    <p class="muted cq-start__rules">
+      Each question starts at <strong>{{ config.start_points }}</strong> points and drains to 0 over the time limit.
+      A wrong pick costs <strong>{{ config.wrong_penalty }}</strong>, and a right answer in time is always worth at least
+      <strong>{{ config.min_correct_points }}</strong>.
+    </p>
+
+    <div class="cq-settings-summary">
+      <div class="row">
+        <span class="badge">{{ icon('landmark') }}<span x-text="$settings.values.questions + ' questions'"></span></span>
+        <span class="badge">{{ icon('timer') }}<span x-text="$settings.display('seconds') + ' each'"></span></span>
+        <span class="badge">{{ icon('layout-grid') }}<span x-text="$settings.display('options')"></span></span>
+        <span class="badge">{{ icon('globe') }}<span x-text="$settings.display('view')"></span></span>
+        <span class="badge">{{ icon('locate-fixed') }}<span x-text="$settings.display('framing')"></span></span>
+        <span class="badge">{{ icon('map') }}<span x-text="$settings.display('region')"></span></span>
+      </div>
+      <button type="button" class="btn btn--sm btn--soft" @click="$settings.openModal($el)">{{ icon('settings-2', 'icon--sm') }}Change</button>
+    </div>
+
+    <div class="cq-best">
+      {{ icon('trophy') }}
+      <span>Best for these settings:
+        <strong x-text="best === null ? 'No score yet' : best + ' / ' + ($settings.values.questions * {{ config.start_points }})"></strong>
+      </span>
+    </div>
+
+    <div class="alert" role="alert" x-show="error" x-cloak>{{ icon('info') }}<span x-text="error"></span></div>
+    <div class="alert" role="alert" x-show="mapError" x-cloak>{{ icon('info') }}<span x-text="mapError"></span></div>
+
+    <button type="button" class="btn btn--primary btn--lg btn--block" @click="play()" :disabled="busy" x-ref="startBtn">
+      {{ icon('play') }}<span x-text="busy ? 'Starting…' : 'Start'">Start</span>
+    </button>
+  </section>
+  {% endif %}
+
+  {# ============================================================ PLAY #}
+  <section class="cq-play" x-show="screen === 'play'" {% if not feed %}x-cloak{% endif %}>
+    <div class="card card--flat cq-hud">
+      <div class="cq-stat">
+        <span class="eyebrow">Question</span>
+        <strong class="cq-stat__value"><span x-text="q ? q.number : '–'"></span><span class="cq-stat__of"> / <span x-text="total || '–'"></span></span></strong>
+      </div>
+      <div class="cq-stat">
+        <span class="eyebrow">Score</span>
+        <strong class="cq-stat__value" x-text="score"></strong>
+      </div>
+      {{ points_meter(config.start_points) }}
+    </div>
+
+    <div class="cq-main">
+      {# The map zone: drag, rotate, pan and zoom here never move the feed (see feed.js). #}
+      <div class="card cq-stage" data-gesture-zone="map">
+        <div class="cq-pane" x-show="view === 'flat'">
+          <canvas class="cq-canvas" x-ref="flat" tabindex="0" role="img" :aria-label="mapLabel()"></canvas>
+        </div>
+        <div class="cq-pane cq-pane--globe" x-show="view === 'globe'">
+          <canvas class="cq-canvas" x-ref="globe" tabindex="0" role="img" :aria-label="mapLabel()"></canvas>
+        </div>
+        <div class="cq-pane__loading shimmer" x-show="!mapReady" aria-hidden="true"></div>
+        <div class="cq-mapctl" role="group" aria-label="Map controls" x-show="phase !== 'ready'">
+          <button type="button" class="cq-mapctl__btn" @click="zoomBy(1.4)" aria-label="Zoom in">{{ icon('plus', 'icon--sm') }}</button>
+          <button type="button" class="cq-mapctl__btn" @click="zoomBy(1 / 1.4)" aria-label="Zoom out">{{ icon('minus', 'icon--sm') }}</button>
+          <button type="button" class="cq-mapctl__btn" @click="resetView()" aria-label="Reset view" title="Back to the country">{{ icon('locate-fixed', 'icon--sm') }}</button>
+        </div>
+
+        <template x-if="phase === 'result' && result">
+          <div class="cq-result" :class="result.status === 'correct' ? 'is-correct' : 'is-missed'">
+            <img class="cq-result__flag" :src="result.answer.flag_url" :alt="'Flag of ' + result.answer.country">
+            <div class="cq-result__text">
+              <span class="cq-result__kicker" x-text="result.status === 'correct' ? 'Correct!' : 'Time\'s up. The capital is'"></span>
+              <strong class="cq-result__capital" x-text="result.answer.capital"></strong>
+              <span class="cq-result__country" x-text="result.answer.country"></span>
+            </div>
+            <span class="badge cq-result__pts" :class="result.points > 0 ? 'badge--success' : 'badge--error'"
+                  x-text="(result.points > 0 ? '+' : '') + result.points + ' pts'"></span>
+          </div>
+        </template>
+      </div>
+
+      <div class="cq-panel">
+        <p class="cq-prompt" id="cq-prompt-{{ mode }}">What's the capital of the highlighted country?</p>
+        <div class="cq-options" role="group" aria-labelledby="cq-prompt-{{ mode }}" :data-count="phase === 'ready' ? skeletons : optionCount">
+          <template x-for="i in (phase === 'ready' ? skeletons : 0)" :key="'s' + i">
+            <span class="cq-option cq-option--skeleton shimmer" aria-hidden="true"></span>
+          </template>
+          <template x-for="(opt, i) in options" :key="(q ? q.index : 0) + '-' + opt.id">
+            <button type="button" class="cq-option" @click="pick(opt)" :style="'--i:' + i"
+                    :class="{ 'is-wrong': opt.state === 'wrong', 'is-leaving': opt.state === 'leaving',
+                              'is-correct': opt.state === 'correct', 'is-answer': opt.state === 'answer',
+                              'is-dim': opt.state === 'dim' }"
+                    :disabled="phase !== 'question' || !!opt.state" :aria-keyshortcuts="String(i + 1)">
+              <kbd class="cq-option__key" x-text="i + 1" aria-hidden="true"></kbd>
+              <span class="cq-option__name" x-text="opt.name"></span>
+            </button>
+          </template>
+        </div>
+
+        <div class="cq-footer">
+          <p class="cq-feedback" :class="'is-' + feedbackKind" x-text="feedback"></p>
+          <p class="cq-keys subtle" x-show="phase === 'question' && !feedback">Tip: press <kbd>1</kbd>–<kbd x-text="options.length">8</kbd> to pick.</p>
+          <button type="button" class="btn btn--primary cq-next" x-show="phase === 'result'" x-ref="nextBtn" @click="next()" :disabled="advancing">
+            <span x-text="result && result.is_last ? 'See results' : 'Next'"></span>{{ icon('chevron-right') }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="game-paused" aria-hidden="true">{{ icon('timer') }}Paused</div>
+  </section>
+
+  {# ============================================================ SUMMARY #}
+  <section class="card cq-summary stack stack--lg" x-show="screen === 'summary'" x-cloak>
+    <template x-if="summary">
+      <div class="stack stack--lg">
+        <div class="cq-summary__head">
+          <p class="eyebrow">Round complete</p>
+          <div class="cq-summary__score">
+            <strong x-ref="totalScore">0</strong><span>/ <span x-text="summary.max_score"></span></span>
+          </div>
+          <p class="muted" x-text="verdict()"></p>
+          <div class="row row--center">
+            <span class="badge badge--warning cq-new-best" x-show="summary.is_new_best && summary.score > 0">{{ icon('trophy') }}New best!</span>
+            <span class="badge" x-show="!(summary.is_new_best && summary.score > 0)">{{ icon('trophy') }}Best: <span x-text="summary.best + ' / ' + summary.max_score"></span></span>
+          </div>
+        </div>
+
+        <ol class="cq-rows" aria-label="Per-question results">
+          <template x-for="row in summary.questions" :key="row.number">
+            <li class="cq-row" :style="'animation-delay:' + (row.number * 50) + 'ms'">
+              <span class="cq-row__num" x-text="row.number"></span>
+              <img class="cq-row__flag" :src="row.flag_url" :alt="'Flag of ' + row.country" loading="lazy">
+              <div class="cq-row__main">
+                <strong x-text="row.capital"></strong>
+                <span class="subtle" x-text="row.country"></span>
+                <span class="cq-row__meta subtle">
+                  <span x-text="row.status === 'timeout' ? 'Timed out' : formatTime(row.elapsed_ms)"></span>
+                  <span x-show="row.wrong" x-text="'· ' + row.wrong + ' wrong (' + row.wrong_picks.join(', ') + ')'"></span>
+                </span>
+              </div>
+              <span class="badge" :class="row.points > 0 ? 'badge--success' : 'badge--error'" x-text="row.points + ' / ' + row.max_points"></span>
+            </li>
+          </template>
+        </ol>
+
+        <div class="cq-summary__actions">
+          <button type="button" class="btn btn--primary btn--lg" @click="play()" :disabled="busy" x-ref="againBtn">{{ icon('rotate-ccw') }}Play again</button>
+          {% if feed %}
+            <button type="button" class="btn btn--lg" @click="nextGame()">Next game{{ icon('arrow-down') }}</button>
+          {% else %}
+            <a class="btn btn--lg" href="{{ url_for('hub') }}">{{ icon('layout-grid') }}All games</a>
+          {% endif %}
+        </div>
+      </div>
+    </template>
+  </section>
+</div>
+{% endmacro %}

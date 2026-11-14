@@ -28,10 +28,10 @@ from pathlib import Path
 from typing import Any
 
 from app.shared.countries import load_countries
+from app.shared.geo import GEO_META_FILE, is_un_state
 
 PACKAGE_DIR = Path(__file__).parent
 MLEDOZE_FILE = PACKAGE_DIR / "data" / "mledoze_countries.json"
-GEO_META_FILE = PACKAGE_DIR / "static" / "data" / "geo_meta.json"
 
 # Borders that exist only through an overseas territory. These are listed so they
 # stay excluded even if a future data refresh attaches the territory to its parent.
@@ -124,7 +124,7 @@ def great_circle_km(p: tuple[float, float], q: tuple[float, float]) -> float:
 
 
 def is_state(row: Mapping[str, Any]) -> bool:
-    return bool(row.get("independent")) and bool(row.get("unMember"))
+    return is_un_state(row)
 
 
 def build_graph(

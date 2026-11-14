@@ -47,7 +47,7 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
         return {"all_games": GAMES}
 
     feed_items = [{"id": c.item.id, "kind": c.item.kind, "gameId": c.item.game_id, "title": c.title,
-                   "tint": c.item.tint} for c in feed_cards]
+                   "tint": c.item.tint, "mapZone": bool(c.game and c.game.map_zone)} for c in feed_cards]
 
     @app.get("/")
     def feed() -> str:

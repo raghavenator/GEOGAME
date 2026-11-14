@@ -24,6 +24,8 @@ class GameSpec:
     # and panel(ctx, mode), and a function returning the ctx dict panel() needs.
     embed_template: str = ""
     embed_context: Callable[[], dict[str, Any]] | None = None
+    # The embed has a [data-gesture-zone="map"] area (the feed shows its one-time map hint).
+    map_zone: bool = False
 
     @property
     def embeddable(self) -> bool:

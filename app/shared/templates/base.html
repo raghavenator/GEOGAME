@@ -30,6 +30,10 @@
       {% block header_actions %}
         {% if game %}
           <a class="btn btn--ghost" href="{{ url_for('hub') }}">{{ icon('arrow-left') }}<span>All games</span></a>
+          {% if game.embeddable %}
+            <button type="button" class="btn btn--icon" x-data @click="GeoArcade.restart('{{ game.id }}')"
+                    title="Restart with a new round" aria-label="Restart {{ game.title }}">{{ icon('rotate-ccw') }}</button>
+          {% endif %}
           {% if game.settings_schema %}
             <button type="button" class="btn btn--icon" x-data
                     @click="$settings.openModal($el)"

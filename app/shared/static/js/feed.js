@@ -32,6 +32,7 @@
       activeIndex: 0,
       states: Object.fromEntries(cfg.items.filter((i) => i.kind === "game").map((i) => [i.gameId, "preparing"])),
       errors: {},
+      restarting: {},         // game id -> true while its restart button's new round is starting
       announcement: "",
       hints: loadHints(),
       showMapHint: false,
@@ -84,6 +85,24 @@
       onState(gameId, state, detail) {
         this.states[gameId] = state;
         if (state === "error") this.errors[gameId] = detail && detail.message;
+        if (["playing", "error", "finished"].includes(state)) this.restarting[gameId] = false;
+      },
+
+      /** "Tap to play" shows only when the game is prepared and not already restarting into play. */
+      showReady(gameId) {
+        return this.states[gameId] === "ready" && !this.restarting[gameId];
+      },
+
+      canRestart(gameId) {
+        return !this.restarting[gameId] && ["ready", "playing", "paused", "finished", "error"].includes(this.states[gameId]);
+      },
+
+      /** The restart button: throw away this round and start a fresh one with the current settings. */
+      restart(gameId) {
+        const instance = instances.get(gameId);
+        if (!instance || !this.canRestart(gameId)) return;
+        this.restarting[gameId] = true;
+        Promise.resolve(instance.restart()).catch(() => {}).finally(() => { this.restarting[gameId] = false; });
       },
 
       tapToPlay(gameId) {
@@ -138,7 +157,7 @@
           }
           this.atTopSince = performance.now();
         }
-        if (item.gameId === "border-bridge" && !this.hints.map) this.showMapHint = true;
+        if (item.mapZone && !this.hints.map) this.showMapHint = true;
       },
 
       applyInert() {

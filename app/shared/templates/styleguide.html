@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 {% import "_components.html" as ui %}
 {% block title %}Style guide · Geo Arcade{% endblock %}
-{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/feed.css') }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/feed.css') }}">
+<link rel="stylesheet" href="{{ url_for('capital_quest.static', filename='capital_quest.css') }}">{% endblock %}
 
 {% block content %}
 <div class="container page stack stack--lg">
@@ -109,6 +110,29 @@
     </div>
     <h3>Stage meter</h3>
     <div style="max-width: 22rem">{{ ui.stage_meter([15, 10, 5], current=2, fills=[1, 0.45, 0]) }}</div>
+  </section>
+
+  <section class="card sg-section">
+    <h2>Points meter</h2>
+    <p class="muted">Capital Quest's live meter (<code>capital_quest.css</code>): a draining bar plus the points a correct
+      answer would score now. It turns amber at half and red at a quarter. With reduced motion only the number shows.
+      It uses <code>role="meter"</code> with a text value.</p>
+    {% for level, pts, fill in [("high", 17, 0.85), ("mid", 8, 0.4), ("low", 3, 0.12)] %}
+      <div class="cq-meter" data-level="{{ level }}" role="meter" aria-label="Points available" aria-valuemin="0"
+           aria-valuemax="20" aria-valuenow="{{ pts }}" aria-valuetext="{{ pts }} of 20 points available" style="max-width: 24rem">
+        <span class="cq-meter__value" aria-hidden="true"><strong>{{ pts }}</strong><span class="cq-meter__unit">pts</span></span>
+        <span class="cq-meter__track" aria-hidden="true"><span class="cq-meter__bar" style="--fill: {{ fill }}"></span></span>
+      </div>
+    {% endfor %}
+    <h3>Map highlight colours</h3>
+    <div class="sg-swatches">
+      {% for t in ["target", "a", "b", "found", "revealed", "land", "ocean"] %}
+        <div class="sg-swatch">
+          <div class="sg-swatch__chip" style="background: var(--map-{{ t }})"></div>
+          <div class="sg-swatch__name">--map-{{ t }}</div>
+        </div>
+      {% endfor %}
+    </div>
   </section>
 
   <section class="card sg-section">

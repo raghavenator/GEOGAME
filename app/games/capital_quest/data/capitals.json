@@ -1,0 +1,1712 @@
+[
+ {
+  "code": "af",
+  "cca3": "AFG",
+  "shape": "004",
+  "name": "Afghanistan",
+  "capital": "Kabul",
+  "subregion": "Southern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "al",
+  "cca3": "ALB",
+  "shape": "008",
+  "name": "Albania",
+  "capital": "Tirana",
+  "subregion": "Southeast Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "dz",
+  "cca3": "DZA",
+  "shape": "012",
+  "name": "Algeria",
+  "capital": "Algiers",
+  "subregion": "Northern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ad",
+  "cca3": "AND",
+  "shape": "020",
+  "name": "Andorra",
+  "capital": "Andorra la Vella",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "ao",
+  "cca3": "AGO",
+  "shape": "024",
+  "name": "Angola",
+  "capital": "Luanda",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ag",
+  "cca3": "ATG",
+  "shape": "028",
+  "name": "Antigua and Barbuda",
+  "capital": "St. John's",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "ar",
+  "cca3": "ARG",
+  "shape": "032",
+  "name": "Argentina",
+  "capital": "Buenos Aires",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "am",
+  "cca3": "ARM",
+  "shape": "051",
+  "name": "Armenia",
+  "capital": "Yerevan",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "au",
+  "cca3": "AUS",
+  "shape": "036",
+  "name": "Australia",
+  "capital": "Canberra",
+  "subregion": "Australia and New Zealand",
+  "continent": "Oceania"
+ },
+ {
+  "code": "at",
+  "cca3": "AUT",
+  "shape": "040",
+  "name": "Austria",
+  "capital": "Vienna",
+  "subregion": "Central Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "az",
+  "cca3": "AZE",
+  "shape": "031",
+  "name": "Azerbaijan",
+  "capital": "Baku",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "bs",
+  "cca3": "BHS",
+  "shape": "044",
+  "name": "Bahamas",
+  "capital": "Nassau",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "bh",
+  "cca3": "BHR",
+  "shape": "048",
+  "name": "Bahrain",
+  "capital": "Manama",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "bd",
+  "cca3": "BGD",
+  "shape": "050",
+  "name": "Bangladesh",
+  "capital": "Dhaka",
+  "subregion": "Southern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "bb",
+  "cca3": "BRB",
+  "shape": "052",
+  "name": "Barbados",
+  "capital": "Bridgetown",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "by",
+  "cca3": "BLR",
+  "shape": "112",
+  "name": "Belarus",
+  "capital": "Minsk",
+  "subregion": "Eastern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "be",
+  "cca3": "BEL",
+  "shape": "056",
+  "name": "Belgium",
+  "capital": "Brussels",
+  "subregion": "Western Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "bz",
+  "cca3": "BLZ",
+  "shape": "084",
+  "name": "Belize",
+  "capital": "Belmopan",
+  "subregion": "Central America",
+  "continent": "Americas"
+ },
+ {
+  "code": "bj",
+  "cca3": "BEN",
+  "shape": "204",
+  "name": "Benin",
+  "capital": "Porto-Novo",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "bt",
+  "cca3": "BTN",
+  "shape": "064",
+  "name": "Bhutan",
+  "capital": "Thimphu",
+  "subregion": "Southern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ba",
+  "cca3": "BIH",
+  "shape": "070",
+  "name": "Bosnia and Herzegovina",
+  "capital": "Sarajevo",
+  "subregion": "Southeast Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "bw",
+  "cca3": "BWA",
+  "shape": "072",
+  "name": "Botswana",
+  "capital": "Gaborone",
+  "subregion": "Southern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "br",
+  "cca3": "BRA",
+  "shape": "076",
+  "name": "Brazil",
+  "capital": "Brasília",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "bn",
+  "cca3": "BRN",
+  "shape": "096",
+  "name": "Brunei",
+  "capital": "Bandar Seri Begawan",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "bg",
+  "cca3": "BGR",
+  "shape": "100",
+  "name": "Bulgaria",
+  "capital": "Sofia",
+  "subregion": "Southeast Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "bf",
+  "cca3": "BFA",
+  "shape": "854",
+  "name": "Burkina Faso",
+  "capital": "Ouagadougou",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "bi",
+  "cca3": "BDI",
+  "shape": "108",
+  "name": "Burundi",
+  "capital": "Gitega",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "cv",
+  "cca3": "CPV",
+  "shape": "132",
+  "name": "Cabo Verde",
+  "capital": "Praia",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "kh",
+  "cca3": "KHM",
+  "shape": "116",
+  "name": "Cambodia",
+  "capital": "Phnom Penh",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "cm",
+  "cca3": "CMR",
+  "shape": "120",
+  "name": "Cameroon",
+  "capital": "Yaoundé",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ca",
+  "cca3": "CAN",
+  "shape": "124",
+  "name": "Canada",
+  "capital": "Ottawa",
+  "subregion": "North America",
+  "continent": "Americas"
+ },
+ {
+  "code": "cf",
+  "cca3": "CAF",
+  "shape": "140",
+  "name": "Central African Republic",
+  "capital": "Bangui",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "td",
+  "cca3": "TCD",
+  "shape": "148",
+  "name": "Chad",
+  "capital": "N'Djamena",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "cl",
+  "cca3": "CHL",
+  "shape": "152",
+  "name": "Chile",
+  "capital": "Santiago",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "cn",
+  "cca3": "CHN",
+  "shape": "156",
+  "name": "China",
+  "capital": "Beijing",
+  "subregion": "Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "co",
+  "cca3": "COL",
+  "shape": "170",
+  "name": "Colombia",
+  "capital": "Bogotá",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "km",
+  "cca3": "COM",
+  "shape": "174",
+  "name": "Comoros",
+  "capital": "Moroni",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "cr",
+  "cca3": "CRI",
+  "shape": "188",
+  "name": "Costa Rica",
+  "capital": "San José",
+  "subregion": "Central America",
+  "continent": "Americas"
+ },
+ {
+  "code": "hr",
+  "cca3": "HRV",
+  "shape": "191",
+  "name": "Croatia",
+  "capital": "Zagreb",
+  "subregion": "Southeast Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "cu",
+  "cca3": "CUB",
+  "shape": "192",
+  "name": "Cuba",
+  "capital": "Havana",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "cy",
+  "cca3": "CYP",
+  "shape": "196",
+  "name": "Cyprus",
+  "capital": "Nicosia",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "cz",
+  "cca3": "CZE",
+  "shape": "203",
+  "name": "Czechia",
+  "capital": "Prague",
+  "subregion": "Central Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "ci",
+  "cca3": "CIV",
+  "shape": "384",
+  "name": "Côte d'Ivoire",
+  "capital": "Yamoussoukro",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "cd",
+  "cca3": "COD",
+  "shape": "180",
+  "name": "Democratic Republic of the Congo",
+  "capital": "Kinshasa",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "dk",
+  "cca3": "DNK",
+  "shape": "208",
+  "name": "Denmark",
+  "capital": "Copenhagen",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "dj",
+  "cca3": "DJI",
+  "shape": "262",
+  "name": "Djibouti",
+  "capital": "Djibouti",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "dm",
+  "cca3": "DMA",
+  "shape": "212",
+  "name": "Dominica",
+  "capital": "Roseau",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "do",
+  "cca3": "DOM",
+  "shape": "214",
+  "name": "Dominican Republic",
+  "capital": "Santo Domingo",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "ec",
+  "cca3": "ECU",
+  "shape": "218",
+  "name": "Ecuador",
+  "capital": "Quito",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "eg",
+  "cca3": "EGY",
+  "shape": "818",
+  "name": "Egypt",
+  "capital": "Cairo",
+  "subregion": "Northern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "sv",
+  "cca3": "SLV",
+  "shape": "222",
+  "name": "El Salvador",
+  "capital": "San Salvador",
+  "subregion": "Central America",
+  "continent": "Americas"
+ },
+ {
+  "code": "gq",
+  "cca3": "GNQ",
+  "shape": "226",
+  "name": "Equatorial Guinea",
+  "capital": "Malabo",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "er",
+  "cca3": "ERI",
+  "shape": "232",
+  "name": "Eritrea",
+  "capital": "Asmara",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ee",
+  "cca3": "EST",
+  "shape": "233",
+  "name": "Estonia",
+  "capital": "Tallinn",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "sz",
+  "cca3": "SWZ",
+  "shape": "748",
+  "name": "Eswatini",
+  "capital": "Mbabane",
+  "subregion": "Southern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "et",
+  "cca3": "ETH",
+  "shape": "231",
+  "name": "Ethiopia",
+  "capital": "Addis Ababa",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "fj",
+  "cca3": "FJI",
+  "shape": "242",
+  "name": "Fiji",
+  "capital": "Suva",
+  "subregion": "Melanesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "fi",
+  "cca3": "FIN",
+  "shape": "246",
+  "name": "Finland",
+  "capital": "Helsinki",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "fr",
+  "cca3": "FRA",
+  "shape": "250",
+  "name": "France",
+  "capital": "Paris",
+  "subregion": "Western Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "ga",
+  "cca3": "GAB",
+  "shape": "266",
+  "name": "Gabon",
+  "capital": "Libreville",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "gm",
+  "cca3": "GMB",
+  "shape": "270",
+  "name": "Gambia",
+  "capital": "Banjul",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ge",
+  "cca3": "GEO",
+  "shape": "268",
+  "name": "Georgia",
+  "capital": "Tbilisi",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "de",
+  "cca3": "DEU",
+  "shape": "276",
+  "name": "Germany",
+  "capital": "Berlin",
+  "subregion": "Western Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "gh",
+  "cca3": "GHA",
+  "shape": "288",
+  "name": "Ghana",
+  "capital": "Accra",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "gr",
+  "cca3": "GRC",
+  "shape": "300",
+  "name": "Greece",
+  "capital": "Athens",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "gd",
+  "cca3": "GRD",
+  "shape": "308",
+  "name": "Grenada",
+  "capital": "St. George's",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "gt",
+  "cca3": "GTM",
+  "shape": "320",
+  "name": "Guatemala",
+  "capital": "Guatemala City",
+  "subregion": "Central America",
+  "continent": "Americas"
+ },
+ {
+  "code": "gn",
+  "cca3": "GIN",
+  "shape": "324",
+  "name": "Guinea",
+  "capital": "Conakry",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "gw",
+  "cca3": "GNB",
+  "shape": "624",
+  "name": "Guinea-Bissau",
+  "capital": "Bissau",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "gy",
+  "cca3": "GUY",
+  "shape": "328",
+  "name": "Guyana",
+  "capital": "Georgetown",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "ht",
+  "cca3": "HTI",
+  "shape": "332",
+  "name": "Haiti",
+  "capital": "Port-au-Prince",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "hn",
+  "cca3": "HND",
+  "shape": "340",
+  "name": "Honduras",
+  "capital": "Tegucigalpa",
+  "subregion": "Central America",
+  "continent": "Americas"
+ },
+ {
+  "code": "hu",
+  "cca3": "HUN",
+  "shape": "348",
+  "name": "Hungary",
+  "capital": "Budapest",
+  "subregion": "Central Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "is",
+  "cca3": "ISL",
+  "shape": "352",
+  "name": "Iceland",
+  "capital": "Reykjavík",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "in",
+  "cca3": "IND",
+  "shape": "356",
+  "name": "India",
+  "capital": "New Delhi",
+  "subregion": "Southern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "id",
+  "cca3": "IDN",
+  "shape": "360",
+  "name": "Indonesia",
+  "capital": "Jakarta",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ir",
+  "cca3": "IRN",
+  "shape": "364",
+  "name": "Iran",
+  "capital": "Tehran",
+  "subregion": "Southern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "iq",
+  "cca3": "IRQ",
+  "shape": "368",
+  "name": "Iraq",
+  "capital": "Baghdad",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ie",
+  "cca3": "IRL",
+  "shape": "372",
+  "name": "Ireland",
+  "capital": "Dublin",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "it",
+  "cca3": "ITA",
+  "shape": "380",
+  "name": "Italy",
+  "capital": "Rome",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "jm",
+  "cca3": "JAM",
+  "shape": "388",
+  "name": "Jamaica",
+  "capital": "Kingston",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "jp",
+  "cca3": "JPN",
+  "shape": "392",
+  "name": "Japan",
+  "capital": "Tokyo",
+  "subregion": "Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "jo",
+  "cca3": "JOR",
+  "shape": "400",
+  "name": "Jordan",
+  "capital": "Amman",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "kz",
+  "cca3": "KAZ",
+  "shape": "398",
+  "name": "Kazakhstan",
+  "capital": "Astana",
+  "subregion": "Central Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ke",
+  "cca3": "KEN",
+  "shape": "404",
+  "name": "Kenya",
+  "capital": "Nairobi",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ki",
+  "cca3": "KIR",
+  "shape": "296",
+  "name": "Kiribati",
+  "capital": "South Tarawa",
+  "subregion": "Micronesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "kw",
+  "cca3": "KWT",
+  "shape": "414",
+  "name": "Kuwait",
+  "capital": "Kuwait City",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "kg",
+  "cca3": "KGZ",
+  "shape": "417",
+  "name": "Kyrgyzstan",
+  "capital": "Bishkek",
+  "subregion": "Central Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "la",
+  "cca3": "LAO",
+  "shape": "418",
+  "name": "Laos",
+  "capital": "Vientiane",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "lv",
+  "cca3": "LVA",
+  "shape": "428",
+  "name": "Latvia",
+  "capital": "Riga",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "lb",
+  "cca3": "LBN",
+  "shape": "422",
+  "name": "Lebanon",
+  "capital": "Beirut",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ls",
+  "cca3": "LSO",
+  "shape": "426",
+  "name": "Lesotho",
+  "capital": "Maseru",
+  "subregion": "Southern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "lr",
+  "cca3": "LBR",
+  "shape": "430",
+  "name": "Liberia",
+  "capital": "Monrovia",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ly",
+  "cca3": "LBY",
+  "shape": "434",
+  "name": "Libya",
+  "capital": "Tripoli",
+  "subregion": "Northern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "li",
+  "cca3": "LIE",
+  "shape": "438",
+  "name": "Liechtenstein",
+  "capital": "Vaduz",
+  "subregion": "Western Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "lt",
+  "cca3": "LTU",
+  "shape": "440",
+  "name": "Lithuania",
+  "capital": "Vilnius",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "lu",
+  "cca3": "LUX",
+  "shape": "442",
+  "name": "Luxembourg",
+  "capital": "Luxembourg",
+  "subregion": "Western Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "mg",
+  "cca3": "MDG",
+  "shape": "450",
+  "name": "Madagascar",
+  "capital": "Antananarivo",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "mw",
+  "cca3": "MWI",
+  "shape": "454",
+  "name": "Malawi",
+  "capital": "Lilongwe",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "my",
+  "cca3": "MYS",
+  "shape": "458",
+  "name": "Malaysia",
+  "capital": "Kuala Lumpur",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "mv",
+  "cca3": "MDV",
+  "shape": "462",
+  "name": "Maldives",
+  "capital": "Malé",
+  "subregion": "Southern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ml",
+  "cca3": "MLI",
+  "shape": "466",
+  "name": "Mali",
+  "capital": "Bamako",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "mt",
+  "cca3": "MLT",
+  "shape": "470",
+  "name": "Malta",
+  "capital": "Valletta",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "mh",
+  "cca3": "MHL",
+  "shape": "584",
+  "name": "Marshall Islands",
+  "capital": "Majuro",
+  "subregion": "Micronesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "mr",
+  "cca3": "MRT",
+  "shape": "478",
+  "name": "Mauritania",
+  "capital": "Nouakchott",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "mu",
+  "cca3": "MUS",
+  "shape": "480",
+  "name": "Mauritius",
+  "capital": "Port Louis",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "mx",
+  "cca3": "MEX",
+  "shape": "484",
+  "name": "Mexico",
+  "capital": "Mexico City",
+  "subregion": "North America",
+  "continent": "Americas"
+ },
+ {
+  "code": "fm",
+  "cca3": "FSM",
+  "shape": "583",
+  "name": "Micronesia",
+  "capital": "Palikir",
+  "subregion": "Micronesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "md",
+  "cca3": "MDA",
+  "shape": "498",
+  "name": "Moldova",
+  "capital": "Chișinău",
+  "subregion": "Eastern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "mc",
+  "cca3": "MCO",
+  "shape": "492",
+  "name": "Monaco",
+  "capital": "Monaco",
+  "subregion": "Western Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "mn",
+  "cca3": "MNG",
+  "shape": "496",
+  "name": "Mongolia",
+  "capital": "Ulaanbaatar",
+  "subregion": "Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "me",
+  "cca3": "MNE",
+  "shape": "499",
+  "name": "Montenegro",
+  "capital": "Podgorica",
+  "subregion": "Southeast Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "ma",
+  "cca3": "MAR",
+  "shape": "504",
+  "name": "Morocco",
+  "capital": "Rabat",
+  "subregion": "Northern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "mz",
+  "cca3": "MOZ",
+  "shape": "508",
+  "name": "Mozambique",
+  "capital": "Maputo",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "mm",
+  "cca3": "MMR",
+  "shape": "104",
+  "name": "Myanmar",
+  "capital": "Naypyidaw",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "na",
+  "cca3": "NAM",
+  "shape": "516",
+  "name": "Namibia",
+  "capital": "Windhoek",
+  "subregion": "Southern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "nr",
+  "cca3": "NRU",
+  "shape": "520",
+  "name": "Nauru",
+  "capital": "Yaren",
+  "subregion": "Micronesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "np",
+  "cca3": "NPL",
+  "shape": "524",
+  "name": "Nepal",
+  "capital": "Kathmandu",
+  "subregion": "Southern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "nl",
+  "cca3": "NLD",
+  "shape": "528",
+  "name": "Netherlands",
+  "capital": "Amsterdam",
+  "subregion": "Western Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "nz",
+  "cca3": "NZL",
+  "shape": "554",
+  "name": "New Zealand",
+  "capital": "Wellington",
+  "subregion": "Australia and New Zealand",
+  "continent": "Oceania"
+ },
+ {
+  "code": "ni",
+  "cca3": "NIC",
+  "shape": "558",
+  "name": "Nicaragua",
+  "capital": "Managua",
+  "subregion": "Central America",
+  "continent": "Americas"
+ },
+ {
+  "code": "ne",
+  "cca3": "NER",
+  "shape": "562",
+  "name": "Niger",
+  "capital": "Niamey",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ng",
+  "cca3": "NGA",
+  "shape": "566",
+  "name": "Nigeria",
+  "capital": "Abuja",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "kp",
+  "cca3": "PRK",
+  "shape": "408",
+  "name": "North Korea",
+  "capital": "Pyongyang",
+  "subregion": "Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "mk",
+  "cca3": "MKD",
+  "shape": "807",
+  "name": "North Macedonia",
+  "capital": "Skopje",
+  "subregion": "Southeast Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "no",
+  "cca3": "NOR",
+  "shape": "578",
+  "name": "Norway",
+  "capital": "Oslo",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "om",
+  "cca3": "OMN",
+  "shape": "512",
+  "name": "Oman",
+  "capital": "Muscat",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "pk",
+  "cca3": "PAK",
+  "shape": "586",
+  "name": "Pakistan",
+  "capital": "Islamabad",
+  "subregion": "Southern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "pw",
+  "cca3": "PLW",
+  "shape": "585",
+  "name": "Palau",
+  "capital": "Ngerulmud",
+  "subregion": "Micronesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "pa",
+  "cca3": "PAN",
+  "shape": "591",
+  "name": "Panama",
+  "capital": "Panama City",
+  "subregion": "Central America",
+  "continent": "Americas"
+ },
+ {
+  "code": "pg",
+  "cca3": "PNG",
+  "shape": "598",
+  "name": "Papua New Guinea",
+  "capital": "Port Moresby",
+  "subregion": "Melanesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "py",
+  "cca3": "PRY",
+  "shape": "600",
+  "name": "Paraguay",
+  "capital": "Asunción",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "pe",
+  "cca3": "PER",
+  "shape": "604",
+  "name": "Peru",
+  "capital": "Lima",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "ph",
+  "cca3": "PHL",
+  "shape": "608",
+  "name": "Philippines",
+  "capital": "Manila",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "pl",
+  "cca3": "POL",
+  "shape": "616",
+  "name": "Poland",
+  "capital": "Warsaw",
+  "subregion": "Central Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "pt",
+  "cca3": "PRT",
+  "shape": "620",
+  "name": "Portugal",
+  "capital": "Lisbon",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "qa",
+  "cca3": "QAT",
+  "shape": "634",
+  "name": "Qatar",
+  "capital": "Doha",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "cg",
+  "cca3": "COG",
+  "shape": "178",
+  "name": "Republic of the Congo",
+  "capital": "Brazzaville",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ro",
+  "cca3": "ROU",
+  "shape": "642",
+  "name": "Romania",
+  "capital": "Bucharest",
+  "subregion": "Southeast Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "ru",
+  "cca3": "RUS",
+  "shape": "643",
+  "name": "Russia",
+  "capital": "Moscow",
+  "subregion": "Eastern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "rw",
+  "cca3": "RWA",
+  "shape": "646",
+  "name": "Rwanda",
+  "capital": "Kigali",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "kn",
+  "cca3": "KNA",
+  "shape": "659",
+  "name": "Saint Kitts and Nevis",
+  "capital": "Basseterre",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "lc",
+  "cca3": "LCA",
+  "shape": "662",
+  "name": "Saint Lucia",
+  "capital": "Castries",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "vc",
+  "cca3": "VCT",
+  "shape": "670",
+  "name": "Saint Vincent and the Grenadines",
+  "capital": "Kingstown",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "ws",
+  "cca3": "WSM",
+  "shape": "882",
+  "name": "Samoa",
+  "capital": "Apia",
+  "subregion": "Polynesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "sm",
+  "cca3": "SMR",
+  "shape": "674",
+  "name": "San Marino",
+  "capital": "City of San Marino",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "sa",
+  "cca3": "SAU",
+  "shape": "682",
+  "name": "Saudi Arabia",
+  "capital": "Riyadh",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "sn",
+  "cca3": "SEN",
+  "shape": "686",
+  "name": "Senegal",
+  "capital": "Dakar",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "rs",
+  "cca3": "SRB",
+  "shape": "688",
+  "name": "Serbia",
+  "capital": "Belgrade",
+  "subregion": "Southeast Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "sc",
+  "cca3": "SYC",
+  "shape": "690",
+  "name": "Seychelles",
+  "capital": "Victoria",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "sl",
+  "cca3": "SLE",
+  "shape": "694",
+  "name": "Sierra Leone",
+  "capital": "Freetown",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "sg",
+  "cca3": "SGP",
+  "shape": "702",
+  "name": "Singapore",
+  "capital": "Singapore",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "sk",
+  "cca3": "SVK",
+  "shape": "703",
+  "name": "Slovakia",
+  "capital": "Bratislava",
+  "subregion": "Central Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "si",
+  "cca3": "SVN",
+  "shape": "705",
+  "name": "Slovenia",
+  "capital": "Ljubljana",
+  "subregion": "Central Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "sb",
+  "cca3": "SLB",
+  "shape": "090",
+  "name": "Solomon Islands",
+  "capital": "Honiara",
+  "subregion": "Melanesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "so",
+  "cca3": "SOM",
+  "shape": "706",
+  "name": "Somalia",
+  "capital": "Mogadishu",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "za",
+  "cca3": "ZAF",
+  "shape": "710",
+  "name": "South Africa",
+  "capital": "Pretoria",
+  "subregion": "Southern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "kr",
+  "cca3": "KOR",
+  "shape": "410",
+  "name": "South Korea",
+  "capital": "Seoul",
+  "subregion": "Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ss",
+  "cca3": "SSD",
+  "shape": "728",
+  "name": "South Sudan",
+  "capital": "Juba",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "es",
+  "cca3": "ESP",
+  "shape": "724",
+  "name": "Spain",
+  "capital": "Madrid",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "sd",
+  "cca3": "SDN",
+  "shape": "729",
+  "name": "Sudan",
+  "capital": "Khartoum",
+  "subregion": "Northern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "sr",
+  "cca3": "SUR",
+  "shape": "740",
+  "name": "Suriname",
+  "capital": "Paramaribo",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "se",
+  "cca3": "SWE",
+  "shape": "752",
+  "name": "Sweden",
+  "capital": "Stockholm",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "ch",
+  "cca3": "CHE",
+  "shape": "756",
+  "name": "Switzerland",
+  "capital": "Bern",
+  "subregion": "Western Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "sy",
+  "cca3": "SYR",
+  "shape": "760",
+  "name": "Syria",
+  "capital": "Damascus",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "st",
+  "cca3": "STP",
+  "shape": "678",
+  "name": "São Tomé and Príncipe",
+  "capital": "São Tomé",
+  "subregion": "Middle Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "tj",
+  "cca3": "TJK",
+  "shape": "762",
+  "name": "Tajikistan",
+  "capital": "Dushanbe",
+  "subregion": "Central Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "tz",
+  "cca3": "TZA",
+  "shape": "834",
+  "name": "Tanzania",
+  "capital": "Dodoma",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "th",
+  "cca3": "THA",
+  "shape": "764",
+  "name": "Thailand",
+  "capital": "Bangkok",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "tl",
+  "cca3": "TLS",
+  "shape": "626",
+  "name": "Timor-Leste",
+  "capital": "Dili",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "tg",
+  "cca3": "TGO",
+  "shape": "768",
+  "name": "Togo",
+  "capital": "Lomé",
+  "subregion": "Western Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "to",
+  "cca3": "TON",
+  "shape": "776",
+  "name": "Tonga",
+  "capital": "Nuku'alofa",
+  "subregion": "Polynesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "tt",
+  "cca3": "TTO",
+  "shape": "780",
+  "name": "Trinidad and Tobago",
+  "capital": "Port of Spain",
+  "subregion": "Caribbean",
+  "continent": "Americas"
+ },
+ {
+  "code": "tn",
+  "cca3": "TUN",
+  "shape": "788",
+  "name": "Tunisia",
+  "capital": "Tunis",
+  "subregion": "Northern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "tm",
+  "cca3": "TKM",
+  "shape": "795",
+  "name": "Turkmenistan",
+  "capital": "Ashgabat",
+  "subregion": "Central Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "tr",
+  "cca3": "TUR",
+  "shape": "792",
+  "name": "Türkiye",
+  "capital": "Ankara",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ug",
+  "cca3": "UGA",
+  "shape": "800",
+  "name": "Uganda",
+  "capital": "Kampala",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "ua",
+  "cca3": "UKR",
+  "shape": "804",
+  "name": "Ukraine",
+  "capital": "Kyiv",
+  "subregion": "Eastern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "ae",
+  "cca3": "ARE",
+  "shape": "784",
+  "name": "United Arab Emirates",
+  "capital": "Abu Dhabi",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "gb",
+  "cca3": "GBR",
+  "shape": "826",
+  "name": "United Kingdom",
+  "capital": "London",
+  "subregion": "Northern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "us",
+  "cca3": "USA",
+  "shape": "840",
+  "name": "United States",
+  "capital": "Washington, D.C.",
+  "subregion": "North America",
+  "continent": "Americas"
+ },
+ {
+  "code": "uy",
+  "cca3": "URY",
+  "shape": "858",
+  "name": "Uruguay",
+  "capital": "Montevideo",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "uz",
+  "cca3": "UZB",
+  "shape": "860",
+  "name": "Uzbekistan",
+  "capital": "Tashkent",
+  "subregion": "Central Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "vu",
+  "cca3": "VUT",
+  "shape": "548",
+  "name": "Vanuatu",
+  "capital": "Port Vila",
+  "subregion": "Melanesia",
+  "continent": "Oceania"
+ },
+ {
+  "code": "va",
+  "cca3": "VAT",
+  "shape": "336",
+  "name": "Vatican City",
+  "capital": "Vatican City",
+  "subregion": "Southern Europe",
+  "continent": "Europe"
+ },
+ {
+  "code": "ve",
+  "cca3": "VEN",
+  "shape": "862",
+  "name": "Venezuela",
+  "capital": "Caracas",
+  "subregion": "South America",
+  "continent": "Americas"
+ },
+ {
+  "code": "vn",
+  "cca3": "VNM",
+  "shape": "704",
+  "name": "Vietnam",
+  "capital": "Hanoi",
+  "subregion": "South-Eastern Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "ye",
+  "cca3": "YEM",
+  "shape": "887",
+  "name": "Yemen",
+  "capital": "Sana'a",
+  "subregion": "Western Asia",
+  "continent": "Asia"
+ },
+ {
+  "code": "zm",
+  "cca3": "ZMB",
+  "shape": "894",
+  "name": "Zambia",
+  "capital": "Lusaka",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ },
+ {
+  "code": "zw",
+  "cca3": "ZWE",
+  "shape": "716",
+  "name": "Zimbabwe",
+  "capital": "Harare",
+  "subregion": "Eastern Africa",
+  "continent": "Africa"
+ }
+]

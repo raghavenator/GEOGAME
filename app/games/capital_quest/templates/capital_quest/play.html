@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% import "capital_quest/_embed.html" as embed %}
+{% block title %}{{ game.title }} · Geo Arcade{% endblock %}
+{% block description %}{{ game.description }}{% endblock %}
+{% block head %}{{ embed.styles() }}{% endblock %}
+
+{% block content %}
+  {{ embed.panel(ctx, mode="page") }}
+{% endblock %}
+
+{% block late_scripts %}{{ embed.scripts() }}{% endblock %}

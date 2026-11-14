@@ -41,8 +41,9 @@ def placeholder(item_id: str, title: str, copy: str, tint: str = "violet", badge
 FEED: tuple[FeedItem, ...] = (
     game("flag-reveal", tint="blue"),
     game("border-bridge", tint="green"),
+    game("capital-quest", tint="amber"),
     placeholder("coming-soon", "More games on the way",
-                "Capitals, coastlines and more are in the works. Check back soon for something new to swipe to."),
+                "Outlines, coastlines and more are in the works. Check back soon for something new to swipe to."),
 )
 
 

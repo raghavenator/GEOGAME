@@ -1,7 +1,9 @@
-/* Border Bridge map renderer: d3-geo on a 2D canvas (no WebGL).
+/* Shared map renderer (Border Bridge, Capital Quest): d3-geo on a 2D canvas (no WebGL).
    One MapView per view ("globe" = orthographic, "flat" = Natural Earth). Both share
    a camera model { lon, lat, k } so framing, animation and input work the same way.
-   Exposes window.BorderMaps = { loadWorld, MapView }. */
+   Highlight roles: a, b, found, revealed (Border Bridge) and target (Capital Quest),
+   coloured from the --map-<role> tokens. Labels are drawn only for ids in state.names.
+   Exposes window.GeoMaps = { loadWorld, MapView } (window.BorderMaps is the same object). */
 (function () {
   "use strict";
   const DEG = 180 / Math.PI;
@@ -15,7 +17,7 @@
   const PALETTE_KEYS = [
     "ocean", "ocean-light", "ocean-deep", "land", "land-border", "coast", "graticule", "atmosphere", "shade",
     "sheen", "label", "label-halo", "a", "a-stroke", "b", "b-stroke", "found", "found-stroke", "revealed",
-    "revealed-stroke",
+    "revealed-stroke", "target", "target-stroke",
   ];
   const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -126,7 +128,9 @@
 
   /* ------------------------------------------------------------------ view */
   class MapView {
-    constructor(canvas, world, { kind, onInteract = () => {} }) {
+    /** options.tinyArea: highlighted shapes whose projected area (px²) is at most this get a
+        marker ring so they stay findable. */
+    constructor(canvas, world, { kind, onInteract = () => {}, tinyArea = 36 }) {
       this.canvas = canvas;
       this.ctx = canvas.getContext("2d");
       this.world = world;
@@ -136,7 +140,9 @@
       this.projection = this.makeProjection();
       this.camera = kind === "globe" ? { lon: 10, lat: 25, k: 1 } : { lon: 10, lat: 15, k: 1 };
       this.colors = readPalette();
-      this.state = { a: null, b: null, found: [], added: [], names: {} };
+      this.state = { a: null, b: null, target: null, found: [], added: [], names: {} };
+      this.tinyArea = tinyArea;
+      this.home = null;  // camera to return to on resetView() when nothing is framed (see show())
       this.showBorders = true;
       this.appear = new Map();
       this.pulses = [];
@@ -192,21 +198,25 @@
       this._baseScale = this.baseScale();
       this.baseKey = "";
       if (this.target) this.camera = this.computeFrame(this.target);  // was hidden: jump, don't fly
+      else if (this.home) this.camera = { ...this.home };
       this.request();
     }
 
     /* ---------------------------------------------------------------- state */
-    setState({ a, b, found = [], added = [], names = {} }, { fresh = false } = {}) {
+    /** pulse: also ring-pulse highlights that are new in a fresh state (by default only
+        highlights added to an existing state pulse). */
+    setState({ a = null, b = null, target = null, found = [], added = [], names = {} }, { fresh = false, pulse = false } = {}) {
       const now = performance.now();
-      const before = new Set(fresh ? [] : [this.state.a, this.state.b, ...this.state.found, ...this.state.added]);
+      const s = this.state;
+      const before = new Set(fresh ? [] : [s.a, s.b, s.target, ...s.found, ...s.added]);
       if (fresh) { this.appear.clear(); this.pulses = []; }
-      for (const id of [a, b, ...found, ...added]) {
+      for (const id of [a, b, target, ...found, ...added]) {
         if (id && !before.has(id) && !reducedMotion()) {
           this.appear.set(id, now);
-          if (!fresh) this.pulses.push({ id, t0: now });
+          if (!fresh || pulse) this.pulses.push({ id, t0: now });
         }
       }
-      this.state = { a, b, found, added, names };
+      this.state = { a, b, target, found, added, names };
       this._tinyKey = "";
       this.request();
     }
@@ -217,10 +227,13 @@
       this.request();
     }
 
-    /** Fly the camera so the given shapes fit, framed around the core pair. */
-    frame(ids, core, animate = true, durationMs) {
+    /** Fly the camera so the given shapes fit, framed around the core pair.
+        opts.clipDeg: radius (degrees) around the core's centre beyond which outlines are
+        ignored (default: from the pair's spread, 12–80); opts.zoomOut: multiply the fitted
+        zoom (< 1 shows more surroundings); opts.frameMax: zoom cap instead of limits.frameMax. */
+    frame(ids, core, animate = true, durationMs, opts = {}) {
       this.autoRotate = false;
-      this.target = { ids: ids.filter((id) => this.world.shapes[id]), core };
+      this.target = { ids: ids.filter((id) => this.world.shapes[id]), core, opts };
       if (!this.w) return;  // hidden; resize() will jump there when shown
       this.flyTo(this.computeFrame(this.target), animate, durationMs);
     }
@@ -228,6 +241,7 @@
     /** Ready state: no puzzle, whole-world view, the globe slowly turning. */
     idle() {
       this.target = null;
+      this.home = null;
       this.anim = null;
       this.camera = this.kind === "globe" ? { lon: this.camera.lon, lat: 18, k: 1 } : { lon: 10, lat: 15, k: 1 };
       this.autoRotate = this.kind === "globe" && !reducedMotion();
@@ -264,9 +278,26 @@
 
     resetView() {
       if (this.target) this.flyTo(this.computeFrame(this.target), true);
+      else if (this.home) this.flyTo(this.home, true);
     }
 
-    computeFrame({ ids, core }) {
+    /** Fly to a fixed camera ({ lon, lat, k }) instead of framing shapes; resetView() returns here. */
+    show(camera, animate = true, durationMs) {
+      this.autoRotate = false;
+      this.target = null;
+      this.home = { ...camera, k: clamp(camera.k, this.limits.kMin, this.limits.kMax) };
+      this.flyTo(this.home, animate, durationMs);
+    }
+
+    /** The whole-world camera for this view, turned towards lon/lat (the globe faces it;
+        the flat map keeps its usual centre unless the point would sit on the edge). */
+    worldCamera([lon, lat] = [10, 15]) {
+      if (this.kind === "globe") return { lon, lat: clamp(lat, -50, 50), k: 1 };
+      const off = wrapLon(lon - 10);
+      return { lon: Math.abs(off) > 150 ? wrapLon(lon - Math.sign(off) * 140) : 10, lat: 15, k: 1 };
+    }
+
+    computeFrame({ ids, core, opts = {} }) {
       const shapes = this.world.shapes;
       const centres = core.map((id) => shapes[id].centroid);
       const centre = sphericalMean(centres);
@@ -275,8 +306,8 @@
       // Endpoints keep a generous circle; other countries (often big intermediates
       // such as Russia) only count where they're close to the pair.
       const radius = Math.max(...centres.map((c) => d3.geoDistance(centre, c))) * DEG;
-      const coreClip = clamp(radius * 1.6 + 7, 12, 80) / DEG;
-      const otherClip = clamp(radius * 1.15 + 4, 6, 70) / DEG;
+      const coreClip = (opts.clipDeg || clamp(radius * 1.6 + 7, 12, 80)) / DEG;
+      const otherClip = (opts.clipDeg || clamp(radius * 1.15 + 4, 6, 70)) / DEG;
       const pts = [];
       for (const id of ids) {
         const clip = core.includes(id) ? coreClip : otherClip;
@@ -302,9 +333,10 @@
         cam = {
           lon: mid ? wrapLon(mid[0]) : cam.lon,
           lat: clamp(mid ? mid[1] : cam.lat, -75, 75),
-          k: clamp(k, this.limits.kMin, this.limits.frameMax),
+          k: clamp(k, this.limits.kMin, opts.frameMax || this.limits.frameMax),
         };
       }
+      if (opts.zoomOut) cam.k = clamp(cam.k * opts.zoomOut, this.limits.kMin, opts.frameMax || this.limits.frameMax);
       return cam;
     }
 
@@ -550,6 +582,7 @@
       const out = [];
       if (s.a) out.push([s.a, "a"]);
       if (s.b) out.push([s.b, "b"]);
+      if (s.target) out.push([s.target, "target"]);
       for (const id of s.found) out.push([id, "found"]);
       for (const id of s.added) out.push([id, "revealed"]);
       return out.filter(([id]) => this.world.shapes[id]);
@@ -645,7 +678,7 @@
         again = true;
       }
       if (!this._tinyKey) {  // recomputed only when the camera or highlights change
-        this._tiny = new Set(this.roles().map(([id]) => id).filter((id) => path.area(this.world.shapes[id].feature) <= 36));
+        this._tiny = new Set(this.roles().map(([id]) => id).filter((id) => path.area(this.world.shapes[id].feature) <= this.tinyArea));
         this._tinyKey = "ok";
       }
       for (const [id, role] of this.roles()) {
@@ -709,5 +742,6 @@
     }
   }
 
-  window.BorderMaps = { loadWorld, MapView };
+  window.GeoMaps = { loadWorld, MapView };
+  window.BorderMaps = window.GeoMaps;  // the original name, kept for Border Bridge
 })();

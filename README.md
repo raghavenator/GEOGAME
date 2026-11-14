@@ -5,6 +5,7 @@ The homepage is a vertical, Shorts-style feed: swipe or scroll from one game to 
 
 - **Flag Reveal**: a flag is revealed one third at a time. Pick the country from 8 options; answering earlier and faster scores more.
 - **Border Bridge**: two countries light up on a globe and a flat map. Connect them by picking the countries in between, one land border at a time.
+- **Capital Quest**: a country lights up on the map. Pick its capital from up to 8 options before the points drain away.
 
 ## Run it
 
@@ -22,7 +23,7 @@ High scores are stored in `instance/geo_arcade.sqlite3`, which is created on fir
 Everything is served locally:
 - fonts (Inter), icons (Lucide), Alpine.js, d3 and topojson-client are vendored under `app/shared/static/vendor/`;
 - the flag SVGs (flag-icons) are under `app/shared/static/flags/`;
-- Border Bridge's map data is in its own `static/data/`.
+- the world map data (Natural Earth 50m) is in Border Bridge's `static/data/`, shared through `app/shared/geo.py`.
 
 There's no npm, no bundler and no CDN at runtime.
 
@@ -48,8 +49,17 @@ app/
       routes.py            page + JSON API (start/begin/pause/resume/pick/...)
       data/                trimmed mledoze/countries borders (+ licence)
       templates/border_bridge/_embed.html, play.html
-      static/              border_bridge.css/.js, embed.js, map_view.js (d3 canvas renderer),
+      static/              border_bridge.css/.js, embed.js,
                            data/countries-50m.json (Natural Earth via world-atlas), data/geo_meta.json
+                           (the world map data both map games use, see shared/geo.py)
+    capital_quest/
+      __init__.py          GAME metadata + blueprint
+      capital_data.py      capital override / confirmation / exclusion tables + the data join
+      logic.py             pure rules: config, settings, options, scoring, play clock, state
+      routes.py            page + JSON API (start/begin/pick/timeout/next/pause/resume/summary)
+      data/capitals.json   the eligible pool, built by scripts/build_capitals.py
+      templates/capital_quest/_embed.html, play.html
+      static/              capital_quest.css/.js, embed.js
   shared/
     countries.py           country loader + forgiving answer matcher (case/accents/aliases/typos)
     settings.py            declarative settings schemas, validation, high-score keys
@@ -57,17 +67,20 @@ app/
     highscores.py          SQLite best scores per (game, settings)
     round_store.py         thread-safe in-memory store for live rounds
     api.py                 JSON error helpers
-    game.py                GameSpec: the contract every game fulfils (incl. embed template/context)
+    game.py                GameSpec: the contract every game fulfils (incl. embed template/context, map_zone)
+    geo.py                 where the world map data lives, the UN-member pool rule, its browser URLs
     data/countries.json    195 countries (UN members + observers) with regions and aliases
     templates/             base.html, feed.html, hub.html, styleguide, settings modal, UI macros
     static/css/tokens.css  design tokens (the only place raw colours live)
     static/css/base.css    shared components;  static/css/feed.css  the feed
     static/js/             core.js (API, timers, embed contract), settings.js (per-game settings stores),
-                           feed.js (feed controller)
+                           feed.js (feed controller), map_view.js (d3 canvas globe/flat map renderer,
+                           window.GeoMaps; window.BorderMaps is the same object)
     static/flags/          sanitised flag SVGs
 scripts/vendor_flags.py    re-import flags from the flag-icons package
 scripts/fetch_border_data.py   download + derive Border Bridge data and libraries
 scripts/verify_border_data.py  join report: shapes vs border graph vs countries.json
+scripts/build_capitals.py      build Capital Quest's capitals.json + print its review report
 tests/                     pytest: matching, game logic, settings, API flow, play clock, feed, hub wiring
 ```
 
@@ -76,7 +89,7 @@ Visit `/styleguide` to see every shared component.
 ## The feed (homepage)
 
 `/` is a full-screen feed of cards that snap one at a time (CSS scroll snap, `dvh` units), in the order set by
-`FEED` in `app/feed.py`: Flag Reveal, Border Bridge, then a "Coming soon" card. It doesn't loop.
+`FEED` in `app/feed.py`: Flag Reveal, Border Bridge, Capital Quest, then a "Coming soon" card. It doesn't loop.
 
 - **Preloaded, one tap to start.** On load every game card runs `prepare()` in parallel: it creates a round on the
   server and loads what it needs (Flag Reveal fetches the first flag's bytes without rendering it; Border Bridge
@@ -92,7 +105,7 @@ Visit `/styleguide` to see every shared component.
 - **Pull to refresh.** At the top of the first card, pulling down (touch) or scrolling up past the top (wheel)
   shows an indicator and, past a threshold, reloads with fresh rounds. It never starts from a map, while a text
   field is focused, or while the first game is mid-round.
-- **Gesture zones.** In Border Bridge the map is a fully interactive zone (`data-gesture-zone="map"`,
+- **Gesture zones.** In Border Bridge and Capital Quest the map is a fully interactive zone (`data-gesture-zone="map"`,
   `touch-action: none`, pointer capture): dragging, rotating, panning, pinching and wheel/trackpad zoom there never
   move the feed. Everything else on the card (header strip, chips, options, margins) swipes as normal. The map sits
   in the top half of the portrait card with a clear border, and a one-time hint says "Swipe outside the map to
@@ -116,6 +129,7 @@ Every game registers itself in the browser with `GeoArcade.games[id] = { mount(c
 | `prepare()` | Create a round on the server, load data and assets, render the locked **ready** state. Resolves when ready. |
 | `start()` | Begin play (call it from the player's tap). Tells the server, which starts the scoring clock. |
 | `pause()` / `resume()` | Card left / came back: hold and release timers, animation loops and rendering. |
+| `restart()` | Throw away the current round and start a fresh one with the current settings (the restart button). |
 | `destroy()` | Remove listeners and stop everything. |
 
 `options` = `{ mode: "feed" | "page", onState(state, detail), onRoundFinished(summary), onNextGame() }`, where state
@@ -144,8 +158,10 @@ and the client silently prepares a fresh round and begins that one.
 2. Set `embed_template="<game>/_embed.html"` and `embed_context=routes.embed_context` on its `GameSpec`.
 3. Add `game("<id>", tint="amber")` to `FEED` in `app/feed.py` (tints: blue, green, amber, violet). The app checks
    the feed against the registry at startup and refuses unknown, unplayable or duplicate entries.
-4. If the game has a zone with its own gestures (like a map), mark it `data-gesture-zone="map"` and keep it to
-   about half of the card.
+4. If the game has a zone with its own gestures (like a map), mark it `data-gesture-zone="map"`, keep it to
+   about half of the card and set `map_zone=True` on its `GameSpec` (the feed then shows the one-time
+   "Swipe outside the map" hint on that card). Don't put `overscroll-behavior: contain` on scrollable parts of the
+   card outside the map, or swipes there can't change card.
 
 ## Flag Reveal scoring
 
@@ -243,24 +259,83 @@ python scripts/verify_border_data.py    # join report
 - Tuvalu has no 50m shape.
 - Ashmore and Cartier Is. reuse Australia's id `036`, so the larger shape is kept.
 
+## Capital Quest
+
+A country is highlighted on the map (no names or labels). Pick its capital from 8 options (4 or 6 in settings).
+
+- **Points drain:** each question starts at **20** and drains linearly to 0 over the time limit (20 s by default).
+- **Wrong pick:** −3 from the points available. That option disappears and the clock keeps running.
+- **Correct:** `max(2, available − 3 × wrong picks)`, rounded half up to a whole number. A right answer before the
+  timeout is never worth less than 2.
+- **Time out:** 0, and the capital is revealed in the options and on the map.
+- The round maximum is questions × 20. The summary lists country, capital, time, wrong picks and points per question.
+  Best scores are kept per questions, time, options, framing and region. Map view doesn't split them.
+- All values live in `CapitalQuestConfig` in `app/games/capital_quest/logic.py`.
+
+**How it stays honest:**
+- `start` creates the round but returns nothing about its questions. `begin` (the tap) starts the server clock and
+  returns the first question: the shape id to highlight and the option names, with opaque ids.
+- Which option is correct is only sent when the question ends (correct pick, timeout or a late pick).
+- Elapsed time is the server's own clock from `begin` / `next`, with paused time shifted out (the card scrolled
+  away or the tab was hidden). The client's points meter is only an estimate for display.
+- A pick up to 0.5 s after the limit still counts (network grace). Later picks end the question as a timeout.
+  A `timeout` more than 1 s earlier than the server's clock is refused with `too_early` and the remaining time.
+
+**Options:** the answer plus distractors from other eligible capitals. About half come from the target's UN
+subregion, topped up from its continent, and the rest from other continents. Names are unique (accents and case
+ignored), never equal the answer, and the order is shuffled.
+
+**Settings:** questions (1–30), time per question (10–60 s), options (4/6/8), map view (flat/globe), map framing
+(zoom to region by default, which is easier, or world view) and region. In world view, small countries (Malta, Singapore,
+Liechtenstein…) get a pulsing marker ring.
+
+**Rendering:** the shared `map_view.js` renderer (moved from Border Bridge; its behaviour there is unchanged)
+with a `target` highlight role (`--map-target`). The highlight fades and pulses in. World view turns the globe to
+the country or keeps the flat map whole. Zoom to region frames the country's mainland and pulls back to show its
+neighbours.
+
+### Capitals data
+
+```bash
+python scripts/build_capitals.py           # rebuild data/capitals.json and print the review report
+```
+
+- **Capitals and subregions:** [`mledoze/countries`](https://github.com/mledoze/countries) `capital` and
+  `subregion` fields (npm `world-countries` 5.1.0, the same pinned file Border Bridge uses).
+- **Joined to** the shared `countries.json` (ids, English names, continents) and the 50m shapes (by `ccn3`).
+- **Pool:** the same rule as Border Bridge, independent UN member states (`app/shared/geo.py:is_un_state`). Palestine,
+  Kosovo, Taiwan and Western Sahara are not in it. Every country also needs a shape (Tuvalu has none at 50m) and
+  exactly one agreed capital.
+- **Tables** in `app/games/capital_quest/capital_data.py`:
+  - `CAPITAL_OVERRIDES` gives a single answer or fixes a spelling: South Africa → Pretoria, Eswatini → Mbabane,
+    Washington, D.C., Ulaanbaatar, Reykjavík, St. John's.
+  - `CONFIRMED_SINGLE_CAPITALS` keeps the source's single value on purpose: Netherlands (Amsterdam), Côte d'Ivoire,
+    Benin, Malaysia, Tanzania, Switzerland, Nauru, Montenegro, Yemen.
+  - `EXCLUDED_CAPITALS` lists Bolivia (Sucre / La Paz), Sri Lanka (Sri Jayawardenepura Kotte / Colombo) and Israel
+    (Jerusalem's status is disputed).
+  - Any other country with several or no capitals in the source is excluded automatically.
+- **Current report:** 190 eligible countries (Africa 54, Americas 34, Asia 44, Europe 45, Oceania 13). No
+  duplicate names and no empty capitals. Note that the source flags Vatican City as a UN member, so it is in the
+  pool for both map games.
+
 ## How to add a new game
 
 1. **Create a package** at `app/games/<your_game>/`:
    ```python
-   # app/games/capital_quest/__init__.py
+   # app/games/your_game/__init__.py
    from flask import Blueprint
    from app.shared.game import GameSpec
    from app.shared.settings import IntSetting
 
-   bp = Blueprint("capital_quest", __name__, template_folder="templates",
+   bp = Blueprint("your_game", __name__, template_folder="templates",
                   static_folder="static", static_url_path="/static")
    from . import routes  # defines a view named `play` at "/"
 
    GAME = GameSpec(
-       id="capital-quest",                    # URL: /games/capital-quest/
-       title="Capital Quest",
-       description="Match countries with their capitals.",
-       icon="landmark",                       # any SVG in shared/static/vendor/lucide
+       id="your-game",                        # URL: /games/your-game/
+       title="Your Game",
+       description="What the player does.",
+       icon="shapes",                         # any SVG in shared/static/vendor/lucide
        blueprint=bp,
        settings_schema=(IntSetting("questions", "Questions per round", 10, 1, 30),),
    )
@@ -288,5 +363,6 @@ python scripts/verify_border_data.py    # join report
 - Licences:
   - flag-icons (MIT), Lucide (ISC), Inter (OFL), d3 and topojson-client (ISC).
   - world-atlas (ISC), with Natural Earth data in the public domain.
-  - mledoze/countries (ODbL 1.0; attribution: Mohammed Le Doze).
+  - mledoze/countries (ODbL 1.0; attribution: Mohammed Le Doze), for Border Bridge's borders and Capital Quest's
+    capitals and subregions (`capitals.json` is a derived database under the same licence).
   - Each licence file is next to its vendored files.

@@ -2,11 +2,23 @@
 {% from "_settings_modal.html" import settings_modal %}
 {% block title %}Geo Arcade · Swipe through geography games{% endblock %}
 {% block body_class %}feed-page{% endblock %}
+
+{# Each game's styles()/scripts() tags, once each: games share libraries (d3, the map renderer). #}
+{% macro unique_tags(cards, which) %}
+  {%- set ns = namespace(seen=[]) -%}
+  {%- for card in cards if card.game -%}
+    {%- import card.game.embed_template as embed -%}
+    {%- for line in (embed[which]() | string).split("
+") if line.strip() and line.strip() not in ns.seen -%}
+      {%- set ns.seen = ns.seen + [line.strip()] -%}
+    {%- endfor -%}
+  {%- endfor -%}
+  {{ ns.seen | join("
+  ") | safe }}
+{% endmacro %}
 {% block head %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/feed.css') }}">
-  {% for card in cards if card.game %}
-    {% import card.game.embed_template as embed %}{{ embed.styles() }}
-  {% endfor %}
+  {{ unique_tags(cards, "styles") }}
 {% endblock %}
 
 {% block header %}{% endblock %}
@@ -29,6 +41,9 @@
     </a>
     <a class="btn btn--ghost btn--sm feed-bar__all" href="{{ url_for('hub') }}">{{ icon('layout-grid', 'icon--sm') }}<span>All games</span></a>
     <span class="feed-bar__spacer"></span>
+    <button type="button" class="btn btn--icon btn--ghost feed-bar__restart" x-show="activeItem().kind === 'game'"
+            @click="restart(activeItem().gameId)" :disabled="!canRestart(activeItem().gameId)"
+            :aria-label="'Restart ' + activeItem().title" title="Restart with a new round">{{ icon('rotate-ccw') }}</button>
     <button type="button" class="btn btn--icon btn--ghost feed-bar__gear" x-show="activeItem().kind === 'game'"
             @click="openSettings(activeItem().gameId, $el)" :disabled="settingsLocked(activeItem().gameId)"
             :aria-label="'Settings for ' + activeItem().title">{{ icon('settings-2') }}</button>
@@ -68,6 +83,9 @@
             <div class="feed-card__head">
               <span class="feed-card__icon">{{ icon(g.icon, 'icon--sm') }}</span>
               <h2 class="feed-card__title">{{ g.title }}</h2>
+              <button type="button" class="btn btn--icon btn--ghost btn--sm feed-card__restart"
+                      @click="restart('{{ g.id }}')" :disabled="!canRestart('{{ g.id }}')"
+                      aria-label="Restart {{ g.title }}" title="Restart with a new round">{{ icon('rotate-ccw', 'icon--sm') }}</button>
               <button type="button" class="btn btn--icon btn--ghost btn--sm feed-card__gear"
                       @click="openSettings('{{ g.id }}', $el)" :disabled="settingsLocked('{{ g.id }}')"
                       aria-label="Settings for {{ g.title }}">{{ icon('settings-2', 'icon--sm') }}</button>
@@ -89,8 +107,10 @@
                 <button type="button" class="btn btn--primary" @click="retry('{{ g.id }}')">{{ icon('rotate-ccw') }}Retry</button>
               </div>
 
-              <div class="feed-overlay feed-overlay--ready" x-show="states['{{ g.id }}'] === 'ready'" x-cloak
-                   x-transition:leave="feed-ready-leave" x-transition:leave-start="feed-ready-from" x-transition:leave-end="feed-ready-to">
+              {# Visibility follows a class, not x-show: saving settings flips ready -> preparing -> ready within
+                 milliseconds, and an x-show leave transition interrupted like that could leave this hidden. #}
+              <div class="feed-overlay feed-overlay--ready" x-cloak
+                   :class="{ 'is-hidden': !showReady('{{ g.id }}') }" :aria-hidden="String(!showReady('{{ g.id }}'))">
                 <button type="button" class="feed-play" @click="tapToPlay('{{ g.id }}')" data-tap-to-play="{{ g.id }}">
                   <span class="feed-play__ring" aria-hidden="true"></span>
                   <span class="feed-play__icon">{{ icon('play', 'icon--lg') }}</span>
@@ -105,7 +125,7 @@
                 {{ icon('chevron-up', 'icon--sm') }}<span class="feed-hint__touch">Swipe up for next game</span><span class="feed-hint__mouse">Scroll for next game</span>
               </div>
             {% endif %}
-            {% if g.id == "border-bridge" %}
+            {% if g.map_zone %}
               <div class="feed-hint feed-hint--map" x-show="showMapHint && activeIndex === {{ loop.index0 }}" x-cloak x-transition.opacity aria-hidden="true">
                 {{ icon('move-vertical', 'icon--sm') }}<span>Swipe outside the map to change game</span>
               </div>
@@ -146,8 +166,6 @@
 {% endblock %}
 
 {% block late_scripts %}
-  {% for card in cards if card.game %}
-    {% import card.game.embed_template as embed %}{{ embed.scripts() }}
-  {% endfor %}
+  {{ unique_tags(cards, "scripts") }}
   <script src="{{ url_for('static', filename='js/feed.js') }}" defer></script>
 {% endblock %}

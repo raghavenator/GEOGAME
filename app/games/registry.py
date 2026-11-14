@@ -5,17 +5,19 @@ from __future__ import annotations
 from app.shared.game import GameSpec
 
 from .border_bridge import GAME as BORDER_BRIDGE
+from .capital_quest import GAME as CAPITAL_QUEST
 from .flag_reveal import GAME as FLAG_REVEAL
 
 GAMES: tuple[GameSpec, ...] = (
     FLAG_REVEAL,
     BORDER_BRIDGE,
+    CAPITAL_QUEST,
     # Placeholders shown greyed-out on the hub until they're built.
     GameSpec(
-        id="capital-quest",
-        title="Capital Quest",
-        description="Race the clock to match countries with their capital cities.",
-        icon="landmark",
+        id="shape-shifter",
+        title="Shape Shifter",
+        description="Name the country from its outline alone, no map around it.",
+        icon="shapes",
         blueprint=None,
         coming_soon=True,
     ),

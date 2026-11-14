@@ -93,6 +93,8 @@
   --map-revealed-stroke: #6d4fd1;
   --map-revealed-soft: #f0ebff;
   --map-revealed-text: #5b3fc0;
+  --map-target: #3768f0;          /* Capital Quest: the country to name the capital of (accent) */
+  --map-target-stroke: #2449b8;
 
   /* ---- veils (paused games, overlays) ---- */
   --color-veil: rgba(246, 247, 251, 0.72);
