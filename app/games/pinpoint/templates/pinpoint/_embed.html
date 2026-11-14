@@ -1,0 +1,263 @@
+{#
+  Pinpoint embed: the same markup and component serve the full page (mode="page", with a
+  start screen) and the feed card (mode="feed": portrait layout, prepared in the
+  background, started from the card's "Tap to play").
+  ctx = routes.embed_context(): {game, config, settings_defaults, world}
+#}
+{% macro styles() %}
+  <link rel="stylesheet" href="{{ url_for('pinpoint.static', filename='pinpoint.css') }}">
+{% endmacro %}
+
+{% macro scripts() %}
+  <script src="{{ url_for('static', filename='vendor/d3/d3.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='vendor/topojson/topojson-client.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/map_view.js') }}" defer></script>
+  <script src="{{ url_for('pinpoint.static', filename='pinpoint.js') }}" defer></script>
+  <script src="{{ url_for('pinpoint.static', filename='embed.js') }}" defer></script>
+{% endmacro %}
+
+{# The fixed crosshair: a ring and four ticks with a gap around the centre, a centre dot,
+   and a white halo under everything so it reads on any part of the map. #}
+{% macro crosshair(extra_class="") %}
+  <svg class="pp-crosshair {{ extra_class }}" viewBox="0 0 96 96" aria-hidden="true" focusable="false">
+    <g class="pp-crosshair__halo">
+      <circle cx="48" cy="48" r="30"></circle>
+      <path d="M48 4V32M48 64V92M4 48H32M64 48H92"></path>
+      <circle cx="48" cy="48" r="3.5"></circle>
+    </g>
+    <g class="pp-crosshair__mark">
+      <circle cx="48" cy="48" r="30"></circle>
+      <path d="M48 4V32M48 64V92M4 48H32M64 48H92"></path>
+      <circle class="pp-crosshair__dot" cx="48" cy="48" r="2.5"></circle>
+    </g>
+  </svg>
+{% endmacro %}
+
+{% macro panel(ctx, mode="page") %}
+{% set game = ctx.game %}
+{% set config = ctx.config %}
+{% set feed = mode == "feed" %}
+<div class="pp-container {{ 'pp--embed' if feed else 'container page' }}"
+     data-game-root="pinpoint" data-game="pinpoint" data-mode="{{ mode }}"
+     :class="{ 'is-paused': lifecycle === 'paused', 'is-ready': phase === 'ready' }"
+     x-data="pinpoint({{ {
+        'apiBase': url_for('pinpoint.play').rstrip('/') ~ '/api',
+        'mode': mode,
+        'topoUrl': ctx.world.topoUrl,
+        'metaUrl': ctx.world.metaUrl,
+        'maxPoints': config.max_points,
+        'fullSpeedMs': (config.full_speed_seconds * 1000) | int,
+        'minSpeed': config.min_speed_factor,
+     } | tojson | forceescape }})">
+
+  <div class="visually-hidden" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
+
+  {% if not feed %}
+  {# ============================================================ START (full page) #}
+  <section class="card pp-start stack stack--lg" x-show="screen === 'start'" x-transition.opacity.duration.250ms>
+    <div class="pp-start__hero">
+      <span class="game-card__icon pp-start__icon">{{ icon(game.icon, 'icon--xl') }}</span>
+      <div class="stack stack--sm">
+        <h1>{{ game.title }}</h1>
+        <p class="muted">{{ game.description }}</p>
+      </div>
+    </div>
+
+    <ol class="pp-steps" aria-label="How to play">
+      <li class="pp-step">
+        <span class="pp-step__icon">{{ icon('flag') }}</span>
+        <strong>Read the name</strong>
+        <span class="subtle">A country is named. The map has no labels to help you.</span>
+      </li>
+      <li class="pp-step">
+        <span class="pp-step__icon">{{ crosshair("pp-crosshair--mini") }}</span>
+        <strong>Move the map</strong>
+        <span class="subtle">Drag and zoom until the crosshair in the middle sits on the country.</span>
+      </li>
+      <li class="pp-step">
+        <span class="pp-step__icon">{{ icon('target') }}</span>
+        <strong>Lock it in</strong>
+        <span class="subtle">Press Submit (or Enter). Closer and faster scores more.</span>
+      </li>
+    </ol>
+
+    <p class="muted pp-start__rules">
+      Up to <strong>{{ config.max_points }}</strong> points for accuracy (full marks anywhere inside the country's borders,
+      otherwise judged by distance and the country's size), multiplied by a speed
+      factor: <strong>×1.0</strong> in the first {{ config.full_speed_seconds | int }}s, falling to
+      <strong>×{{ config.min_speed_factor }}</strong> at the time limit, when your crosshair is submitted for you.
+    </p>
+
+    <div class="pp-settings-summary">
+      <div class="row">
+        <span class="badge">{{ icon('target') }}<span x-text="$settings.values.questions + ' questions'"></span></span>
+        <span class="badge">{{ icon('timer') }}<span x-text="$settings.display('seconds') + ' each'"></span></span>
+        <span class="badge">{{ icon('zap') }}<span x-text="$settings.display('difficulty')"></span></span>
+        <span class="badge">{{ icon('globe') }}<span x-text="$settings.display('view')"></span></span>
+        <span class="badge">{{ icon('map') }}<span x-text="'Borders ' + $settings.values.borders"></span></span>
+        <span class="badge">{{ icon('route') }}<span x-text="$settings.values.units"></span></span>
+        <span class="badge">{{ icon('map-pin') }}<span x-text="$settings.display('region')"></span></span>
+      </div>
+      <button type="button" class="btn btn--sm btn--soft" @click="$settings.openModal($el)">{{ icon('settings-2', 'icon--sm') }}Change</button>
+    </div>
+
+    <div class="pp-best">
+      {{ icon('trophy') }}
+      <span>Best for these settings:
+        <strong x-text="best === null ? 'No score yet' : best + ' / ' + ($settings.values.questions * {{ config.max_points }})"></strong>
+      </span>
+    </div>
+
+    <div class="alert" role="alert" x-show="error" x-cloak>{{ icon('info') }}<span x-text="error"></span></div>
+    <div class="alert" role="alert" x-show="mapError" x-cloak>{{ icon('info') }}<span x-text="mapError"></span></div>
+
+    <button type="button" class="btn btn--primary btn--lg btn--block" @click="play()" :disabled="busy" x-ref="startBtn">
+      {{ icon('play') }}<span x-text="busy ? 'Starting…' : 'Start'">Start</span>
+    </button>
+  </section>
+  {% endif %}
+
+  {# ============================================================ PLAY #}
+  <section class="pp-play" x-show="screen === 'play'" {% if not feed %}x-cloak{% endif %}>
+    <div class="card card--flat pp-hud">
+      <div class="pp-hud__ask">
+        <span class="eyebrow">Find</span>
+        <h2 class="pp-hud__name" :class="{ 'is-blank': !q }">
+          <span x-show="q" x-text="q && q.name"></span>
+          <span class="pp-hud__blank" x-show="!q" aria-label="Hidden until you start"></span>
+        </h2>
+      </div>
+      <dl class="pp-hud__stats">
+        <div class="pp-stat">
+          <dt class="eyebrow">Question</dt>
+          <dd class="pp-stat__value"><span x-text="q ? q.number : '–'"></span><span class="pp-stat__of"> / <span x-text="total || '–'"></span></span></dd>
+        </div>
+        <div class="pp-stat">
+          <dt class="eyebrow">Score</dt>
+          <dd class="pp-stat__value" x-text="score"></dd>
+        </div>
+      </dl>
+      <div class="pp-time" :data-level="timeLevel" :class="{ 'is-stopped': phase !== 'question' }"
+           role="timer" :aria-label="secondsLeft + ' seconds left, speed factor ' + speed.toFixed(2)">
+        <span class="pp-time__track" aria-hidden="true"><span class="pp-time__bar" x-ref="timeBar"></span></span>
+        <span class="pp-time__text" aria-hidden="true">
+          <strong x-text="secondsLeft + 's'"></strong>
+          <span class="pp-time__speed" title="Speed factor: accuracy points are multiplied by this"
+                x-text="'×' + speed.toFixed(2)"></span>
+        </span>
+      </div>
+    </div>
+
+    {# The map zone: drag, rotate, pan and zoom here never move the feed (see feed.js). The map
+       moves under the crosshair; the crosshair never moves. #}
+    <div class="card pp-stage" data-gesture-zone="map">
+      <div class="pp-pane" x-show="view === 'flat'">
+        <canvas class="pp-canvas" x-ref="flat" tabindex="0" role="application" :aria-label="mapLabel()"></canvas>
+      </div>
+      <div class="pp-pane pp-pane--globe" x-show="view === 'globe'">
+        <canvas class="pp-canvas" x-ref="globe" tabindex="0" role="application" :aria-label="mapLabel()"></canvas>
+      </div>
+      <div class="pp-pane__loading shimmer" x-show="!mapReady" aria-hidden="true"></div>
+      <div class="pp-aim" x-show="phase === 'question' || phase === 'ready'" aria-hidden="true">{{ crosshair() }}</div>
+      <div class="pp-mapctl" role="group" aria-label="Map controls" x-show="phase !== 'ready'">
+        <button type="button" class="pp-mapctl__btn" @click="zoomBy(1.5)" aria-label="Zoom in">{{ icon('plus', 'icon--sm') }}</button>
+        <button type="button" class="pp-mapctl__btn" @click="zoomBy(1 / 1.5)" aria-label="Zoom out">{{ icon('minus', 'icon--sm') }}</button>
+        <button type="button" class="pp-mapctl__btn" @click="resetView()" aria-label="Reset view" title="Back to the whole map">{{ icon('locate-fixed', 'icon--sm') }}</button>
+      </div>
+      <ul class="pp-legend" x-show="phase === 'result'" aria-hidden="true">
+        <li><span class="pp-swatch pp-swatch--guess"></span>Your guess</li>
+        <li><span class="pp-swatch pp-swatch--target"></span>Actual</li>
+      </ul>
+    </div>
+
+    <div class="pp-bar">
+      <template x-if="phase !== 'result'">
+        <div class="pp-bar__ask">
+          <button type="button" class="btn btn--primary btn--lg pp-submit" @click="submit()" x-ref="submitBtn"
+                  :disabled="phase !== 'question' || submitting">
+            {{ icon('target') }}<span x-text="submitting ? 'Locking in…' : 'Submit'">Submit</span>
+          </button>
+          <p class="pp-hint subtle">
+            <span x-show="phase === 'question'">Move the map so the crosshair is on <strong x-text="q && q.name"></strong>.</span>
+            <span class="pp-keys"> <kbd>Enter</kbd> submits, arrows pan, <kbd>+</kbd>/<kbd>−</kbd> zoom.</span>
+          </p>
+        </div>
+      </template>
+
+      <template x-if="phase === 'result' && result">
+        <div class="pp-result" :class="{ 'is-timeout': result.timed_out }">
+          <img class="pp-result__flag" :src="result.target.flag_url" :alt="'Flag of ' + result.target.name">
+          <div class="pp-result__main">
+            <span class="pp-result__kicker" x-text="result.timed_out ? 'Time\'s up: your crosshair was submitted' : verdictFor(result)"></span>
+            <strong class="pp-result__dist"
+                    x-text="result.inside ? 'Within the borders of ' + result.target.name : formatDistance(result) + ' from ' + result.target.name"></strong>
+            <span class="pp-result__calc subtle">
+              <span x-text="result.inside ? '100 accuracy (inside the border)' : result.accuracy + ' accuracy'"></span> ×
+              <span x-text="result.speed_factor.toFixed(2) + ' speed'"></span>
+              <span x-text="'(' + formatTime(result.elapsed_ms) + ')'"></span>
+            </span>
+          </div>
+          <span class="pp-result__pts" :class="result.points > 0 ? 'is-good' : 'is-zero'">
+            <strong x-ref="resultPoints">0</strong><span>pts</span>
+          </span>
+          <button type="button" class="btn btn--primary pp-next" x-ref="nextBtn" @click="next()" :disabled="advancing">
+            <span x-text="result.is_last ? 'See results' : 'Next'"></span>{{ icon('chevron-right') }}
+          </button>
+        </div>
+      </template>
+      <p class="pp-feedback" x-show="feedback" :class="'is-' + feedbackKind" x-text="feedback"></p>
+    </div>
+    <div class="game-paused" aria-hidden="true">{{ icon('timer') }}Paused</div>
+  </section>
+
+  {# ============================================================ SUMMARY #}
+  <section class="card pp-summary stack stack--lg" x-show="screen === 'summary'" x-cloak>
+    <template x-if="summary">
+      <div class="stack stack--lg">
+        <div class="pp-summary__head">
+          <p class="eyebrow">Round complete</p>
+          <div class="pp-summary__score">
+            <strong x-ref="totalScore">0</strong><span>/ <span x-text="summary.max_score"></span></span>
+          </div>
+          <p class="muted" x-text="verdict()"></p>
+          <div class="row row--center">
+            <span class="badge badge--warning pp-new-best" x-show="summary.is_new_best && summary.score > 0">{{ icon('trophy') }}New best!</span>
+            <span class="badge" x-show="!(summary.is_new_best && summary.score > 0)">{{ icon('trophy') }}Best: <span x-text="summary.best + ' / ' + summary.max_score"></span></span>
+          </div>
+        </div>
+
+        <div class="pp-summary__map" role="img" aria-label="Map of your guesses and the actual locations">
+          <canvas class="pp-canvas pp-canvas--static" x-ref="summaryMap"></canvas>
+        </div>
+
+        <ol class="pp-rows" aria-label="Per-question results">
+          <template x-for="row in summary.questions" :key="row.number">
+            <li class="pp-row" :style="'animation-delay:' + (row.number * 50) + 'ms'">
+              <span class="pp-row__num" x-text="row.number"></span>
+              <img class="pp-row__flag" :src="row.target.flag_url" :alt="'Flag of ' + row.target.name" loading="lazy">
+              <div class="pp-row__main">
+                <strong x-text="row.target.name"></strong>
+                <span class="subtle">
+                  <span x-text="row.inside ? 'inside the border' : formatDistance(row) + ' away'"></span>
+                  <span x-text="'· ' + (row.timed_out ? 'timed out' : formatTime(row.elapsed_ms))"></span>
+                </span>
+              </div>
+              <span class="badge" :class="row.points >= 50 ? 'badge--success' : row.points > 0 ? 'badge--warning' : 'badge--error'"
+                    x-text="row.points + ' / ' + row.max_points"></span>
+            </li>
+          </template>
+        </ol>
+
+        <div class="pp-summary__actions">
+          <button type="button" class="btn btn--primary btn--lg" @click="play()" :disabled="busy" x-ref="againBtn">{{ icon('rotate-ccw') }}Play again</button>
+          {% if feed %}
+            <button type="button" class="btn btn--lg" @click="nextGame()">Next game{{ icon('arrow-down') }}</button>
+          {% else %}
+            <a class="btn btn--lg" href="{{ url_for('hub') }}">{{ icon('layout-grid') }}All games</a>
+          {% endif %}
+        </div>
+      </div>
+    </template>
+  </section>
+</div>
+{% endmacro %}

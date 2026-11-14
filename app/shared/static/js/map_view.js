@@ -3,6 +3,9 @@
    a camera model { lon, lat, k } so framing, animation and input work the same way.
    Highlight roles: a, b, found, revealed (Border Bridge) and target (Capital Quest),
    coloured from the --map-<role> tokens. Labels are drawn only for ids in state.names.
+   Pinpoint adds pins (state.pins, --map-pin-<kind>) joined by dashed great-circle links
+   (state.links), centerLonLat() (the point under the middle of the view), and opt-in
+   drag inertia and flat-map world clamping (constructor options).
    Exposes window.GeoMaps = { loadWorld, MapView } (window.BorderMaps is the same object). */
 (function () {
   "use strict";
@@ -17,7 +20,7 @@
   const PALETTE_KEYS = [
     "ocean", "ocean-light", "ocean-deep", "land", "land-border", "coast", "graticule", "atmosphere", "shade",
     "sheen", "label", "label-halo", "a", "a-stroke", "b", "b-stroke", "found", "found-stroke", "revealed",
-    "revealed-stroke", "target", "target-stroke",
+    "revealed-stroke", "target", "target-stroke", "pin-guess", "pin-target", "pin-halo", "link",
   ];
   const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -129,18 +132,27 @@
   /* ------------------------------------------------------------------ view */
   class MapView {
     /** options.tinyArea: highlighted shapes whose projected area (px²) is at most this get a
-        marker ring so they stay findable. */
-    constructor(canvas, world, { kind, onInteract = () => {}, tinyArea = 36 }) {
+        marker ring so they stay findable. options.kMax: maximum manual zoom (default per view).
+        options.inertia: a flicked drag keeps gliding. options.clampToWorld: the flat map can't be
+        dragged or zoomed so that space above the north pole or below the south pole shows. */
+    constructor(canvas, world, { kind, onInteract = () => {}, tinyArea = 36, kMax, inertia = false,
+                                 clampToWorld = false }) {
       this.canvas = canvas;
       this.ctx = canvas.getContext("2d");
       this.world = world;
       this.kind = kind;
       this.limits = { ...LIMITS[kind] };
+      if (kMax) this.limits.kMax = kMax;
+      this.inertia = inertia;
+      this.clampToWorld = clampToWorld && kind === "flat";
+      this.glide = null;
       this.onInteract = onInteract;
       this.projection = this.makeProjection();
       this.camera = kind === "globe" ? { lon: 10, lat: 25, k: 1 } : { lon: 10, lat: 15, k: 1 };
       this.colors = readPalette();
-      this.state = { a: null, b: null, target: null, found: [], added: [], names: {} };
+      this.state = { a: null, b: null, target: null, found: [], added: [], names: {}, pins: [], links: [] };
+      this.pinDrops = new Map();   // pin id -> drop-in start time
+      this.linkDraws = new Map();  // link index key -> draw-on start time
       this.tinyArea = tinyArea;
       this.home = null;  // camera to return to on resetView() when nothing is framed (see show())
       this.showBorders = true;
@@ -199,13 +211,15 @@
       this.baseKey = "";
       if (this.target) this.camera = this.computeFrame(this.target);  // was hidden: jump, don't fly
       else if (this.home) this.camera = { ...this.home };
+      this.camera = this.limitCamera(this.camera);
       this.request();
     }
 
     /* ---------------------------------------------------------------- state */
     /** pulse: also ring-pulse highlights that are new in a fresh state (by default only
         highlights added to an existing state pulse). */
-    setState({ a = null, b = null, target = null, found = [], added = [], names = {} }, { fresh = false, pulse = false } = {}) {
+    setState({ a = null, b = null, target = null, found = [], added = [], names = {}, pins = [], links = [] },
+             { fresh = false, pulse = false } = {}) {
       const now = performance.now();
       const s = this.state;
       const before = new Set(fresh ? [] : [s.a, s.b, s.target, ...s.found, ...s.added]);
@@ -216,7 +230,14 @@
           if (!fresh || pulse) this.pulses.push({ id, t0: now });
         }
       }
-      this.state = { a, b, target, found, added, names };
+      // Pins ({ id, lonlat, kind: "guess" | "target" }) drop in; links ({ from, to } lon/lat) draw on.
+      if (fresh) { this.pinDrops.clear(); this.linkDraws.clear(); }
+      for (const pin of pins) if (!this.pinDrops.has(pin.id)) this.pinDrops.set(pin.id, reducedMotion() ? -1e9 : now);
+      links.forEach((l, i) => {
+        const key = `${i}:${l.from}:${l.to}`;
+        if (!this.linkDraws.has(key)) this.linkDraws.set(key, reducedMotion() ? -1e9 : now + 250);
+      });
+      this.state = { a, b, target, found, added, names, pins, links };
       this._tinyKey = "";
       this.request();
     }
@@ -230,7 +251,8 @@
     /** Fly the camera so the given shapes fit, framed around the core pair.
         opts.clipDeg: radius (degrees) around the core's centre beyond which outlines are
         ignored (default: from the pair's spread, 12–80); opts.zoomOut: multiply the fitted
-        zoom (< 1 shows more surroundings); opts.frameMax: zoom cap instead of limits.frameMax. */
+        zoom (< 1 shows more surroundings); opts.frameMax: zoom cap instead of limits.frameMax;
+        opts.points: extra [lon, lat] points to keep in view (they also count towards the centre). */
     frame(ids, core, animate = true, durationMs, opts = {}) {
       this.autoRotate = false;
       this.target = { ids: ids.filter((id) => this.world.shapes[id]), core, opts };
@@ -243,7 +265,7 @@
       this.target = null;
       this.home = null;
       this.anim = null;
-      this.camera = this.kind === "globe" ? { lon: this.camera.lon, lat: 18, k: 1 } : { lon: 10, lat: 15, k: 1 };
+      this.camera = this.limitCamera(this.kind === "globe" ? { lon: this.camera.lon, lat: 18, k: 1 } : { lon: 10, lat: 15, k: 1 });
       this.autoRotate = this.kind === "globe" && !reducedMotion();
       this.request();
     }
@@ -299,7 +321,9 @@
 
     computeFrame({ ids, core, opts = {} }) {
       const shapes = this.world.shapes;
-      const centres = core.map((id) => shapes[id].centroid);
+      const extra = opts.points || [];
+      const centres = [...core.filter((id) => shapes[id]).map((id) => shapes[id].centroid), ...extra];
+      if (!centres.length) return { ...this.camera };
       const centre = sphericalMean(centres);
       // Clip to a circle around the pair so huge countries (Russia, Canada) don't
       // drag the camera out to a whole-world view.
@@ -314,6 +338,7 @@
         for (const p of shapes[id].samples) if (d3.geoDistance(centre, p) <= clip) pts.push(p);
         if (d3.geoDistance(centre, shapes[id].centroid) <= clip) pts.push(shapes[id].centroid);
       }
+      pts.push(...extra);
       let cam = { lon: centre[0], lat: centre[1], k: 1 };
       const probe = this.makeProjection();
       for (let pass = 0; pass < 2; pass++) {
@@ -337,7 +362,7 @@
         };
       }
       if (opts.zoomOut) cam.k = clamp(cam.k * opts.zoomOut, this.limits.kMin, opts.frameMax || this.limits.frameMax);
-      return cam;
+      return this.limitCamera(cam);
     }
 
     flyTo(target, animate, durationMs) {
@@ -375,8 +400,11 @@
       const c = this.canvas;
       const pointers = new Map();
       let pinch = 0;
-      const interact = () => { this.anim = null; this.autoRotate = false; this.onInteract(); };
+      const interact = () => { this.anim = null; this.glide = null; this.autoRotate = false; this.onInteract(); };
+      let trail = [];   // recent single-pointer moves [t, dx, dy] for the release velocity
       c.addEventListener("pointerdown", (e) => {
+        this.glide = null;
+        trail = [];
         c.setPointerCapture(e.pointerId);
         pointers.set(e.pointerId, [e.clientX, e.clientY]);
         if (pointers.size === 2) pinch = this.pinchDistance(pointers);
@@ -387,8 +415,13 @@
         const prev = pointers.get(e.pointerId);
         pointers.set(e.pointerId, [e.clientX, e.clientY]);
         interact();
-        if (pointers.size === 1) this.pan(e.clientX - prev[0], e.clientY - prev[1]);
-        else if (pointers.size === 2) {
+        if (pointers.size === 1) {
+          this.pan(e.clientX - prev[0], e.clientY - prev[1]);
+          const t = performance.now();
+          trail.push([t, e.clientX - prev[0], e.clientY - prev[1]]);
+          trail = trail.filter(([ts]) => t - ts < 90);
+        } else if (pointers.size === 2) {
+          trail = [];
           const d = this.pinchDistance(pointers);
           if (pinch) this.zoom(d / pinch);
           pinch = d;
@@ -397,7 +430,18 @@
       const up = (e) => {
         pointers.delete(e.pointerId);
         pinch = pointers.size === 2 ? this.pinchDistance(pointers) : 0;
-        if (!pointers.size) c.classList.remove("is-dragging");
+        if (!pointers.size) {
+          c.classList.remove("is-dragging");
+          const now = performance.now();
+          const recent = trail.filter(([ts]) => now - ts < 90);
+          if (this.inertia && !reducedMotion() && e.type === "pointerup" && recent.length >= 2) {
+            const span = Math.max(16, now - recent[0][0]);
+            const vx = recent.reduce((a, m) => a + m[1], 0) / span;   // px per ms
+            const vy = recent.reduce((a, m) => a + m[2], 0) / span;
+            if (Math.hypot(vx, vy) > 0.15) { this.glide = { vx, vy, t: now }; this.request(); }
+          }
+          trail = [];
+        }
       };
       c.addEventListener("pointerup", up);
       c.addEventListener("pointercancel", up);
@@ -425,18 +469,85 @@
     pan(dx, dy) {
       this.lastMove = performance.now();
       const s = this._baseScale * this.camera.k;
-      this.camera = {
+      this.camera = this.limitCamera({
         ...this.camera,
         lon: wrapLon(this.camera.lon - (dx / s) * DEG),
         lat: clamp(this.camera.lat + (dy / s) * DEG, this.kind === "globe" ? -85 : -75, this.kind === "globe" ? 85 : 75),
-      };
+      });
       this.request();
     }
 
     zoom(factor) {
       this.lastMove = performance.now();
-      this.camera = { ...this.camera, k: clamp(this.camera.k * factor, this.limits.kMin, this.limits.kMax) };
+      this.camera = this.limitCamera({ ...this.camera, k: clamp(this.camera.k * factor, this.limits.kMin, this.limits.kMax) });
       this.request();
+    }
+
+    /** clampToWorld (flat map only): when the whole map fits vertically, keep it centred;
+        otherwise the middle of the view (the crosshair) can reach any latitude but never
+        leave the map past the north or south edge. */
+    limitCamera(cam) {
+      if (!this.clampToWorld || !this.w || !this._baseScale) return cam;
+      const probe = this.makeProjection();
+      let out = { ...cam };
+      for (let pass = 0; pass < 3; pass++) {
+        this.applyCamera(probe, out);
+        const [[, y0], [, y1]] = d3.geoPath(probe).bounds({ type: "Sphere" });
+        let shift = 0;
+        if (y1 - y0 <= this.h) shift = (y0 + y1) / 2 - this.h / 2;   // fits: centre it
+        else if (y0 > this.h / 2) shift = y0 - this.h / 2;          // the middle went past the north edge
+        else if (y1 < this.h / 2) shift = y1 - this.h / 2;          // ... or past the south edge
+        if (Math.abs(shift) < 0.5) break;
+        const c = probe.invert([this.w / 2, this.h / 2 + shift]);
+        if (!c) break;
+        out = { ...out, lat: clamp(c[1], -85, 85) };
+      }
+      return out;
+    }
+
+    /** Flat map: the zoom at which the whole map is exactly as tall as the view (at least 1).
+        Just above it the map can be moved up and down freely; the globe returns 1. */
+    fillZoom() {
+      if (this.kind !== "flat" || !this.w || !this.h) return 1;
+      const probe = this.makeProjection();
+      this.applyCamera(probe, { lon: 0, lat: 0, k: 1 });
+      const [[, y0], [, y1]] = d3.geoPath(probe).bounds({ type: "Sphere" });
+      return Math.max(1, this.h / Math.max(1, y1 - y0));
+    }
+
+    /** The [lon, lat] under the middle of the view: the crosshair's position. */
+    centerLonLat() {
+      const probe = this.makeProjection();
+      this.applyCamera(probe, this.camera);
+      const p = probe.invert([this.w / 2, this.h / 2]);
+      if (!p) return [wrapLon(this.camera.lon), clamp(this.camera.lat, -90, 90)];
+      return [wrapLon(p[0]), clamp(p[1], -90, 90)];
+    }
+
+    /** The screen position of a [lon, lat] (null if it's on the far side of the globe). */
+    project(lonlat) {
+      const probe = this.makeProjection();
+      this.applyCamera(probe, this.camera);
+      if (this.kind === "globe" && d3.geoDistance([this.camera.lon, this.camera.lat], lonlat) > Math.PI / 2) return null;
+      return probe(lonlat);
+    }
+
+    /** Stop any glide or camera flight (before reading the crosshair position). */
+    stopMotion() {
+      this.glide = null;
+      this.anim = null;
+    }
+
+    stepGlide(now) {
+      const g = this.glide;
+      const dt = Math.min(50, now - g.t);
+      g.t = now;
+      this.pan(g.vx * dt, g.vy * dt);
+      const decay = Math.exp(-dt / 260);
+      g.vx *= decay;
+      g.vy *= decay;
+      if (Math.hypot(g.vx, g.vy) < 0.02) this.glide = null;
+      return !!this.glide;
     }
 
     /* ---------------------------------------------------------------- render */
@@ -473,6 +584,7 @@
     draw(now) {
       if (!this.w) return;
       let again = this.anim ? this.stepAnim(now) : false;
+      if (this.glide) again = this.stepGlide(now) || again;
       if (this.autoRotate) {
         const dt = this._lastFrame ? Math.min(100, now - this._lastFrame) : 0;
         this.camera = { ...this.camera, lon: wrapLon(this.camera.lon - dt * 0.006) };
@@ -481,7 +593,7 @@
       this._lastFrame = now;
       this.applyCamera(this.projection, this.camera);
       const cam = this.camera;
-      const moving = !!this.anim || this.autoRotate || now - (this.lastMove || 0) < 140;
+      const moving = !!this.anim || !!this.glide || this.autoRotate || now - (this.lastMove || 0) < 140;
       const level = this.pickLevel(moving);
       const key = `${cam.lon.toFixed(3)},${cam.lat.toFixed(3)},${cam.k.toFixed(4)},${this.w},${this.h},${this.showBorders},${level},${moving}`;
       if (key !== this.baseKey) {
@@ -505,6 +617,8 @@
       again = this.drawHighlights(now) || again;
       if (this.kind === "globe") this.drawShading();
       again = this.drawMarkers(now) || again;
+      again = this.drawLinks(now) || again;
+      again = this.drawPins(now) || again;
       this.drawLabels();
       if (again) this.request();
     }
@@ -734,6 +848,85 @@
         ctx.fillStyle = this.colors.label;
         ctx.fillText(name, x, y);
       }
+    }
+
+    /** Dashed great-circle links between pins, drawn on from start to end. */
+    drawLinks(now) {
+      const links = this.state.links || [];
+      if (!links.length) return false;
+      const ctx = this.ctx;
+      const path = d3.geoPath(this.projection, ctx);
+      let again = false;
+      links.forEach((l, i) => {
+        const t0 = this.linkDraws.get(`${i}:${l.from}:${l.to}`) ?? -1e9;
+        const t = clamp((now - t0) / 700, 0, 1);
+        if (t <= 0) { again = true; return; }
+        if (t < 1) again = true;
+        const interp = d3.geoInterpolate(l.from, l.to);
+        const n = Math.max(2, Math.ceil(64 * t));
+        const coords = Array.from({ length: n + 1 }, (_, j) => interp((j / n) * d3.easeCubicOut(t)));
+        ctx.save();
+        ctx.beginPath();
+        path({ type: "LineString", coordinates: coords });
+        ctx.setLineDash([7, 6]);
+        ctx.lineCap = "round";
+        ctx.lineWidth = 4.5;
+        ctx.strokeStyle = this.colors["pin-halo"];
+        ctx.stroke();
+        ctx.lineWidth = 2.25;
+        ctx.strokeStyle = this.colors.link;
+        ctx.stroke();
+        ctx.restore();
+      });
+      return again;
+    }
+
+    /** Map pins: a stem with a round head, dropping in with a small bounce. */
+    drawPins(now) {
+      const pins = this.state.pins || [];
+      const ctx = this.ctx;
+      let again = false;
+      for (const pin of pins) {
+        const xy = this.visible(pin.lonlat);
+        if (!xy) continue;
+        const t0 = this.pinDrops.get(pin.id) ?? -1e9;
+        const delay = pin.kind === "target" ? 380 : 0;
+        const t = clamp((now - t0 - delay) / 650, 0, 1);
+        if (t < 1) again = true;
+        if (t <= 0) continue;
+        const lift = (1 - d3.easeBounceOut(t)) * 42;
+        const [x, y] = [xy[0], xy[1] - lift];
+        const col = this.colors[`pin-${pin.kind}`] || this.colors["pin-guess"];
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, t * 3);
+        ctx.beginPath();                       // ground shadow / exact point
+        ctx.ellipse(xy[0], xy[1], 5, 2.5, 0, 0, Math.PI * 2);
+        ctx.fillStyle = this.colors.shade;
+        ctx.fill();
+        ctx.beginPath();                       // stem
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y - 16);
+        ctx.lineCap = "round";
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = this.colors["pin-halo"];
+        ctx.stroke();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = col;
+        ctx.stroke();
+        ctx.beginPath();                       // head
+        ctx.arc(x, y - 22, 8, 0, Math.PI * 2);
+        ctx.fillStyle = col;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = this.colors["pin-halo"];
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x, y - 22, 3, 0, Math.PI * 2);
+        ctx.fillStyle = this.colors["pin-halo"];
+        ctx.fill();
+        ctx.restore();
+      }
+      return again;
     }
 
     destroy() {

@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,22 +28,7 @@ from app.games.capital_quest.capital_data import (  # noqa: E402
     CAPITALS_FILE, build_capitals, entries_to_json,
 )
 from app.shared.geo import load_geo_meta  # noqa: E402
-
-RAW_FILE = ROOT / "app" / "games" / "border_bridge" / "data" / "raw" / "world-countries.json"
-RAW_URL = "https://cdn.jsdelivr.net/npm/world-countries@5.1.0/countries.json"
-COUNTRIES_JSON = ROOT / "app" / "shared" / "data" / "countries.json"
-
-
-def fetch(refresh: bool) -> None:
-    if RAW_FILE.exists() and not refresh:
-        return
-    RAW_FILE.parent.mkdir(parents=True, exist_ok=True)
-    print(f"fetching {RAW_URL}")
-    try:
-        with urllib.request.urlopen(RAW_URL, timeout=60) as resp:
-            RAW_FILE.write_bytes(resp.read())
-    except OSError as exc:
-        sys.exit(f"Download failed ({exc}). Fetch it by hand and save it as {RAW_FILE.relative_to(ROOT)}.")
+from mledoze_source import fetch, load_countries, load_raw  # noqa: E402
 
 
 def main() -> int:
@@ -53,9 +37,7 @@ def main() -> int:
     args = parser.parse_args()
     fetch(args.refresh)
 
-    raw = json.loads(RAW_FILE.read_text(encoding="utf-8"))
-    countries = json.loads(COUNTRIES_JSON.read_text(encoding="utf-8"))
-    report = build_capitals(raw, countries, load_geo_meta().keys())
+    report = build_capitals(load_raw(), load_countries(), load_geo_meta().keys())
 
     CAPITALS_FILE.parent.mkdir(parents=True, exist_ok=True)
     CAPITALS_FILE.write_text(json.dumps(entries_to_json(report.entries), indent=1, ensure_ascii=False) + "\n",

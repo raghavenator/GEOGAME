@@ -301,6 +301,8 @@ a.game-card:active { transform: translateY(-1px) scale(0.99); }
 .sg-feed__hint { position: relative; height: 3rem; }
 .sg-feed__hint .feed-hint { position: static; transform: none; display: inline-flex; }
 .sg-swatch__name { padding: var(--space-2) var(--space-3); font-family: ui-monospace, monospace; color: var(--color-text-muted); }
+.sg-crosshair { display: grid; place-items: center; width: 8rem; height: 8rem; border-radius: var(--radius-md); background: var(--map-land); border: 1px solid var(--color-border); }
+.sg-crosshair--sea { background: var(--map-ocean); }
 
 /* ---------------------------------------------------------------- paused veil
    Embedded games add .is-paused to their root while their feed card is off screen. */

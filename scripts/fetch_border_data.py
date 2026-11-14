@@ -25,6 +25,10 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from app.shared.geo import decode_arcs, ring_coords  # noqa: E402  (shared with the app and build_locations.py)
+
 GAME = ROOT / "app" / "games" / "border_bridge"
 VENDOR = ROOT / "app" / "shared" / "static" / "vendor"
 CDN = "https://cdn.jsdelivr.net/npm"
@@ -74,41 +78,6 @@ def download(refresh: bool) -> None:
 
 
 # --------------------------------------------------------------------------- TopoJSON
-def decode_arcs(topo: dict) -> list[list[tuple[float, float]]]:
-    sx, sy = topo["transform"]["scale"]
-    tx, ty = topo["transform"]["translate"]
-    arcs = []
-    for arc in topo["arcs"]:
-        x = y = 0
-        pts = []
-        for dx, dy in arc:
-            x += dx
-            y += dy
-            pts.append((x * sx + tx, y * sy + ty))
-        arcs.append(pts)
-    return arcs
-
-
-def ring_coords(ring: list[int], arcs: list[list[tuple[float, float]]]) -> list[tuple[float, float]]:
-    out: list[tuple[float, float]] = []
-    for i in ring:
-        pts = arcs[i] if i >= 0 else arcs[~i][::-1]
-        out.extend(pts if not out else pts[1:])
-    # Rings crossing the antimeridian (Russia, Fiji) jump between ±180: unwrap so
-    # longitudes are continuous, otherwise area and centroid are nonsense.
-    unwrapped: list[tuple[float, float]] = []
-    shift = 0.0
-    for k, (x, y) in enumerate(out):
-        if k:
-            dx = x + shift - unwrapped[-1][0]
-            if dx > 180:
-                shift -= 360
-            elif dx < -180:
-                shift += 360
-        unwrapped.append((x + shift, y))
-    return unwrapped
-
-
 def polygons_of(geom: dict) -> list[list[int]]:
     """Exterior ring (arc indices) of each polygon, in the same order topojson.feature emits them."""
     if geom["type"] == "Polygon":

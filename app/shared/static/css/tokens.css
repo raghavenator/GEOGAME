@@ -95,6 +95,12 @@
   --map-revealed-text: #5b3fc0;
   --map-target: #3768f0;          /* Capital Quest: the country to name the capital of (accent) */
   --map-target-stroke: #2449b8;
+  --map-pin-guess: #3768f0;       /* Pinpoint: the player's guess (accent) */
+  --map-pin-target: #17805a;      /* Pinpoint: the true location (matches the found highlight) */
+  --map-pin-halo: #ffffff;
+  --map-link: #556073;            /* dashed great-circle line between the pins */
+  --crosshair-size: 5.5rem;       /* Pinpoint's fixed crosshair: constant on-screen size */
+  --crosshair-halo: rgba(255, 255, 255, 0.95);
 
   /* ---- veils (paused games, overlays) ---- */
   --color-veil: rgba(246, 247, 251, 0.72);

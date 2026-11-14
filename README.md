@@ -6,6 +6,7 @@ The homepage is a vertical, Shorts-style feed: swipe or scroll from one game to 
 - **Flag Reveal**: a flag is revealed one third at a time. Pick the country from 8 options; answering earlier and faster scores more.
 - **Border Bridge**: two countries light up on a globe and a flat map. Connect them by picking the countries in between, one land border at a time.
 - **Capital Quest**: a country lights up on the map. Pick its capital from up to 8 options before the points drain away.
+- **Pinpoint**: a country is named. Move the map until the fixed crosshair sits on it and lock in your guess. Closer and faster scores more.
 
 ## Run it
 
@@ -60,6 +61,14 @@ app/
       data/capitals.json   the eligible pool, built by scripts/build_capitals.py
       templates/capital_quest/_embed.html, play.html
       static/              capital_quest.css/.js, embed.js
+    pinpoint/
+      __init__.py          GAME metadata + blueprint
+      location_data.py     reference-point override table, point-in-polygon check + the data join
+      logic.py             pure rules: haversine, size-relative scoring, speed factor, play clock, state
+      routes.py            page + JSON API (start/begin/submit/next/pause/resume/summary)
+      data/locations.json  the eligible pool, built by scripts/build_locations.py
+      templates/pinpoint/_embed.html, play.html
+      static/              pinpoint.css/.js, embed.js
   shared/
     countries.py           country loader + forgiving answer matcher (case/accents/aliases/typos)
     settings.py            declarative settings schemas, validation, high-score keys
@@ -81,6 +90,8 @@ scripts/vendor_flags.py    re-import flags from the flag-icons package
 scripts/fetch_border_data.py   download + derive Border Bridge data and libraries
 scripts/verify_border_data.py  join report: shapes vs border graph vs countries.json
 scripts/build_capitals.py      build Capital Quest's capitals.json + print its review report
+scripts/build_locations.py     build Pinpoint's locations.json + print its review report
+scripts/mledoze_source.py      the pinned mledoze/countries file both build scripts read
 tests/                     pytest: matching, game logic, settings, API flow, play clock, feed, hub wiring
 ```
 
@@ -89,7 +100,7 @@ Visit `/styleguide` to see every shared component.
 ## The feed (homepage)
 
 `/` is a full-screen feed of cards that snap one at a time (CSS scroll snap, `dvh` units), in the order set by
-`FEED` in `app/feed.py`: Flag Reveal, Border Bridge, Capital Quest, then a "Coming soon" card. It doesn't loop.
+`FEED` in `app/feed.py`: Flag Reveal, Border Bridge, Capital Quest, Pinpoint, then a "Coming soon" card. It doesn't loop.
 
 - **Preloaded, one tap to start.** On load every game card runs `prepare()` in parallel: it creates a round on the
   server and loads what it needs (Flag Reveal fetches the first flag's bytes without rendering it; Border Bridge
@@ -105,7 +116,7 @@ Visit `/styleguide` to see every shared component.
 - **Pull to refresh.** At the top of the first card, pulling down (touch) or scrolling up past the top (wheel)
   shows an indicator and, past a threshold, reloads with fresh rounds. It never starts from a map, while a text
   field is focused, or while the first game is mid-round.
-- **Gesture zones.** In Border Bridge and Capital Quest the map is a fully interactive zone (`data-gesture-zone="map"`,
+- **Gesture zones.** In Border Bridge, Capital Quest and Pinpoint the map is a fully interactive zone (`data-gesture-zone="map"`,
   `touch-action: none`, pointer capture): dragging, rotating, panning, pinching and wheel/trackpad zoom there never
   move the feed. Everything else on the card (header strip, chips, options, margins) swipes as normal. The map sits
   in the top half of the portrait card with a clear border, and a one-time hint says "Swipe outside the map to
@@ -318,6 +329,86 @@ python scripts/build_capitals.py           # rebuild data/capitals.json and prin
   duplicate names and no empty capitals. Note that the source flags Vatican City as a UN member, so it is in the
   pool for both map games.
 
+## Pinpoint
+
+A country's name appears (nothing else: no labels, names or highlights on the map). Move the map, or turn the globe,
+until the large fixed crosshair in the middle of the map zone sits on it, then press **Submit** (Enter or Space).
+
+- **The guess** is the point under the crosshair: `MapView.centerLonLat()` inverts the projection at the centre of the
+  map zone, which works for the flat map and the globe. Longitude is normalised to [-180, 180].
+- **The map moves, the crosshair doesn't.** Drag (with inertia), pinch, wheel, +/− and Reset; arrow keys pan and
+  +/− zoom. Zoom runs from the whole world to 24×. The flat map is clamped so the crosshair can never leave the map
+  past a pole, and it stays centred while the whole map fits.
+- **The result** drops a guess pin and an actual pin, draws a dashed great-circle line between them, highlights the
+  country and flies the camera to fit all three (on the globe, pins more than 80° apart are shown by facing the
+  midpoint of the line with the whole globe in view). It shows the distance (km or miles), accuracy, speed factor and
+  points. **Next** moves on; there's no auto-advance.
+- **Time:** a bar drains to the limit (30 s by default) with the seconds and the live speed factor beside it. When it
+  runs out, the crosshair position is submitted for you with the minimum speed factor.
+
+**Scoring** (`PinpointConfig` in `app/games/pinpoint/logic.py`): a country's reference point is mledoze's `latlng`
+(roughly its geographic centre, not its capital), and the score is relative to the country's size so huge countries
+aren't scored on their centre alone.
+
+- `d` = great-circle (haversine) distance from the guess to the reference point.
+- `r = sqrt(area / π)`: the radius of a circle with the country's area.
+- `tolerance = min(tol_factor × r, 1200 km)` counts as a direct hit; `d_eff = max(0, d − tolerance)`.
+- `scale = clamp(scale_factor × r, 150 km, 1500 km)`.
+- **Inside the borders:** a guess anywhere within the country's own outline (its Natural Earth 50m polygons, holes
+  such as Lesotho excluded, exclaves such as Kaliningrad included) gets full accuracy, 100, however far it is from
+  the reference point. Tuvalu has no 50m shape, so it's scored on distance alone.
+- **Otherwise, accuracy** = `round(100 × exp(−d_eff / scale))`.
+- **Speed factor** = 1.0 up to 5 s, then linear down to 0.5 at the time limit. It only scales accuracy, so a fast,
+  far-off guess earns nothing extra.
+- **Points** = `round(accuracy × speed)`, up to 100 per question.
+- Difficulty: Easy (0.6, 1.5), **Normal (0.35, 1.0)**, Hard (0.15, 0.6) for (`tol_factor`, `scale_factor`).
+
+Example points on Normal with a 3-second guess that lands outside the country (inside it would be 100):
+
+| Country | r | Tolerance | Scale | 50 km | 200 km | 500 km | 1500 km |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Luxembourg | 29 km | 10 km | 150 km | 77 | 28 | 4 | 0 |
+| Austria | 163 km | 57 km | 163 km | 100 | 42 | 7 | 0 |
+| France | 419 km | 147 km | 419 km | 100 | 88 | 43 | 4 |
+| Russia | 2,333 km | 817 km | 1,500 km | 100 | 100 | 100 | 63 |
+
+**How it stays honest:**
+- `start` creates the round but says nothing about its questions. `begin` (the tap) and `next` start the server
+  clock and send only the country's display name: no coordinates, id, code or shape.
+- `submit` takes the crosshair's `lat`/`lng` (validated: finite, [-90, 90] and [-180, 180]) and returns the true point,
+  the country id (for the highlight), the distance, whether it was inside the borders, and the points. The border
+  test runs on the server against the same 50m shapes the map draws (`app/shared/geo.py:load_country_polygons`,
+  decoded once at startup). A second submit for the same question is refused.
+- Elapsed time is the server's clock with paused time shifted out. The client's countdown sends `timeout: true` when
+  it ends; the server refuses it with `too_early` if its own clock has more than 1 s left, and scores it with the
+  minimum speed factor otherwise (as it does any submit that arrives after the limit).
+
+**Settings:** questions (1–30), time limit (15–120 s), difficulty, map view (flat/globe), country borders (on/off),
+distance units (km/miles) and region. Best scores are kept per questions, time, difficulty, borders and region.
+
+### Locations data
+
+```bash
+python scripts/build_locations.py          # rebuild data/locations.json and print the review report
+```
+
+- **Reference point and size:** [`mledoze/countries`](https://github.com/mledoze/countries) `latlng` and `area`
+  (plus `subregion`), from the same pinned `world-countries` 5.1.0 file as the other games.
+- **Pool:** the same independent UN member states as Border Bridge and Capital Quest (`is_un_state`): 194 countries.
+  None is missing a `latlng` or `area`. Tuvalu has no 50m shape, so it's playable but its answer isn't highlighted.
+- **Sanity check:** every reference point is tested against its own Natural Earth polygons (holes included,
+  antimeridian-aware). The report lists the ones outside and how far.
+- **`LOCATION_OVERRIDES`** in `app/games/pinpoint/location_data.py` replaces points that are clearly wrong or
+  misleading, with a point inside the country (its mainland centroid where that works):
+  - Kuwait (29.5, 45.75) → (29.334, 47.587): the source point is ~90 km west, in Iraq / Saudi Arabia.
+  - San Marino (43.767, 12.417) → (43.942, 12.459): the source point is ~20 km south, in Italy.
+  - Israel (31.47, 35.13) → (31.0, 34.85): the source point (and the polygon centroid) falls in the West Bank.
+  - Cuba (21.5, −80.0) → (21.616, −79.024): the source point is in the sea south of the island.
+- **Outside their polygon, kept on purpose** (19): archipelagos and island groups (Fiji 239 km, Marshall Islands 199,
+  Tonga 123, São Tomé and Príncipe 73, Cabo Verde 63, Bahamas 48, Maldives 42, Philippines 23, Trinidad and Tobago 20,
+  Seychelles 19, Vanuatu 18, Kiribati 7, Comoros 3, Palau 3), narrow Gambia (4), and tiny countries whose 50m outline is
+  coarse (Malta 3, Monaco 2, Liechtenstein 1, Vatican City 1).
+
 ## How to add a new game
 
 1. **Create a package** at `app/games/<your_game>/`:
@@ -363,6 +454,7 @@ python scripts/build_capitals.py           # rebuild data/capitals.json and prin
 - Licences:
   - flag-icons (MIT), Lucide (ISC), Inter (OFL), d3 and topojson-client (ISC).
   - world-atlas (ISC), with Natural Earth data in the public domain.
-  - mledoze/countries (ODbL 1.0; attribution: Mohammed Le Doze), for Border Bridge's borders and Capital Quest's
-    capitals and subregions (`capitals.json` is a derived database under the same licence).
+  - mledoze/countries (ODbL 1.0; attribution: Mohammed Le Doze), for Border Bridge's borders, Capital Quest's
+    capitals and subregions, and Pinpoint's reference points and areas (`capitals.json` and `locations.json` are
+    derived databases under the same licence).
   - Each licence file is next to its vendored files.

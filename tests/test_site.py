@@ -41,7 +41,7 @@ def test_styleguide(client: FlaskClient) -> None:
 
 def test_no_external_assets(client: FlaskClient) -> None:
     for url in ("/", "/games", "/styleguide", "/games/flag-reveal/", "/games/border-bridge/",
-                "/games/capital-quest/"):
+                "/games/capital-quest/", "/games/pinpoint/"):
         html = client.get(url).get_data(as_text=True)
         assert "http://" not in html.replace("http://www.w3.org", "")
         assert "https://" not in html.replace("https://www.w3.org", "")

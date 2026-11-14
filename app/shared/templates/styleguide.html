@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% import "_components.html" as ui %}
+{% import "pinpoint/_embed.html" as pinpoint %}
 {% block title %}Style guide · Geo Arcade{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/feed.css') }}">
-<link rel="stylesheet" href="{{ url_for('capital_quest.static', filename='capital_quest.css') }}">{% endblock %}
+<link rel="stylesheet" href="{{ url_for('capital_quest.static', filename='capital_quest.css') }}">
+<link rel="stylesheet" href="{{ url_for('pinpoint.static', filename='pinpoint.css') }}">{% endblock %}
 
 {% block content %}
 <div class="container page stack stack--lg">
@@ -126,12 +128,26 @@
     {% endfor %}
     <h3>Map highlight colours</h3>
     <div class="sg-swatches">
-      {% for t in ["target", "a", "b", "found", "revealed", "land", "ocean"] %}
+      {% for t in ["target", "a", "b", "found", "revealed", "pin-guess", "pin-target", "link", "land", "ocean"] %}
         <div class="sg-swatch">
           <div class="sg-swatch__chip" style="background: var(--map-{{ t }})"></div>
           <div class="sg-swatch__name">--map-{{ t }}</div>
         </div>
       {% endfor %}
+    </div>
+  </section>
+
+  <section class="card sg-section">
+    <h2>Crosshair</h2>
+    <p class="muted">Pinpoint's fixed aim (<code>pinpoint/_embed.html</code> <code>crosshair()</code>): a ring and four ticks
+      with a gap around the centre, a centre dot, and a white halo so it reads on land and sea. Constant size
+      (<code>--crosshair-size</code>), accent colour, <code>pointer-events: none</code>. The map moves under it. Results draw a
+      guess pin (<code>--map-pin-guess</code>), the actual pin (<code>--map-pin-target</code>) and a dashed great-circle line
+      (<code>--map-link</code>) on the canvas.</p>
+    <div class="row" style="gap: var(--space-8)">
+      <div class="sg-crosshair">{{ pinpoint.crosshair() }}</div>
+      <div class="sg-crosshair sg-crosshair--sea">{{ pinpoint.crosshair() }}</div>
+      <span class="pp-step__icon">{{ pinpoint.crosshair("pp-crosshair--mini") }}</span>
     </div>
   </section>
 

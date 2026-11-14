@@ -42,6 +42,7 @@ FEED: tuple[FeedItem, ...] = (
     game("flag-reveal", tint="blue"),
     game("border-bridge", tint="green"),
     game("capital-quest", tint="amber"),
+    game("pinpoint", tint="blue"),
     placeholder("coming-soon", "More games on the way",
                 "Outlines, coastlines and more are in the works. Check back soon for something new to swipe to."),
 )

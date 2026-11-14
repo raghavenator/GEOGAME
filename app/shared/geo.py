@@ -28,6 +28,63 @@ def load_geo_meta() -> dict[str, dict[str, Any]]:
     return json.loads(GEO_META_FILE.read_text(encoding="utf-8"))
 
 
+# --------------------------------------------------------------------------- TopoJSON
+Ring = list[tuple[float, float]]          # (lon, lat); longitudes unwrapped past ±180 where a ring crosses it
+Polygon = list[Ring]                      # exterior ring first, then holes
+
+
+def decode_arcs(topo: dict) -> list[list[tuple[float, float]]]:
+    sx, sy = topo["transform"]["scale"]
+    tx, ty = topo["transform"]["translate"]
+    arcs = []
+    for arc in topo["arcs"]:
+        x = y = 0
+        pts = []
+        for dx, dy in arc:
+            x += dx
+            y += dy
+            pts.append((x * sx + tx, y * sy + ty))
+        arcs.append(pts)
+    return arcs
+
+
+def ring_coords(ring: list[int], arcs: list[list[tuple[float, float]]]) -> list[tuple[float, float]]:
+    out: list[tuple[float, float]] = []
+    for i in ring:
+        pts = arcs[i] if i >= 0 else arcs[~i][::-1]
+        out.extend(pts if not out else pts[1:])
+    # Rings crossing the antimeridian (Russia, Fiji) jump between ±180: unwrap so
+    # longitudes are continuous, otherwise area and centroid are nonsense.
+    unwrapped: list[tuple[float, float]] = []
+    shift = 0.0
+    for k, (x, y) in enumerate(out):
+        if k:
+            dx = x + shift - unwrapped[-1][0]
+            if dx > 180:
+                shift -= 360
+            elif dx < -180:
+                shift += 360
+        unwrapped.append((x + shift, y))
+    return unwrapped
+
+
+@lru_cache(maxsize=1)
+def load_country_polygons() -> dict[str, list[Polygon]]:
+    """TopoJSON feature id (ccn3) -> polygons with their holes, as lon/lat rings.
+
+    Uses the feature geo_meta.json picked for each id, so a duplicate id (Ashmore and
+    Cartier Is. reuse Australia's 036) resolves exactly as it does on the map."""
+    topo = json.loads(TOPO_FILE.read_text(encoding="utf-8"))
+    arcs = decode_arcs(topo)
+    geoms = topo["objects"]["countries"]["geometries"]
+    out: dict[str, list[Polygon]] = {}
+    for fid, meta in load_geo_meta().items():
+        geom = geoms[meta["index"]]
+        polys = [geom["arcs"]] if geom["type"] == "Polygon" else geom["arcs"] if geom["type"] == "MultiPolygon" else []
+        out[fid] = [[ring_coords(r, arcs) for r in poly] for poly in polys]
+    return out
+
+
 def world_data_urls() -> dict[str, str]:
     """Browser URLs of the shapes and their metadata (for GeoMaps.loadWorld)."""
     from flask import url_for

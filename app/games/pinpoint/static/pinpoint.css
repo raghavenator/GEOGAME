@@ -1,0 +1,205 @@
+/* Pinpoint. Uses only design tokens from shared/static/css/tokens.css. */
+
+.pp-container { max-width: 60rem; }
+
+/* ---------------------------------------------------------------- start screen */
+.pp-start { max-width: 46rem; margin: 0 auto; animation: fade-up var(--dur-slow) var(--ease-out) both; }
+.pp-start__hero { display: flex; gap: var(--space-4); align-items: center; }
+.pp-start__icon { width: 4rem; height: 4rem; border-radius: var(--radius-lg); flex: none; }
+.pp-start__rules { font-size: var(--text-sm); }
+.pp-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); counter-reset: step; }
+@media (min-width: 640px) { .pp-steps { grid-template-columns: repeat(3, 1fr); } }
+.pp-step {
+  display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-4);
+  border-radius: var(--radius-md); background: var(--color-surface-muted); counter-increment: step;
+}
+.pp-step strong::before { content: counter(step) ". "; color: var(--color-text-subtle); }
+.pp-step__icon {
+  display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2); background: var(--color-accent-soft); color: var(--color-accent-text);
+}
+.pp-settings-summary {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap;
+  padding: var(--space-3) var(--space-4); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md);
+}
+.pp-settings-summary .row { gap: var(--space-2); }
+.pp-best { display: flex; align-items: center; gap: var(--space-2); color: var(--color-text-muted); font-size: var(--text-sm); }
+.pp-best .icon { color: var(--color-warning); }
+.pp-best strong { color: var(--color-text); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------------- crosshair
+   Fixed at the centre of the map zone, constant size, never takes pointer events. */
+.pp-aim { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; pointer-events: none; }
+.pp-crosshair { width: var(--crosshair-size); height: var(--crosshair-size); overflow: visible; }
+.pp-crosshair circle, .pp-crosshair path { fill: none; stroke-linecap: round; }
+.pp-crosshair__halo circle, .pp-crosshair__halo path { stroke: var(--crosshair-halo); stroke-width: 7; }
+.pp-crosshair__mark circle, .pp-crosshair__mark path { stroke: var(--color-accent); stroke-width: 3; }
+.pp-crosshair__mark .pp-crosshair__dot { fill: var(--color-accent); stroke: none; }
+.pp-crosshair--mini { width: 1.5rem; height: 1.5rem; }
+.pp-crosshair--mini .pp-crosshair__halo { display: none; }
+.pp-crosshair--mini .pp-crosshair__mark circle, .pp-crosshair--mini .pp-crosshair__mark path { stroke: currentColor; stroke-width: 8; }
+.pp-crosshair--mini .pp-crosshair__mark .pp-crosshair__dot { fill: currentColor; }
+
+/* ---------------------------------------------------------------- HUD: name, counter, score, time */
+.pp-play { position: relative; display: flex; flex-direction: column; gap: var(--space-4); }
+.pp-hud {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center;
+  gap: var(--space-3) var(--space-6); padding: var(--space-4) var(--space-5);
+}
+.pp-hud__ask { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pp-hud__name {
+  font-size: var(--text-3xl); font-weight: var(--weight-black); letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight); color: var(--color-text); overflow-wrap: anywhere;
+}
+.pp-hud__blank { display: inline-block; width: 10rem; max-width: 70%; height: 0.9em; border-radius: var(--radius-xs); background: var(--shimmer-base); vertical-align: middle; }
+.pp-hud__stats { display: flex; gap: var(--space-5); margin: 0; }
+.pp-stat { display: flex; flex-direction: column; gap: 2px; }
+.pp-stat dd { margin: 0; }
+.pp-stat__value { font-size: var(--text-xl); font-weight: var(--weight-black); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.pp-stat__of { color: var(--color-text-subtle); font-weight: var(--weight-semibold); font-size: var(--text-base); }
+
+.pp-time {
+  --time-color: var(--color-accent); grid-column: 1 / -1; display: flex; align-items: center; gap: var(--space-3);
+}
+.pp-time[data-level="mid"] { --time-color: var(--color-warning); }
+.pp-time[data-level="low"] { --time-color: var(--color-error); }
+.pp-time.is-stopped { --time-color: var(--color-text-subtle); }
+.pp-time__track { position: relative; flex: 1; height: 0.5rem; border-radius: var(--radius-pill); background: var(--color-surface-sunken); overflow: hidden; }
+.pp-time__bar {
+  position: absolute; inset: 0; border-radius: inherit; transform-origin: left; transform: scaleX(var(--fill, 1));
+  background: var(--time-color); transition: background var(--dur-base) var(--ease-out);
+}
+.pp-time__text { display: inline-flex; align-items: baseline; gap: var(--space-2); font-variant-numeric: tabular-nums; min-width: 6.5rem; justify-content: flex-end; }
+.pp-time__text strong { font-size: var(--text-lg); font-weight: var(--weight-black); }
+.pp-time__speed { font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--color-text-subtle); }
+
+/* ---------------------------------------------------------------- map zone (the biggest thing on screen) */
+.pp-stage {
+  /* As big as possible while the header, HUD and the Submit bar still fit on one screen. */
+  position: relative; padding: 0; height: clamp(18rem, 100dvh - 25rem, 40rem); overflow: hidden; border-radius: var(--radius-lg);
+  background: var(--map-ocean-light); border: 1px solid var(--color-border-strong); box-shadow: var(--shadow-inset), var(--shadow-sm);
+  overscroll-behavior: contain; touch-action: none;
+}
+.pp-pane { position: absolute; inset: 0; }
+.pp-pane--globe { background: var(--color-surface-muted); }
+.pp-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.pp-canvas.is-dragging { cursor: grabbing; }
+.pp-canvas:focus-visible { outline: none; box-shadow: inset var(--focus-ring); }
+.pp-pane__loading { position: absolute; inset: 0; }
+.pp-mapctl {
+  position: absolute; top: var(--space-2); right: var(--space-2); z-index: 3; display: flex; flex-direction: column;
+  gap: 1px; border-radius: var(--radius-sm); overflow: hidden; box-shadow: var(--shadow-sm); background: var(--color-border);
+}
+.pp-mapctl__btn {
+  display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; border: 0; cursor: pointer;
+  color: var(--color-text-muted); background: var(--color-surface);
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.pp-mapctl__btn:hover { background: var(--color-surface-muted); color: var(--color-text); }
+.pp-mapctl__btn:focus-visible { box-shadow: inset var(--focus-ring); }
+.pp-legend {
+  position: absolute; left: var(--space-2); top: var(--space-2); z-index: 3; display: flex; gap: var(--space-3);
+  margin: 0; padding: var(--space-1) var(--space-3); list-style: none; font-size: var(--text-xs); font-weight: var(--weight-semibold);
+  color: var(--color-text-muted); background: color-mix(in srgb, var(--color-surface) 88%, transparent); border-radius: var(--radius-pill);
+}
+.pp-legend li { display: flex; align-items: center; gap: var(--space-1); }
+.pp-swatch { width: 0.625rem; height: 0.625rem; border-radius: 50%; }
+.pp-swatch--guess { background: var(--map-pin-guess); }
+.pp-swatch--target { background: var(--map-pin-target); }
+
+/* ---------------------------------------------------------------- bottom bar: Submit, or the result */
+.pp-bar { display: flex; flex-direction: column; gap: var(--space-2); }
+.pp-bar__ask { display: flex; align-items: center; gap: var(--space-4); }
+.pp-submit { flex: none; min-width: 11rem; }
+.pp-hint { font-size: var(--text-sm); }
+.pp-hint strong { color: var(--color-text); }
+.pp-keys { display: none; }
+@media (hover: hover) and (pointer: fine) { .pp-keys { display: inline; } }
+.pp-container kbd {
+  font: inherit; font-size: 0.9em; font-weight: var(--weight-semibold); padding: 0 var(--space-1);
+  border: 1px solid var(--color-border); border-radius: var(--radius-xs); background: var(--color-surface);
+}
+.pp-feedback { font-size: var(--text-sm); font-weight: var(--weight-semibold); color: var(--color-text-muted); }
+.pp-feedback.is-error { color: var(--color-error-strong); }
+
+.pp-result {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); animation: fade-up var(--dur-base) var(--ease-out) both;
+}
+.pp-result__flag { width: 2.75rem; height: 2rem; object-fit: cover; border-radius: var(--radius-xs); box-shadow: var(--shadow-xs); }
+.pp-result__main { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.pp-result__kicker { font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--color-success-strong); }
+.is-timeout .pp-result__kicker { color: var(--color-warning-text); }
+.pp-result__dist { font-size: var(--text-base); font-weight: var(--weight-black); overflow-wrap: anywhere; }
+.pp-result__calc { font-size: var(--text-xs); font-variant-numeric: tabular-nums; }
+.pp-result__pts { display: inline-flex; align-items: baseline; gap: 2px; font-variant-numeric: tabular-nums; }
+.pp-result__pts strong { font-size: var(--text-3xl); font-weight: var(--weight-black); line-height: 1; }
+.pp-result__pts span { font-size: var(--text-xs); font-weight: var(--weight-semibold); color: var(--color-text-subtle); }
+.pp-result__pts.is-good strong { color: var(--color-success-strong); }
+.pp-result__pts.is-zero strong { color: var(--color-error-strong); }
+.pp-next { animation: fade-in var(--dur-base) var(--ease-out); }
+@media (max-width: 559px) {
+  .pp-result { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .pp-next { grid-column: 1 / -1; width: 100%; }
+}
+
+/* ---------------------------------------------------------------- summary */
+.pp-summary { max-width: 46rem; margin: 0 auto; animation: fade-up var(--dur-slow) var(--ease-out) both; }
+.pp-summary__head { text-align: center; display: flex; flex-direction: column; gap: var(--space-2); align-items: center; }
+.pp-summary__score { display: flex; align-items: baseline; justify-content: center; gap: var(--space-2); }
+.pp-summary__score strong {
+  font-size: 4.5rem; font-weight: var(--weight-black); letter-spacing: -0.04em; line-height: 1;
+  background: var(--gradient-accent); -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-variant-numeric: tabular-nums;
+}
+.pp-summary__score > span { font-size: var(--text-2xl); color: var(--color-text-subtle); font-weight: var(--weight-bold); }
+.pp-new-best { animation: pop 520ms var(--ease-spring) 400ms both; }
+.pp-summary__map {
+  position: relative; height: 13rem; overflow: hidden; border-radius: var(--radius-md);
+  border: 1px solid var(--color-border); background: var(--map-ocean-light);
+}
+.pp-canvas--static { pointer-events: none; cursor: default; }
+.pp-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.pp-row {
+  display: grid; grid-template-columns: 1.25rem 2.5rem 1fr auto; align-items: center; gap: var(--space-3);
+  padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-surface-muted);
+  animation: fade-up var(--dur-slow) var(--ease-out) both;
+}
+.pp-row__num { color: var(--color-text-subtle); font-weight: var(--weight-bold); font-size: var(--text-sm); text-align: center; }
+.pp-row__flag { width: 2.5rem; height: 1.875rem; object-fit: cover; border-radius: var(--radius-xs); box-shadow: var(--shadow-xs); }
+.pp-row__main { display: flex; flex-direction: column; min-width: 0; gap: 1px; line-height: 1.3; }
+.pp-row__main .subtle { font-size: var(--text-xs); }
+.pp-summary__actions { display: grid; gap: var(--space-3); }
+@media (min-width: 480px) { .pp-summary__actions { grid-template-columns: 1fr 1fr; } }
+
+/* ---------------------------------------------------------------- feed card (portrait)
+   Header (~15%), the map zone (~62%, the biggest element), then the bottom bar (~20%).
+   Gestures inside the bordered map zone move the map, never the feed. */
+.pp--embed { height: 100%; display: flex; flex-direction: column; padding: var(--space-3); max-width: none; }
+.pp--embed .pp-play { flex: 1; min-height: 0; gap: var(--space-2); }
+.pp--embed .pp-hud { flex: none; padding: var(--space-2) var(--space-4); gap: var(--space-1) var(--space-4); }
+.pp--embed .pp-hud .eyebrow { font-size: 0.625rem; }
+.pp--embed .pp-hud__name { font-size: var(--text-2xl); }
+.pp--embed .pp-stat__value { font-size: var(--text-base); }
+.pp--embed .pp-stat__of { font-size: var(--text-xs); }
+.pp--embed .pp-hud__stats { gap: var(--space-3); }
+.pp--embed .pp-time__text strong { font-size: var(--text-base); }
+.pp--embed .pp-stage { flex: 1 1 auto; height: auto; min-height: 0; box-shadow: var(--shadow-inset), inset 0 0 0 3px var(--color-surface); }
+.pp--embed .pp-bar { flex: none; min-height: 18%; justify-content: center; }
+.pp--embed .pp-bar__ask { flex-direction: column; align-items: stretch; gap: var(--space-1); text-align: center; }
+.pp--embed .pp-submit { width: 100%; min-height: 3.25rem; }
+.pp--embed .pp-hint { font-size: var(--text-xs); }
+.pp--embed .pp-result { padding: var(--space-2) var(--space-3); grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-1) var(--space-3); }
+.pp--embed .pp-next { grid-column: 1 / -1; width: 100%; }
+.pp--embed .pp-result__pts strong { font-size: var(--text-2xl); }
+/* No overscroll containment: a swipe past the end of the summary still changes card. */
+.pp--embed .pp-summary { height: 100%; overflow-y: auto; padding: var(--space-5); box-shadow: none; }
+.pp--embed .pp-summary__score strong { font-size: var(--text-5xl); }
+.pp--embed .pp-summary__map { height: 10rem; }
+@media (max-width: 719px) {
+  .pp-stage { height: min(62vh, 34rem); }
+  .pp-hud__name { font-size: var(--text-2xl); }
+  .pp-bar__ask { flex-direction: column; align-items: stretch; text-align: center; gap: var(--space-2); }
+  .pp-submit { width: 100%; }
+}
