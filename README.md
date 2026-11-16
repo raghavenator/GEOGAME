@@ -7,6 +7,7 @@ The homepage is a vertical, Shorts-style feed: swipe or scroll from one game to 
 - **Border Bridge**: two countries light up on a globe and a flat map. Connect them by picking the countries in between, one land border at a time.
 - **Capital Quest**: a country lights up on the map. Pick its capital from up to 8 options before the points drain away.
 - **Pinpoint**: a country is named. Move the map until the fixed crosshair sits on it and lock in your guess. Closer and faster scores more.
+- **Currency Quest**: a country is shown by name and flag. Pick the currency it uses from up to 8 options before the points drain away.
 
 ## Run it
 
@@ -69,10 +70,19 @@ app/
       data/locations.json  the eligible pool, built by scripts/build_locations.py
       templates/pinpoint/_embed.html, play.html
       static/              pinpoint.css/.js, embed.js
+    currency_quest/
+      __init__.py          GAME metadata + blueprint
+      currency_data.py     correction / primary-override / ISO-review tables, the data join, the ISO 4217 check
+      logic.py             pure rules: config, settings, distractors by difficulty, unique-currency rounds, labels
+      routes.py            page + JSON API (start/begin/pick/timeout/next/pause/resume/summary)
+      data/currencies.json the eligible pool + reverse index, built by scripts/build_currencies.py
+      templates/currency_quest/_embed.html, play.html
+      static/              currency_quest.css/.js, embed.js
   shared/
     countries.py           country loader + forgiving answer matcher (case/accents/aliases/typos)
     settings.py            declarative settings schemas, validation, high-score keys
-    scoring.py             generic scoring helpers
+    scoring.py             generic scoring helpers, incl. the draining-points rules (Capital Quest, Currency Quest)
+    timed_choice.py        timed multiple choice where wrong options disappear: question/round state, play clock
     highscores.py          SQLite best scores per (game, settings)
     round_store.py         thread-safe in-memory store for live rounds
     api.py                 JSON error helpers
@@ -81,7 +91,7 @@ app/
     data/countries.json    195 countries (UN members + observers) with regions and aliases
     templates/             base.html, feed.html, hub.html, styleguide, settings modal, UI macros
     static/css/tokens.css  design tokens (the only place raw colours live)
-    static/css/base.css    shared components;  static/css/feed.css  the feed
+    static/css/base.css    shared components (incl. the points meter);  static/css/feed.css  the feed
     static/js/             core.js (API, timers, embed contract), settings.js (per-game settings stores),
                            feed.js (feed controller), map_view.js (d3 canvas globe/flat map renderer,
                            window.GeoMaps; window.BorderMaps is the same object)
@@ -91,7 +101,8 @@ scripts/fetch_border_data.py   download + derive Border Bridge data and librarie
 scripts/verify_border_data.py  join report: shapes vs border graph vs countries.json
 scripts/build_capitals.py      build Capital Quest's capitals.json + print its review report
 scripts/build_locations.py     build Pinpoint's locations.json + print its review report
-scripts/mledoze_source.py      the pinned mledoze/countries file both build scripts read
+scripts/build_currencies.py    build Currency Quest's currencies.json, cross-check ISO 4217, print the report
+scripts/mledoze_source.py      the pinned mledoze/countries file the build scripts read
 tests/                     pytest: matching, game logic, settings, API flow, play clock, feed, hub wiring
 ```
 
@@ -100,7 +111,7 @@ Visit `/styleguide` to see every shared component.
 ## The feed (homepage)
 
 `/` is a full-screen feed of cards that snap one at a time (CSS scroll snap, `dvh` units), in the order set by
-`FEED` in `app/feed.py`: Flag Reveal, Border Bridge, Capital Quest, Pinpoint, then a "Coming soon" card. It doesn't loop.
+`FEED` in `app/feed.py`: Flag Reveal, Border Bridge, Capital Quest, Pinpoint, Currency Quest, then a "Coming soon" card. It doesn't loop.
 
 - **Preloaded, one tap to start.** On load every game card runs `prepare()` in parallel: it creates a round on the
   server and loads what it needs (Flag Reveal fetches the first flag's bytes without rendering it; Border Bridge
@@ -116,7 +127,10 @@ Visit `/styleguide` to see every shared component.
 - **Pull to refresh.** At the top of the first card, pulling down (touch) or scrolling up past the top (wheel)
   shows an indicator and, past a threshold, reloads with fresh rounds. It never starts from a map, while a text
   field is focused, or while the first game is mid-round.
-- **Gesture zones.** In Border Bridge, Capital Quest and Pinpoint the map is a fully interactive zone (`data-gesture-zone="map"`,
+- **Gesture zones.** Currency Quest has none: its small locator globe is decorative (`pointer-events: none`), so a
+  swipe anywhere on that card, even one starting on an option button, changes card (the browser doesn't fire a click
+  for a touch that became a scroll).
+  In Border Bridge, Capital Quest and Pinpoint the map is a fully interactive zone (`data-gesture-zone="map"`,
   `touch-action: none`, pointer capture): dragging, rotating, panning, pinching and wheel/trackpad zoom there never
   move the feed. Everything else on the card (header strip, chips, options, margins) swipes as normal. The map sits
   in the top half of the portrait card with a clear border, and a one-time hint says "Swipe outside the map to
@@ -281,7 +295,9 @@ A country is highlighted on the map (no names or labels). Pick its capital from 
 - **Time out:** 0, and the capital is revealed in the options and on the map.
 - The round maximum is questions × 20. The summary lists country, capital, time, wrong picks and points per question.
   Best scores are kept per questions, time, options, framing and region. Map view doesn't split them.
-- All values live in `CapitalQuestConfig` in `app/games/capital_quest/logic.py`.
+- All values live in `CapitalQuestConfig` in `app/games/capital_quest/logic.py`. The scoring functions and the
+  question/round state machine are shared with Currency Quest (`app/shared/scoring.py` `drain_*`,
+  `app/shared/timed_choice.py`); `logic.py` binds them to its config and keeps the same function names.
 
 **How it stays honest:**
 - `start` creates the round but returns nothing about its questions. `begin` (the tap) starts the server clock and
@@ -409,6 +425,108 @@ python scripts/build_locations.py          # rebuild data/locations.json and pri
   Seychelles 19, Vanuatu 18, Kiribati 7, Comoros 3, Palau 3), narrow Gambia (4), and tiny countries whose 50m outline is
   coarse (Malta 3, Monaco 2, Liechtenstein 1, Vatican City 1).
 
+## Currency Quest
+
+A country is shown: its name, its flag and (optionally) a small globe with it highlighted. Pick the **currency** it
+uses from 8 options (4 or 6 in settings). Options are currencies, never countries.
+
+- **Scoring** is Capital Quest's, from the same shared code: 20 points draining linearly to 0 over the time limit
+  (20 s by default), −3 per wrong pick, a correct answer is worth `max(2, available − 3 × wrong picks)` (whole
+  points, rounded half up), and a timeout scores 0. The round maximum is questions × 20.
+- **Wrong pick:** that option disappears for the rest of the question, the option shakes, the meter floats "−3",
+  and the clock keeps running.
+- **Result:** the currency's name, ISO code and symbol, and "Also used in: …" (up to 6 other countries, those whose
+  own currency it is first, then "+N more"). The next question comes after 2.5 s (3 s after a timeout), or on Next.
+- The summary lists country, currency, time, wrong picks and points per question. Best scores are kept per
+  questions, time, options, difficulty and region. The locator doesn't split them.
+- All values live in `CurrencyQuestConfig` in `app/games/currency_quest/logic.py`.
+
+**One right answer only** (`logic.generate_options`, tested in `tests/test_currency_logic.py`):
+- Each country has a *correct set* (every currency the data lists for it) and one *primary* currency, which is the
+  answer shown. No other currency of the correct set is ever a distractor, so Panama (PAB) never sees the US dollar
+  and Lesotho (LSL) never sees the rand.
+- Every option is a distinct ISO code, and a shared currency like the euro appears once. Distractors are other
+  countries' primary currencies, never named like another option.
+- **Options show only the ISO code and the symbol** (large, e.g. "YER ﷼"), never the name, because "Yemeni rial"
+  would give the answer away. The server doesn't send names during the question. A wrong pick's name comes back
+  with its result ("Not MWK, the Malawian kwacha"), and every option's name is shown once the question ends.
+  Codes are unique, so two options never read the same. Many codes still start with the country's own code
+  (YER, JPY), which is part of the puzzle.
+- **A currency never repeats in a round.** Countries are drawn uniformly at random, never repeated, and a country
+  whose currency is already in the round is skipped, so the euro (26 countries) comes up at most once.
+- **Difficulty** only changes the distractors. Easy: random. Normal: about half from the target's UN subregion,
+  topped up from its continent, the rest random. Hard: about half look-alikes, nearest first, the rest from the
+  region. A look-alike has the same symbol ("$", "Fr", "£", "kr", "Sh", "Rs"…) or the same name family (dollar,
+  franc, peso, pound, dinar/denar, rupee/rupiah, dirham, krone/krona/koruna, rial/riyal, shilling, ruble, lira,
+  leu/lev, won, kwacha, manat, som).
+
+**How it stays honest:** the same as Capital Quest. `start` says nothing about the questions. `begin` (the tap)
+starts the server clock and sends the country (name, flag URL, shape id) and the options' display data under
+opaque ids. Which option is right is only sent when the question ends. Elapsed time is the server's clock with
+paused time shifted out, with the same late-pick grace and early-timeout checks.
+
+**Settings:** questions (1–30), time per question (10–60 s), options (4/6/8), difficulty (Easy/Normal/Hard), show
+map locator (on/off) and region.
+
+**Layout:** a header strip (question, score, points meter), the country block (flag and locator on top, the name
+below; about a third of a feed card), then the options as a 2-column grid of large buttons (keys 1–8). The result
+takes the question's place in the country block. The locator is the shared `MapView` globe with
+`interactive: false`. Its map data loads in the background while the round is prepared, and only when the locator
+is on.
+
+### Currency data
+
+```bash
+python scripts/build_currencies.py           # rebuild data/currencies.json, check ISO 4217, print the review report
+python scripts/build_currencies.py --no-iso  # offline: skip the ISO 4217 cross-check
+```
+
+- **Currencies:** [`mledoze/countries`](https://github.com/mledoze/countries) `currencies` (ISO 4217 code → name,
+  symbol) and `subregion`, from the same pinned `world-countries` 5.1.0 file as the other games, joined to the shared
+  `countries.json`.
+- **Pool:** the same independent UN member states as the other games (`is_un_state`), with at least one currency and
+  exactly one primary: **194 countries, 142 currencies**. Palestine is the only `countries.json` entry left out (not
+  a UN member state). No multi-currency country is excluded, because each has an override. Tuvalu has no 50m shape,
+  so it has no locator.
+- **Cross-check:** the build downloads the ISO 4217 active currency list ("list one", published by SIX for the ISO
+  4217 maintenance agency; git-ignored under `data/raw/`) and compares every country's final list with its ISO entry.
+  It fails on any difference that isn't reviewed, any country it can't match, and any code that isn't an active ISO
+  code. Against the list published 2026-09-17, 187 of 194 countries match exactly and the other 7 are reviewed below.
+- **Tables** in `app/games/currency_quest/currency_data.py`:
+  - `CURRENCY_CORRECTIONS` fixes source lists that are out of date or incomplete:
+    - Bulgaria: BGN → EUR (euro since 1 January 2026).
+    - Sierra Leone: SLL → SLE (2022 redenomination).
+    - Cuba: drops CUC (withdrawn 2021).
+    - Zimbabwe: ZWB → ZWG (ZiG since April 2024); its multi-currency basket stays in the correct set.
+    - Kiribati and Tuvalu: drop their non-ISO local coins (KID, TVD).
+    - Micronesia: gets USD (the source has none).
+    - Haiti: adds USD, as ISO lists it.
+  - `PRIMARY_OVERRIDES` (the answer for a country with several currencies): Panama PAB, Bahamas BSD, Brunei BND,
+    Bhutan BTN, Cambodia KHR, Eswatini SZL, Lesotho LSL, Namibia NAD, Haiti HTG, Zimbabwe ZWG.
+  - `ISO_DIFFERENCES_REVIEWED` lists the remaining differences from ISO, kept on purpose:
+    - Cambodia and Bahamas keep USD as a second currency, and Brunei keeps SGD.
+    - Eswatini keeps the rand, and Zimbabwe keeps its basket.
+    - El Salvador leaves out the colón (ISO still lists SVC, which hasn't circulated since 2001).
+    - Venezuela leaves out VED (the "digital" bolívar, never offered).
+  - `CURRENCY_INFO` sets display names and symbols:
+    - the two new currencies (SLE, ZWG);
+    - names that don't say whose: "lari", "dalasi" and "denar" become Georgian lari, Gambian dalasi and Macedonian denar;
+    - a stray script in the Sri Lankan rupee's symbol;
+    - source rows that disagree (CHF "Fr"/"Fr.", ZAR "R"/"Rs");
+    - "Venezuelan bolívar".
+- **Report:** no currency lacks a symbol, and no display names collide. Most shared currencies (countries listing
+  it / using it as their own):
+
+  | Currency | Countries |
+  | --- | --- |
+  | Euro | 27 / 26 |
+  | US dollar | 12 / 7 |
+  | West African CFA franc | 8 |
+  | Central African CFA franc | 6 |
+  | Eastern Caribbean dollar | 6 |
+  | South African rand | 5 / 1 |
+  | Australian dollar | 4 |
+
 ## How to add a new game
 
 1. **Create a package** at `app/games/<your_game>/`:
@@ -442,6 +560,8 @@ python scripts/build_locations.py          # rebuild data/locations.json and pri
    - `validate_settings(schema, raw)` for validating settings sent by the client
    - `highscores.record_score(...)` for best scores
    - `RoundStore` for round state
+   - `app/shared/timed_choice.py` + `scoring.drain_*` for timed multiple choice with disappearing wrong options
+     (Capital Quest and Currency Quest), and `ui.points_meter()` / `GeoArcade.drainMeter` for its live meter
    - `GeoArcade.StageTimer` (with `hold()`/`release()`), `GeoArcade.api`, `GeoArcade.settings(id)` and `GeoArcade.alpineEmbed` in the browser
 5. **Test it.** Put the rules in a pure `logic.py` and unit-test them in `tests/`.
    `tests/test_site.py` already checks that every registry game appears on the hub and has its routes registered.
@@ -455,6 +575,7 @@ python scripts/build_locations.py          # rebuild data/locations.json and pri
   - flag-icons (MIT), Lucide (ISC), Inter (OFL), d3 and topojson-client (ISC).
   - world-atlas (ISC), with Natural Earth data in the public domain.
   - mledoze/countries (ODbL 1.0; attribution: Mohammed Le Doze), for Border Bridge's borders, Capital Quest's
-    capitals and subregions, and Pinpoint's reference points and areas (`capitals.json` and `locations.json` are
-    derived databases under the same licence).
+    capitals and subregions, Pinpoint's reference points and areas, and Currency Quest's currencies
+    (`capitals.json`, `locations.json` and `currencies.json` are derived databases under the same licence).
+  - The ISO 4217 list is only read by `scripts/build_currencies.py` to check the data; it isn't redistributed.
   - Each licence file is next to its vendored files.

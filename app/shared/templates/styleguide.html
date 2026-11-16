@@ -4,7 +4,8 @@
 {% block title %}Style guide · Geo Arcade{% endblock %}
 {% block head %}<link rel="stylesheet" href="{{ url_for('static', filename='css/feed.css') }}">
 <link rel="stylesheet" href="{{ url_for('capital_quest.static', filename='capital_quest.css') }}">
-<link rel="stylesheet" href="{{ url_for('pinpoint.static', filename='pinpoint.css') }}">{% endblock %}
+<link rel="stylesheet" href="{{ url_for('pinpoint.static', filename='pinpoint.css') }}">
+<link rel="stylesheet" href="{{ url_for('currency_quest.static', filename='currency_quest.css') }}">{% endblock %}
 
 {% block content %}
 <div class="container page stack stack--lg">
@@ -116,14 +117,14 @@
 
   <section class="card sg-section">
     <h2>Points meter</h2>
-    <p class="muted">Capital Quest's live meter (<code>capital_quest.css</code>): a draining bar plus the points a correct
+    <p class="muted">The live meter of Capital Quest and Currency Quest (<code>ui.points_meter()</code>, <code>base.css</code>): a draining bar plus the points a correct
       answer would score now. It turns amber at half and red at a quarter. With reduced motion only the number shows.
       It uses <code>role="meter"</code> with a text value.</p>
     {% for level, pts, fill in [("high", 17, 0.85), ("mid", 8, 0.4), ("low", 3, 0.12)] %}
-      <div class="cq-meter" data-level="{{ level }}" role="meter" aria-label="Points available" aria-valuemin="0"
+      <div class="points-meter" data-level="{{ level }}" role="meter" aria-label="Points available" aria-valuemin="0"
            aria-valuemax="20" aria-valuenow="{{ pts }}" aria-valuetext="{{ pts }} of 20 points available" style="max-width: 24rem">
-        <span class="cq-meter__value" aria-hidden="true"><strong>{{ pts }}</strong><span class="cq-meter__unit">pts</span></span>
-        <span class="cq-meter__track" aria-hidden="true"><span class="cq-meter__bar" style="--fill: {{ fill }}"></span></span>
+        <span class="points-meter__value" aria-hidden="true"><strong>{{ pts }}</strong><span class="points-meter__unit">pts</span></span>
+        <span class="points-meter__track" aria-hidden="true"><span class="points-meter__bar" style="--fill: {{ fill }}"></span></span>
       </div>
     {% endfor %}
     <h3>Map highlight colours</h3>
@@ -133,6 +134,29 @@
           <div class="sg-swatch__chip" style="background: var(--map-{{ t }})"></div>
           <div class="sg-swatch__name">--map-{{ t }}</div>
         </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card sg-section cur-container">
+    <h2>Currency options</h2>
+    <p class="muted">Currency Quest's answer buttons (<code>currency_quest.css</code>): only the ISO code, large, and the
+      symbol, because a name like "Yemeni rial" would give the answer away. The name appears under the code once it gives
+      nothing away: after a wrong pick, or when the question ends.
+      States: default, wrong (shakes, then disappears), correct, the revealed answer after a timeout, and dimmed.
+      The locator next to the country is a decorative <code>MapView</code> globe (<code>interactive: false</code>,
+      <code>pointer-events: none</code>), so the whole card stays a swipe zone.</p>
+    <div class="cur-options" style="max-width: 26rem">
+      {% for state, name, code, sym in [("", "", "AUD", "$"), ("is-wrong", "Swiss franc", "CHF", "Fr."),
+                                        ("is-correct", "Euro", "EUR", "€"), ("is-answer", "Japanese yen", "JPY", "¥"),
+                                        ("is-dim", "Indian rupee", "INR", "₹"), ("", "", "XOF", "Fr")] %}
+        <button type="button" class="cur-option {{ state }}" style="animation: none">
+          <kbd class="cur-option__key" aria-hidden="true">{{ loop.index }}</kbd>
+          <span class="cur-option__body">
+            <span class="cur-option__label"><span class="cur-option__code">{{ code }}</span><span class="cur-option__symbol">{{ sym }}</span></span>
+            {% if name %}<span class="cur-option__name">{{ name }}</span>{% endif %}
+          </span>
+        </button>
       {% endfor %}
     </div>
   </section>

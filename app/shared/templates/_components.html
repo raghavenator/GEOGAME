@@ -25,3 +25,16 @@
   </div>
 </div>
 {% endmacro %}
+
+{# The live points meter (Capital Quest, Currency Quest): a draining bar plus the number a correct
+   pick would score now, and a floating toast. Binds to the game component's level, phase,
+   potential and toast; the component fills the bar through x-ref="meterBar". #}
+{% macro points_meter(max_points) %}
+  <div class="points-meter" :data-level="level" :class="{ 'is-stopped': phase !== 'question' }"
+       role="meter" aria-label="Points available" aria-valuemin="0" aria-valuemax="{{ max_points }}"
+       :aria-valuenow="potential" :aria-valuetext="potential + ' of {{ max_points }} points available'">
+    <span class="points-meter__value" aria-hidden="true"><strong x-text="potential">{{ max_points }}</strong><span class="points-meter__unit">pts</span></span>
+    <span class="points-meter__track" aria-hidden="true"><span class="points-meter__bar" x-ref="meterBar"></span></span>
+    <span class="points-toast" x-ref="toast" :class="toast && 'is-' + toast.kind" x-text="toast && toast.text" aria-hidden="true"></span>
+  </div>
+{% endmacro %}

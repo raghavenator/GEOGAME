@@ -1,0 +1,4181 @@
+{
+ "meta": {
+  "source": "https://cdn.jsdelivr.net/npm/world-countries@5.1.0/countries.json",
+  "iso4217_list_published": "2026-09-17",
+  "iso4217_checked": true
+ },
+ "countries": [
+  {
+   "code": "af",
+   "cca3": "AFG",
+   "shape": "004",
+   "name": "Afghanistan",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "AFN"
+   ],
+   "primary": "AFN"
+  },
+  {
+   "code": "al",
+   "cca3": "ALB",
+   "shape": "008",
+   "name": "Albania",
+   "continent": "Europe",
+   "subregion": "Southeast Europe",
+   "currencies": [
+    "ALL"
+   ],
+   "primary": "ALL"
+  },
+  {
+   "code": "dz",
+   "cca3": "DZA",
+   "shape": "012",
+   "name": "Algeria",
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "currencies": [
+    "DZD"
+   ],
+   "primary": "DZD"
+  },
+  {
+   "code": "ad",
+   "cca3": "AND",
+   "shape": "020",
+   "name": "Andorra",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "ao",
+   "cca3": "AGO",
+   "shape": "024",
+   "name": "Angola",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "AOA"
+   ],
+   "primary": "AOA"
+  },
+  {
+   "code": "ag",
+   "cca3": "ATG",
+   "shape": "028",
+   "name": "Antigua and Barbuda",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "XCD"
+   ],
+   "primary": "XCD"
+  },
+  {
+   "code": "ar",
+   "cca3": "ARG",
+   "shape": "032",
+   "name": "Argentina",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "ARS"
+   ],
+   "primary": "ARS"
+  },
+  {
+   "code": "am",
+   "cca3": "ARM",
+   "shape": "051",
+   "name": "Armenia",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "AMD"
+   ],
+   "primary": "AMD"
+  },
+  {
+   "code": "au",
+   "cca3": "AUS",
+   "shape": "036",
+   "name": "Australia",
+   "continent": "Oceania",
+   "subregion": "Australia and New Zealand",
+   "currencies": [
+    "AUD"
+   ],
+   "primary": "AUD"
+  },
+  {
+   "code": "at",
+   "cca3": "AUT",
+   "shape": "040",
+   "name": "Austria",
+   "continent": "Europe",
+   "subregion": "Central Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "az",
+   "cca3": "AZE",
+   "shape": "031",
+   "name": "Azerbaijan",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "AZN"
+   ],
+   "primary": "AZN"
+  },
+  {
+   "code": "bs",
+   "cca3": "BHS",
+   "shape": "044",
+   "name": "Bahamas",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "BSD",
+    "USD"
+   ],
+   "primary": "BSD"
+  },
+  {
+   "code": "bh",
+   "cca3": "BHR",
+   "shape": "048",
+   "name": "Bahrain",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "BHD"
+   ],
+   "primary": "BHD"
+  },
+  {
+   "code": "bd",
+   "cca3": "BGD",
+   "shape": "050",
+   "name": "Bangladesh",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "BDT"
+   ],
+   "primary": "BDT"
+  },
+  {
+   "code": "bb",
+   "cca3": "BRB",
+   "shape": "052",
+   "name": "Barbados",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "BBD"
+   ],
+   "primary": "BBD"
+  },
+  {
+   "code": "by",
+   "cca3": "BLR",
+   "shape": "112",
+   "name": "Belarus",
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "currencies": [
+    "BYN"
+   ],
+   "primary": "BYN"
+  },
+  {
+   "code": "be",
+   "cca3": "BEL",
+   "shape": "056",
+   "name": "Belgium",
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "bz",
+   "cca3": "BLZ",
+   "shape": "084",
+   "name": "Belize",
+   "continent": "Americas",
+   "subregion": "Central America",
+   "currencies": [
+    "BZD"
+   ],
+   "primary": "BZD"
+  },
+  {
+   "code": "bj",
+   "cca3": "BEN",
+   "shape": "204",
+   "name": "Benin",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "XOF"
+   ],
+   "primary": "XOF"
+  },
+  {
+   "code": "bt",
+   "cca3": "BTN",
+   "shape": "064",
+   "name": "Bhutan",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "BTN",
+    "INR"
+   ],
+   "primary": "BTN"
+  },
+  {
+   "code": "bo",
+   "cca3": "BOL",
+   "shape": "068",
+   "name": "Bolivia",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "BOB"
+   ],
+   "primary": "BOB"
+  },
+  {
+   "code": "ba",
+   "cca3": "BIH",
+   "shape": "070",
+   "name": "Bosnia and Herzegovina",
+   "continent": "Europe",
+   "subregion": "Southeast Europe",
+   "currencies": [
+    "BAM"
+   ],
+   "primary": "BAM"
+  },
+  {
+   "code": "bw",
+   "cca3": "BWA",
+   "shape": "072",
+   "name": "Botswana",
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "currencies": [
+    "BWP"
+   ],
+   "primary": "BWP"
+  },
+  {
+   "code": "br",
+   "cca3": "BRA",
+   "shape": "076",
+   "name": "Brazil",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "BRL"
+   ],
+   "primary": "BRL"
+  },
+  {
+   "code": "bn",
+   "cca3": "BRN",
+   "shape": "096",
+   "name": "Brunei",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "BND",
+    "SGD"
+   ],
+   "primary": "BND"
+  },
+  {
+   "code": "bg",
+   "cca3": "BGR",
+   "shape": "100",
+   "name": "Bulgaria",
+   "continent": "Europe",
+   "subregion": "Southeast Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "bf",
+   "cca3": "BFA",
+   "shape": "854",
+   "name": "Burkina Faso",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "XOF"
+   ],
+   "primary": "XOF"
+  },
+  {
+   "code": "bi",
+   "cca3": "BDI",
+   "shape": "108",
+   "name": "Burundi",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "BIF"
+   ],
+   "primary": "BIF"
+  },
+  {
+   "code": "cv",
+   "cca3": "CPV",
+   "shape": "132",
+   "name": "Cabo Verde",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "CVE"
+   ],
+   "primary": "CVE"
+  },
+  {
+   "code": "kh",
+   "cca3": "KHM",
+   "shape": "116",
+   "name": "Cambodia",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "KHR",
+    "USD"
+   ],
+   "primary": "KHR"
+  },
+  {
+   "code": "cm",
+   "cca3": "CMR",
+   "shape": "120",
+   "name": "Cameroon",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "XAF"
+   ],
+   "primary": "XAF"
+  },
+  {
+   "code": "ca",
+   "cca3": "CAN",
+   "shape": "124",
+   "name": "Canada",
+   "continent": "Americas",
+   "subregion": "North America",
+   "currencies": [
+    "CAD"
+   ],
+   "primary": "CAD"
+  },
+  {
+   "code": "cf",
+   "cca3": "CAF",
+   "shape": "140",
+   "name": "Central African Republic",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "XAF"
+   ],
+   "primary": "XAF"
+  },
+  {
+   "code": "td",
+   "cca3": "TCD",
+   "shape": "148",
+   "name": "Chad",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "XAF"
+   ],
+   "primary": "XAF"
+  },
+  {
+   "code": "cl",
+   "cca3": "CHL",
+   "shape": "152",
+   "name": "Chile",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "CLP"
+   ],
+   "primary": "CLP"
+  },
+  {
+   "code": "cn",
+   "cca3": "CHN",
+   "shape": "156",
+   "name": "China",
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "currencies": [
+    "CNY"
+   ],
+   "primary": "CNY"
+  },
+  {
+   "code": "co",
+   "cca3": "COL",
+   "shape": "170",
+   "name": "Colombia",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "COP"
+   ],
+   "primary": "COP"
+  },
+  {
+   "code": "km",
+   "cca3": "COM",
+   "shape": "174",
+   "name": "Comoros",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "KMF"
+   ],
+   "primary": "KMF"
+  },
+  {
+   "code": "cr",
+   "cca3": "CRI",
+   "shape": "188",
+   "name": "Costa Rica",
+   "continent": "Americas",
+   "subregion": "Central America",
+   "currencies": [
+    "CRC"
+   ],
+   "primary": "CRC"
+  },
+  {
+   "code": "hr",
+   "cca3": "HRV",
+   "shape": "191",
+   "name": "Croatia",
+   "continent": "Europe",
+   "subregion": "Southeast Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "cu",
+   "cca3": "CUB",
+   "shape": "192",
+   "name": "Cuba",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "CUP"
+   ],
+   "primary": "CUP"
+  },
+  {
+   "code": "cy",
+   "cca3": "CYP",
+   "shape": "196",
+   "name": "Cyprus",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "cz",
+   "cca3": "CZE",
+   "shape": "203",
+   "name": "Czechia",
+   "continent": "Europe",
+   "subregion": "Central Europe",
+   "currencies": [
+    "CZK"
+   ],
+   "primary": "CZK"
+  },
+  {
+   "code": "ci",
+   "cca3": "CIV",
+   "shape": "384",
+   "name": "Côte d'Ivoire",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "XOF"
+   ],
+   "primary": "XOF"
+  },
+  {
+   "code": "cd",
+   "cca3": "COD",
+   "shape": "180",
+   "name": "Democratic Republic of the Congo",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "CDF"
+   ],
+   "primary": "CDF"
+  },
+  {
+   "code": "dk",
+   "cca3": "DNK",
+   "shape": "208",
+   "name": "Denmark",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "DKK"
+   ],
+   "primary": "DKK"
+  },
+  {
+   "code": "dj",
+   "cca3": "DJI",
+   "shape": "262",
+   "name": "Djibouti",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "DJF"
+   ],
+   "primary": "DJF"
+  },
+  {
+   "code": "dm",
+   "cca3": "DMA",
+   "shape": "212",
+   "name": "Dominica",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "XCD"
+   ],
+   "primary": "XCD"
+  },
+  {
+   "code": "do",
+   "cca3": "DOM",
+   "shape": "214",
+   "name": "Dominican Republic",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "DOP"
+   ],
+   "primary": "DOP"
+  },
+  {
+   "code": "ec",
+   "cca3": "ECU",
+   "shape": "218",
+   "name": "Ecuador",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "USD"
+   ],
+   "primary": "USD"
+  },
+  {
+   "code": "eg",
+   "cca3": "EGY",
+   "shape": "818",
+   "name": "Egypt",
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "currencies": [
+    "EGP"
+   ],
+   "primary": "EGP"
+  },
+  {
+   "code": "sv",
+   "cca3": "SLV",
+   "shape": "222",
+   "name": "El Salvador",
+   "continent": "Americas",
+   "subregion": "Central America",
+   "currencies": [
+    "USD"
+   ],
+   "primary": "USD"
+  },
+  {
+   "code": "gq",
+   "cca3": "GNQ",
+   "shape": "226",
+   "name": "Equatorial Guinea",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "XAF"
+   ],
+   "primary": "XAF"
+  },
+  {
+   "code": "er",
+   "cca3": "ERI",
+   "shape": "232",
+   "name": "Eritrea",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "ERN"
+   ],
+   "primary": "ERN"
+  },
+  {
+   "code": "ee",
+   "cca3": "EST",
+   "shape": "233",
+   "name": "Estonia",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "sz",
+   "cca3": "SWZ",
+   "shape": "748",
+   "name": "Eswatini",
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "currencies": [
+    "SZL",
+    "ZAR"
+   ],
+   "primary": "SZL"
+  },
+  {
+   "code": "et",
+   "cca3": "ETH",
+   "shape": "231",
+   "name": "Ethiopia",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "ETB"
+   ],
+   "primary": "ETB"
+  },
+  {
+   "code": "fj",
+   "cca3": "FJI",
+   "shape": "242",
+   "name": "Fiji",
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "currencies": [
+    "FJD"
+   ],
+   "primary": "FJD"
+  },
+  {
+   "code": "fi",
+   "cca3": "FIN",
+   "shape": "246",
+   "name": "Finland",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "fr",
+   "cca3": "FRA",
+   "shape": "250",
+   "name": "France",
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "ga",
+   "cca3": "GAB",
+   "shape": "266",
+   "name": "Gabon",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "XAF"
+   ],
+   "primary": "XAF"
+  },
+  {
+   "code": "gm",
+   "cca3": "GMB",
+   "shape": "270",
+   "name": "Gambia",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "GMD"
+   ],
+   "primary": "GMD"
+  },
+  {
+   "code": "ge",
+   "cca3": "GEO",
+   "shape": "268",
+   "name": "Georgia",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "GEL"
+   ],
+   "primary": "GEL"
+  },
+  {
+   "code": "de",
+   "cca3": "DEU",
+   "shape": "276",
+   "name": "Germany",
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "gh",
+   "cca3": "GHA",
+   "shape": "288",
+   "name": "Ghana",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "GHS"
+   ],
+   "primary": "GHS"
+  },
+  {
+   "code": "gr",
+   "cca3": "GRC",
+   "shape": "300",
+   "name": "Greece",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "gd",
+   "cca3": "GRD",
+   "shape": "308",
+   "name": "Grenada",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "XCD"
+   ],
+   "primary": "XCD"
+  },
+  {
+   "code": "gt",
+   "cca3": "GTM",
+   "shape": "320",
+   "name": "Guatemala",
+   "continent": "Americas",
+   "subregion": "Central America",
+   "currencies": [
+    "GTQ"
+   ],
+   "primary": "GTQ"
+  },
+  {
+   "code": "gn",
+   "cca3": "GIN",
+   "shape": "324",
+   "name": "Guinea",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "GNF"
+   ],
+   "primary": "GNF"
+  },
+  {
+   "code": "gw",
+   "cca3": "GNB",
+   "shape": "624",
+   "name": "Guinea-Bissau",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "XOF"
+   ],
+   "primary": "XOF"
+  },
+  {
+   "code": "gy",
+   "cca3": "GUY",
+   "shape": "328",
+   "name": "Guyana",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "GYD"
+   ],
+   "primary": "GYD"
+  },
+  {
+   "code": "ht",
+   "cca3": "HTI",
+   "shape": "332",
+   "name": "Haiti",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "HTG",
+    "USD"
+   ],
+   "primary": "HTG"
+  },
+  {
+   "code": "hn",
+   "cca3": "HND",
+   "shape": "340",
+   "name": "Honduras",
+   "continent": "Americas",
+   "subregion": "Central America",
+   "currencies": [
+    "HNL"
+   ],
+   "primary": "HNL"
+  },
+  {
+   "code": "hu",
+   "cca3": "HUN",
+   "shape": "348",
+   "name": "Hungary",
+   "continent": "Europe",
+   "subregion": "Central Europe",
+   "currencies": [
+    "HUF"
+   ],
+   "primary": "HUF"
+  },
+  {
+   "code": "is",
+   "cca3": "ISL",
+   "shape": "352",
+   "name": "Iceland",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "ISK"
+   ],
+   "primary": "ISK"
+  },
+  {
+   "code": "in",
+   "cca3": "IND",
+   "shape": "356",
+   "name": "India",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "INR"
+   ],
+   "primary": "INR"
+  },
+  {
+   "code": "id",
+   "cca3": "IDN",
+   "shape": "360",
+   "name": "Indonesia",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "IDR"
+   ],
+   "primary": "IDR"
+  },
+  {
+   "code": "ir",
+   "cca3": "IRN",
+   "shape": "364",
+   "name": "Iran",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "IRR"
+   ],
+   "primary": "IRR"
+  },
+  {
+   "code": "iq",
+   "cca3": "IRQ",
+   "shape": "368",
+   "name": "Iraq",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "IQD"
+   ],
+   "primary": "IQD"
+  },
+  {
+   "code": "ie",
+   "cca3": "IRL",
+   "shape": "372",
+   "name": "Ireland",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "il",
+   "cca3": "ISR",
+   "shape": "376",
+   "name": "Israel",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "ILS"
+   ],
+   "primary": "ILS"
+  },
+  {
+   "code": "it",
+   "cca3": "ITA",
+   "shape": "380",
+   "name": "Italy",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "jm",
+   "cca3": "JAM",
+   "shape": "388",
+   "name": "Jamaica",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "JMD"
+   ],
+   "primary": "JMD"
+  },
+  {
+   "code": "jp",
+   "cca3": "JPN",
+   "shape": "392",
+   "name": "Japan",
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "currencies": [
+    "JPY"
+   ],
+   "primary": "JPY"
+  },
+  {
+   "code": "jo",
+   "cca3": "JOR",
+   "shape": "400",
+   "name": "Jordan",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "JOD"
+   ],
+   "primary": "JOD"
+  },
+  {
+   "code": "kz",
+   "cca3": "KAZ",
+   "shape": "398",
+   "name": "Kazakhstan",
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "currencies": [
+    "KZT"
+   ],
+   "primary": "KZT"
+  },
+  {
+   "code": "ke",
+   "cca3": "KEN",
+   "shape": "404",
+   "name": "Kenya",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "KES"
+   ],
+   "primary": "KES"
+  },
+  {
+   "code": "ki",
+   "cca3": "KIR",
+   "shape": "296",
+   "name": "Kiribati",
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "currencies": [
+    "AUD"
+   ],
+   "primary": "AUD"
+  },
+  {
+   "code": "kw",
+   "cca3": "KWT",
+   "shape": "414",
+   "name": "Kuwait",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "KWD"
+   ],
+   "primary": "KWD"
+  },
+  {
+   "code": "kg",
+   "cca3": "KGZ",
+   "shape": "417",
+   "name": "Kyrgyzstan",
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "currencies": [
+    "KGS"
+   ],
+   "primary": "KGS"
+  },
+  {
+   "code": "la",
+   "cca3": "LAO",
+   "shape": "418",
+   "name": "Laos",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "LAK"
+   ],
+   "primary": "LAK"
+  },
+  {
+   "code": "lv",
+   "cca3": "LVA",
+   "shape": "428",
+   "name": "Latvia",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "lb",
+   "cca3": "LBN",
+   "shape": "422",
+   "name": "Lebanon",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "LBP"
+   ],
+   "primary": "LBP"
+  },
+  {
+   "code": "ls",
+   "cca3": "LSO",
+   "shape": "426",
+   "name": "Lesotho",
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "currencies": [
+    "LSL",
+    "ZAR"
+   ],
+   "primary": "LSL"
+  },
+  {
+   "code": "lr",
+   "cca3": "LBR",
+   "shape": "430",
+   "name": "Liberia",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "LRD"
+   ],
+   "primary": "LRD"
+  },
+  {
+   "code": "ly",
+   "cca3": "LBY",
+   "shape": "434",
+   "name": "Libya",
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "currencies": [
+    "LYD"
+   ],
+   "primary": "LYD"
+  },
+  {
+   "code": "li",
+   "cca3": "LIE",
+   "shape": "438",
+   "name": "Liechtenstein",
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "currencies": [
+    "CHF"
+   ],
+   "primary": "CHF"
+  },
+  {
+   "code": "lt",
+   "cca3": "LTU",
+   "shape": "440",
+   "name": "Lithuania",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "lu",
+   "cca3": "LUX",
+   "shape": "442",
+   "name": "Luxembourg",
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "mg",
+   "cca3": "MDG",
+   "shape": "450",
+   "name": "Madagascar",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "MGA"
+   ],
+   "primary": "MGA"
+  },
+  {
+   "code": "mw",
+   "cca3": "MWI",
+   "shape": "454",
+   "name": "Malawi",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "MWK"
+   ],
+   "primary": "MWK"
+  },
+  {
+   "code": "my",
+   "cca3": "MYS",
+   "shape": "458",
+   "name": "Malaysia",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "MYR"
+   ],
+   "primary": "MYR"
+  },
+  {
+   "code": "mv",
+   "cca3": "MDV",
+   "shape": "462",
+   "name": "Maldives",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "MVR"
+   ],
+   "primary": "MVR"
+  },
+  {
+   "code": "ml",
+   "cca3": "MLI",
+   "shape": "466",
+   "name": "Mali",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "XOF"
+   ],
+   "primary": "XOF"
+  },
+  {
+   "code": "mt",
+   "cca3": "MLT",
+   "shape": "470",
+   "name": "Malta",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "mh",
+   "cca3": "MHL",
+   "shape": "584",
+   "name": "Marshall Islands",
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "currencies": [
+    "USD"
+   ],
+   "primary": "USD"
+  },
+  {
+   "code": "mr",
+   "cca3": "MRT",
+   "shape": "478",
+   "name": "Mauritania",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "MRU"
+   ],
+   "primary": "MRU"
+  },
+  {
+   "code": "mu",
+   "cca3": "MUS",
+   "shape": "480",
+   "name": "Mauritius",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "MUR"
+   ],
+   "primary": "MUR"
+  },
+  {
+   "code": "mx",
+   "cca3": "MEX",
+   "shape": "484",
+   "name": "Mexico",
+   "continent": "Americas",
+   "subregion": "North America",
+   "currencies": [
+    "MXN"
+   ],
+   "primary": "MXN"
+  },
+  {
+   "code": "fm",
+   "cca3": "FSM",
+   "shape": "583",
+   "name": "Micronesia",
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "currencies": [
+    "USD"
+   ],
+   "primary": "USD"
+  },
+  {
+   "code": "md",
+   "cca3": "MDA",
+   "shape": "498",
+   "name": "Moldova",
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "currencies": [
+    "MDL"
+   ],
+   "primary": "MDL"
+  },
+  {
+   "code": "mc",
+   "cca3": "MCO",
+   "shape": "492",
+   "name": "Monaco",
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "mn",
+   "cca3": "MNG",
+   "shape": "496",
+   "name": "Mongolia",
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "currencies": [
+    "MNT"
+   ],
+   "primary": "MNT"
+  },
+  {
+   "code": "me",
+   "cca3": "MNE",
+   "shape": "499",
+   "name": "Montenegro",
+   "continent": "Europe",
+   "subregion": "Southeast Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "ma",
+   "cca3": "MAR",
+   "shape": "504",
+   "name": "Morocco",
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "currencies": [
+    "MAD"
+   ],
+   "primary": "MAD"
+  },
+  {
+   "code": "mz",
+   "cca3": "MOZ",
+   "shape": "508",
+   "name": "Mozambique",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "MZN"
+   ],
+   "primary": "MZN"
+  },
+  {
+   "code": "mm",
+   "cca3": "MMR",
+   "shape": "104",
+   "name": "Myanmar",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "MMK"
+   ],
+   "primary": "MMK"
+  },
+  {
+   "code": "na",
+   "cca3": "NAM",
+   "shape": "516",
+   "name": "Namibia",
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "currencies": [
+    "NAD",
+    "ZAR"
+   ],
+   "primary": "NAD"
+  },
+  {
+   "code": "nr",
+   "cca3": "NRU",
+   "shape": "520",
+   "name": "Nauru",
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "currencies": [
+    "AUD"
+   ],
+   "primary": "AUD"
+  },
+  {
+   "code": "np",
+   "cca3": "NPL",
+   "shape": "524",
+   "name": "Nepal",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "NPR"
+   ],
+   "primary": "NPR"
+  },
+  {
+   "code": "nl",
+   "cca3": "NLD",
+   "shape": "528",
+   "name": "Netherlands",
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "nz",
+   "cca3": "NZL",
+   "shape": "554",
+   "name": "New Zealand",
+   "continent": "Oceania",
+   "subregion": "Australia and New Zealand",
+   "currencies": [
+    "NZD"
+   ],
+   "primary": "NZD"
+  },
+  {
+   "code": "ni",
+   "cca3": "NIC",
+   "shape": "558",
+   "name": "Nicaragua",
+   "continent": "Americas",
+   "subregion": "Central America",
+   "currencies": [
+    "NIO"
+   ],
+   "primary": "NIO"
+  },
+  {
+   "code": "ne",
+   "cca3": "NER",
+   "shape": "562",
+   "name": "Niger",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "XOF"
+   ],
+   "primary": "XOF"
+  },
+  {
+   "code": "ng",
+   "cca3": "NGA",
+   "shape": "566",
+   "name": "Nigeria",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "NGN"
+   ],
+   "primary": "NGN"
+  },
+  {
+   "code": "kp",
+   "cca3": "PRK",
+   "shape": "408",
+   "name": "North Korea",
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "currencies": [
+    "KPW"
+   ],
+   "primary": "KPW"
+  },
+  {
+   "code": "mk",
+   "cca3": "MKD",
+   "shape": "807",
+   "name": "North Macedonia",
+   "continent": "Europe",
+   "subregion": "Southeast Europe",
+   "currencies": [
+    "MKD"
+   ],
+   "primary": "MKD"
+  },
+  {
+   "code": "no",
+   "cca3": "NOR",
+   "shape": "578",
+   "name": "Norway",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "NOK"
+   ],
+   "primary": "NOK"
+  },
+  {
+   "code": "om",
+   "cca3": "OMN",
+   "shape": "512",
+   "name": "Oman",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "OMR"
+   ],
+   "primary": "OMR"
+  },
+  {
+   "code": "pk",
+   "cca3": "PAK",
+   "shape": "586",
+   "name": "Pakistan",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "PKR"
+   ],
+   "primary": "PKR"
+  },
+  {
+   "code": "pw",
+   "cca3": "PLW",
+   "shape": "585",
+   "name": "Palau",
+   "continent": "Oceania",
+   "subregion": "Micronesia",
+   "currencies": [
+    "USD"
+   ],
+   "primary": "USD"
+  },
+  {
+   "code": "pa",
+   "cca3": "PAN",
+   "shape": "591",
+   "name": "Panama",
+   "continent": "Americas",
+   "subregion": "Central America",
+   "currencies": [
+    "PAB",
+    "USD"
+   ],
+   "primary": "PAB"
+  },
+  {
+   "code": "pg",
+   "cca3": "PNG",
+   "shape": "598",
+   "name": "Papua New Guinea",
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "currencies": [
+    "PGK"
+   ],
+   "primary": "PGK"
+  },
+  {
+   "code": "py",
+   "cca3": "PRY",
+   "shape": "600",
+   "name": "Paraguay",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "PYG"
+   ],
+   "primary": "PYG"
+  },
+  {
+   "code": "pe",
+   "cca3": "PER",
+   "shape": "604",
+   "name": "Peru",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "PEN"
+   ],
+   "primary": "PEN"
+  },
+  {
+   "code": "ph",
+   "cca3": "PHL",
+   "shape": "608",
+   "name": "Philippines",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "PHP"
+   ],
+   "primary": "PHP"
+  },
+  {
+   "code": "pl",
+   "cca3": "POL",
+   "shape": "616",
+   "name": "Poland",
+   "continent": "Europe",
+   "subregion": "Central Europe",
+   "currencies": [
+    "PLN"
+   ],
+   "primary": "PLN"
+  },
+  {
+   "code": "pt",
+   "cca3": "PRT",
+   "shape": "620",
+   "name": "Portugal",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "qa",
+   "cca3": "QAT",
+   "shape": "634",
+   "name": "Qatar",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "QAR"
+   ],
+   "primary": "QAR"
+  },
+  {
+   "code": "cg",
+   "cca3": "COG",
+   "shape": "178",
+   "name": "Republic of the Congo",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "XAF"
+   ],
+   "primary": "XAF"
+  },
+  {
+   "code": "ro",
+   "cca3": "ROU",
+   "shape": "642",
+   "name": "Romania",
+   "continent": "Europe",
+   "subregion": "Southeast Europe",
+   "currencies": [
+    "RON"
+   ],
+   "primary": "RON"
+  },
+  {
+   "code": "ru",
+   "cca3": "RUS",
+   "shape": "643",
+   "name": "Russia",
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "currencies": [
+    "RUB"
+   ],
+   "primary": "RUB"
+  },
+  {
+   "code": "rw",
+   "cca3": "RWA",
+   "shape": "646",
+   "name": "Rwanda",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "RWF"
+   ],
+   "primary": "RWF"
+  },
+  {
+   "code": "kn",
+   "cca3": "KNA",
+   "shape": "659",
+   "name": "Saint Kitts and Nevis",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "XCD"
+   ],
+   "primary": "XCD"
+  },
+  {
+   "code": "lc",
+   "cca3": "LCA",
+   "shape": "662",
+   "name": "Saint Lucia",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "XCD"
+   ],
+   "primary": "XCD"
+  },
+  {
+   "code": "vc",
+   "cca3": "VCT",
+   "shape": "670",
+   "name": "Saint Vincent and the Grenadines",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "XCD"
+   ],
+   "primary": "XCD"
+  },
+  {
+   "code": "ws",
+   "cca3": "WSM",
+   "shape": "882",
+   "name": "Samoa",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "currencies": [
+    "WST"
+   ],
+   "primary": "WST"
+  },
+  {
+   "code": "sm",
+   "cca3": "SMR",
+   "shape": "674",
+   "name": "San Marino",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "sa",
+   "cca3": "SAU",
+   "shape": "682",
+   "name": "Saudi Arabia",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "SAR"
+   ],
+   "primary": "SAR"
+  },
+  {
+   "code": "sn",
+   "cca3": "SEN",
+   "shape": "686",
+   "name": "Senegal",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "XOF"
+   ],
+   "primary": "XOF"
+  },
+  {
+   "code": "rs",
+   "cca3": "SRB",
+   "shape": "688",
+   "name": "Serbia",
+   "continent": "Europe",
+   "subregion": "Southeast Europe",
+   "currencies": [
+    "RSD"
+   ],
+   "primary": "RSD"
+  },
+  {
+   "code": "sc",
+   "cca3": "SYC",
+   "shape": "690",
+   "name": "Seychelles",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "SCR"
+   ],
+   "primary": "SCR"
+  },
+  {
+   "code": "sl",
+   "cca3": "SLE",
+   "shape": "694",
+   "name": "Sierra Leone",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "SLE"
+   ],
+   "primary": "SLE"
+  },
+  {
+   "code": "sg",
+   "cca3": "SGP",
+   "shape": "702",
+   "name": "Singapore",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "SGD"
+   ],
+   "primary": "SGD"
+  },
+  {
+   "code": "sk",
+   "cca3": "SVK",
+   "shape": "703",
+   "name": "Slovakia",
+   "continent": "Europe",
+   "subregion": "Central Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "si",
+   "cca3": "SVN",
+   "shape": "705",
+   "name": "Slovenia",
+   "continent": "Europe",
+   "subregion": "Central Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "sb",
+   "cca3": "SLB",
+   "shape": "090",
+   "name": "Solomon Islands",
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "currencies": [
+    "SBD"
+   ],
+   "primary": "SBD"
+  },
+  {
+   "code": "so",
+   "cca3": "SOM",
+   "shape": "706",
+   "name": "Somalia",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "SOS"
+   ],
+   "primary": "SOS"
+  },
+  {
+   "code": "za",
+   "cca3": "ZAF",
+   "shape": "710",
+   "name": "South Africa",
+   "continent": "Africa",
+   "subregion": "Southern Africa",
+   "currencies": [
+    "ZAR"
+   ],
+   "primary": "ZAR"
+  },
+  {
+   "code": "kr",
+   "cca3": "KOR",
+   "shape": "410",
+   "name": "South Korea",
+   "continent": "Asia",
+   "subregion": "Eastern Asia",
+   "currencies": [
+    "KRW"
+   ],
+   "primary": "KRW"
+  },
+  {
+   "code": "ss",
+   "cca3": "SSD",
+   "shape": "728",
+   "name": "South Sudan",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "SSP"
+   ],
+   "primary": "SSP"
+  },
+  {
+   "code": "es",
+   "cca3": "ESP",
+   "shape": "724",
+   "name": "Spain",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "lk",
+   "cca3": "LKA",
+   "shape": "144",
+   "name": "Sri Lanka",
+   "continent": "Asia",
+   "subregion": "Southern Asia",
+   "currencies": [
+    "LKR"
+   ],
+   "primary": "LKR"
+  },
+  {
+   "code": "sd",
+   "cca3": "SDN",
+   "shape": "729",
+   "name": "Sudan",
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "currencies": [
+    "SDG"
+   ],
+   "primary": "SDG"
+  },
+  {
+   "code": "sr",
+   "cca3": "SUR",
+   "shape": "740",
+   "name": "Suriname",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "SRD"
+   ],
+   "primary": "SRD"
+  },
+  {
+   "code": "se",
+   "cca3": "SWE",
+   "shape": "752",
+   "name": "Sweden",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "SEK"
+   ],
+   "primary": "SEK"
+  },
+  {
+   "code": "ch",
+   "cca3": "CHE",
+   "shape": "756",
+   "name": "Switzerland",
+   "continent": "Europe",
+   "subregion": "Western Europe",
+   "currencies": [
+    "CHF"
+   ],
+   "primary": "CHF"
+  },
+  {
+   "code": "sy",
+   "cca3": "SYR",
+   "shape": "760",
+   "name": "Syria",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "SYP"
+   ],
+   "primary": "SYP"
+  },
+  {
+   "code": "st",
+   "cca3": "STP",
+   "shape": "678",
+   "name": "São Tomé and Príncipe",
+   "continent": "Africa",
+   "subregion": "Middle Africa",
+   "currencies": [
+    "STN"
+   ],
+   "primary": "STN"
+  },
+  {
+   "code": "tj",
+   "cca3": "TJK",
+   "shape": "762",
+   "name": "Tajikistan",
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "currencies": [
+    "TJS"
+   ],
+   "primary": "TJS"
+  },
+  {
+   "code": "tz",
+   "cca3": "TZA",
+   "shape": "834",
+   "name": "Tanzania",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "TZS"
+   ],
+   "primary": "TZS"
+  },
+  {
+   "code": "th",
+   "cca3": "THA",
+   "shape": "764",
+   "name": "Thailand",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "THB"
+   ],
+   "primary": "THB"
+  },
+  {
+   "code": "tl",
+   "cca3": "TLS",
+   "shape": "626",
+   "name": "Timor-Leste",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "USD"
+   ],
+   "primary": "USD"
+  },
+  {
+   "code": "tg",
+   "cca3": "TGO",
+   "shape": "768",
+   "name": "Togo",
+   "continent": "Africa",
+   "subregion": "Western Africa",
+   "currencies": [
+    "XOF"
+   ],
+   "primary": "XOF"
+  },
+  {
+   "code": "to",
+   "cca3": "TON",
+   "shape": "776",
+   "name": "Tonga",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "currencies": [
+    "TOP"
+   ],
+   "primary": "TOP"
+  },
+  {
+   "code": "tt",
+   "cca3": "TTO",
+   "shape": "780",
+   "name": "Trinidad and Tobago",
+   "continent": "Americas",
+   "subregion": "Caribbean",
+   "currencies": [
+    "TTD"
+   ],
+   "primary": "TTD"
+  },
+  {
+   "code": "tn",
+   "cca3": "TUN",
+   "shape": "788",
+   "name": "Tunisia",
+   "continent": "Africa",
+   "subregion": "Northern Africa",
+   "currencies": [
+    "TND"
+   ],
+   "primary": "TND"
+  },
+  {
+   "code": "tm",
+   "cca3": "TKM",
+   "shape": "795",
+   "name": "Turkmenistan",
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "currencies": [
+    "TMT"
+   ],
+   "primary": "TMT"
+  },
+  {
+   "code": "tv",
+   "cca3": "TUV",
+   "shape": null,
+   "name": "Tuvalu",
+   "continent": "Oceania",
+   "subregion": "Polynesia",
+   "currencies": [
+    "AUD"
+   ],
+   "primary": "AUD"
+  },
+  {
+   "code": "tr",
+   "cca3": "TUR",
+   "shape": "792",
+   "name": "Türkiye",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "TRY"
+   ],
+   "primary": "TRY"
+  },
+  {
+   "code": "ug",
+   "cca3": "UGA",
+   "shape": "800",
+   "name": "Uganda",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "UGX"
+   ],
+   "primary": "UGX"
+  },
+  {
+   "code": "ua",
+   "cca3": "UKR",
+   "shape": "804",
+   "name": "Ukraine",
+   "continent": "Europe",
+   "subregion": "Eastern Europe",
+   "currencies": [
+    "UAH"
+   ],
+   "primary": "UAH"
+  },
+  {
+   "code": "ae",
+   "cca3": "ARE",
+   "shape": "784",
+   "name": "United Arab Emirates",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "AED"
+   ],
+   "primary": "AED"
+  },
+  {
+   "code": "gb",
+   "cca3": "GBR",
+   "shape": "826",
+   "name": "United Kingdom",
+   "continent": "Europe",
+   "subregion": "Northern Europe",
+   "currencies": [
+    "GBP"
+   ],
+   "primary": "GBP"
+  },
+  {
+   "code": "us",
+   "cca3": "USA",
+   "shape": "840",
+   "name": "United States",
+   "continent": "Americas",
+   "subregion": "North America",
+   "currencies": [
+    "USD"
+   ],
+   "primary": "USD"
+  },
+  {
+   "code": "uy",
+   "cca3": "URY",
+   "shape": "858",
+   "name": "Uruguay",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "UYU"
+   ],
+   "primary": "UYU"
+  },
+  {
+   "code": "uz",
+   "cca3": "UZB",
+   "shape": "860",
+   "name": "Uzbekistan",
+   "continent": "Asia",
+   "subregion": "Central Asia",
+   "currencies": [
+    "UZS"
+   ],
+   "primary": "UZS"
+  },
+  {
+   "code": "vu",
+   "cca3": "VUT",
+   "shape": "548",
+   "name": "Vanuatu",
+   "continent": "Oceania",
+   "subregion": "Melanesia",
+   "currencies": [
+    "VUV"
+   ],
+   "primary": "VUV"
+  },
+  {
+   "code": "va",
+   "cca3": "VAT",
+   "shape": "336",
+   "name": "Vatican City",
+   "continent": "Europe",
+   "subregion": "Southern Europe",
+   "currencies": [
+    "EUR"
+   ],
+   "primary": "EUR"
+  },
+  {
+   "code": "ve",
+   "cca3": "VEN",
+   "shape": "862",
+   "name": "Venezuela",
+   "continent": "Americas",
+   "subregion": "South America",
+   "currencies": [
+    "VES"
+   ],
+   "primary": "VES"
+  },
+  {
+   "code": "vn",
+   "cca3": "VNM",
+   "shape": "704",
+   "name": "Vietnam",
+   "continent": "Asia",
+   "subregion": "South-Eastern Asia",
+   "currencies": [
+    "VND"
+   ],
+   "primary": "VND"
+  },
+  {
+   "code": "ye",
+   "cca3": "YEM",
+   "shape": "887",
+   "name": "Yemen",
+   "continent": "Asia",
+   "subregion": "Western Asia",
+   "currencies": [
+    "YER"
+   ],
+   "primary": "YER"
+  },
+  {
+   "code": "zm",
+   "cca3": "ZMB",
+   "shape": "894",
+   "name": "Zambia",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "ZMW"
+   ],
+   "primary": "ZMW"
+  },
+  {
+   "code": "zw",
+   "cca3": "ZWE",
+   "shape": "716",
+   "name": "Zimbabwe",
+   "continent": "Africa",
+   "subregion": "Eastern Africa",
+   "currencies": [
+    "ZWG",
+    "USD",
+    "ZAR",
+    "BWP",
+    "GBP",
+    "EUR",
+    "CNY",
+    "JPY",
+    "INR"
+   ],
+   "primary": "ZWG"
+  }
+ ],
+ "currencies": {
+  "AED": {
+   "code": "AED",
+   "name": "United Arab Emirates dirham",
+   "symbol": "د.إ",
+   "family": "dirham",
+   "countries": [
+    "ae"
+   ],
+   "primary_for": [
+    "ae"
+   ]
+  },
+  "AFN": {
+   "code": "AFN",
+   "name": "Afghan afghani",
+   "symbol": "؋",
+   "family": "AFN",
+   "countries": [
+    "af"
+   ],
+   "primary_for": [
+    "af"
+   ]
+  },
+  "ALL": {
+   "code": "ALL",
+   "name": "Albanian lek",
+   "symbol": "L",
+   "family": "ALL",
+   "countries": [
+    "al"
+   ],
+   "primary_for": [
+    "al"
+   ]
+  },
+  "AMD": {
+   "code": "AMD",
+   "name": "Armenian dram",
+   "symbol": "֏",
+   "family": "AMD",
+   "countries": [
+    "am"
+   ],
+   "primary_for": [
+    "am"
+   ]
+  },
+  "AOA": {
+   "code": "AOA",
+   "name": "Angolan kwanza",
+   "symbol": "Kz",
+   "family": "AOA",
+   "countries": [
+    "ao"
+   ],
+   "primary_for": [
+    "ao"
+   ]
+  },
+  "ARS": {
+   "code": "ARS",
+   "name": "Argentine peso",
+   "symbol": "$",
+   "family": "peso",
+   "countries": [
+    "ar"
+   ],
+   "primary_for": [
+    "ar"
+   ]
+  },
+  "AUD": {
+   "code": "AUD",
+   "name": "Australian dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "au",
+    "ki",
+    "nr",
+    "tv"
+   ],
+   "primary_for": [
+    "au",
+    "ki",
+    "nr",
+    "tv"
+   ]
+  },
+  "AZN": {
+   "code": "AZN",
+   "name": "Azerbaijani manat",
+   "symbol": "₼",
+   "family": "manat",
+   "countries": [
+    "az"
+   ],
+   "primary_for": [
+    "az"
+   ]
+  },
+  "BAM": {
+   "code": "BAM",
+   "name": "Bosnia and Herzegovina convertible mark",
+   "symbol": "KM",
+   "family": "BAM",
+   "countries": [
+    "ba"
+   ],
+   "primary_for": [
+    "ba"
+   ]
+  },
+  "BBD": {
+   "code": "BBD",
+   "name": "Barbadian dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "bb"
+   ],
+   "primary_for": [
+    "bb"
+   ]
+  },
+  "BDT": {
+   "code": "BDT",
+   "name": "Bangladeshi taka",
+   "symbol": "৳",
+   "family": "BDT",
+   "countries": [
+    "bd"
+   ],
+   "primary_for": [
+    "bd"
+   ]
+  },
+  "BHD": {
+   "code": "BHD",
+   "name": "Bahraini dinar",
+   "symbol": ".د.ب",
+   "family": "dinar",
+   "countries": [
+    "bh"
+   ],
+   "primary_for": [
+    "bh"
+   ]
+  },
+  "BIF": {
+   "code": "BIF",
+   "name": "Burundian franc",
+   "symbol": "Fr",
+   "family": "franc",
+   "countries": [
+    "bi"
+   ],
+   "primary_for": [
+    "bi"
+   ]
+  },
+  "BND": {
+   "code": "BND",
+   "name": "Brunei dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "bn"
+   ],
+   "primary_for": [
+    "bn"
+   ]
+  },
+  "BOB": {
+   "code": "BOB",
+   "name": "Bolivian boliviano",
+   "symbol": "Bs.",
+   "family": "BOB",
+   "countries": [
+    "bo"
+   ],
+   "primary_for": [
+    "bo"
+   ]
+  },
+  "BRL": {
+   "code": "BRL",
+   "name": "Brazilian real",
+   "symbol": "R$",
+   "family": "BRL",
+   "countries": [
+    "br"
+   ],
+   "primary_for": [
+    "br"
+   ]
+  },
+  "BSD": {
+   "code": "BSD",
+   "name": "Bahamian dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "bs"
+   ],
+   "primary_for": [
+    "bs"
+   ]
+  },
+  "BTN": {
+   "code": "BTN",
+   "name": "Bhutanese ngultrum",
+   "symbol": "Nu.",
+   "family": "BTN",
+   "countries": [
+    "bt"
+   ],
+   "primary_for": [
+    "bt"
+   ]
+  },
+  "BWP": {
+   "code": "BWP",
+   "name": "Botswana pula",
+   "symbol": "P",
+   "family": "BWP",
+   "countries": [
+    "bw",
+    "zw"
+   ],
+   "primary_for": [
+    "bw"
+   ]
+  },
+  "BYN": {
+   "code": "BYN",
+   "name": "Belarusian ruble",
+   "symbol": "Br",
+   "family": "ruble",
+   "countries": [
+    "by"
+   ],
+   "primary_for": [
+    "by"
+   ]
+  },
+  "BZD": {
+   "code": "BZD",
+   "name": "Belize dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "bz"
+   ],
+   "primary_for": [
+    "bz"
+   ]
+  },
+  "CAD": {
+   "code": "CAD",
+   "name": "Canadian dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "ca"
+   ],
+   "primary_for": [
+    "ca"
+   ]
+  },
+  "CDF": {
+   "code": "CDF",
+   "name": "Congolese franc",
+   "symbol": "FC",
+   "family": "franc",
+   "countries": [
+    "cd"
+   ],
+   "primary_for": [
+    "cd"
+   ]
+  },
+  "CHF": {
+   "code": "CHF",
+   "name": "Swiss franc",
+   "symbol": "Fr.",
+   "family": "franc",
+   "countries": [
+    "li",
+    "ch"
+   ],
+   "primary_for": [
+    "li",
+    "ch"
+   ]
+  },
+  "CLP": {
+   "code": "CLP",
+   "name": "Chilean peso",
+   "symbol": "$",
+   "family": "peso",
+   "countries": [
+    "cl"
+   ],
+   "primary_for": [
+    "cl"
+   ]
+  },
+  "CNY": {
+   "code": "CNY",
+   "name": "Chinese yuan",
+   "symbol": "¥",
+   "family": "CNY",
+   "countries": [
+    "cn",
+    "zw"
+   ],
+   "primary_for": [
+    "cn"
+   ]
+  },
+  "COP": {
+   "code": "COP",
+   "name": "Colombian peso",
+   "symbol": "$",
+   "family": "peso",
+   "countries": [
+    "co"
+   ],
+   "primary_for": [
+    "co"
+   ]
+  },
+  "CRC": {
+   "code": "CRC",
+   "name": "Costa Rican colón",
+   "symbol": "₡",
+   "family": "CRC",
+   "countries": [
+    "cr"
+   ],
+   "primary_for": [
+    "cr"
+   ]
+  },
+  "CUP": {
+   "code": "CUP",
+   "name": "Cuban peso",
+   "symbol": "$",
+   "family": "peso",
+   "countries": [
+    "cu"
+   ],
+   "primary_for": [
+    "cu"
+   ]
+  },
+  "CVE": {
+   "code": "CVE",
+   "name": "Cape Verdean escudo",
+   "symbol": "Esc",
+   "family": "CVE",
+   "countries": [
+    "cv"
+   ],
+   "primary_for": [
+    "cv"
+   ]
+  },
+  "CZK": {
+   "code": "CZK",
+   "name": "Czech koruna",
+   "symbol": "Kč",
+   "family": "krone",
+   "countries": [
+    "cz"
+   ],
+   "primary_for": [
+    "cz"
+   ]
+  },
+  "DJF": {
+   "code": "DJF",
+   "name": "Djiboutian franc",
+   "symbol": "Fr",
+   "family": "franc",
+   "countries": [
+    "dj"
+   ],
+   "primary_for": [
+    "dj"
+   ]
+  },
+  "DKK": {
+   "code": "DKK",
+   "name": "Danish krone",
+   "symbol": "kr",
+   "family": "krone",
+   "countries": [
+    "dk"
+   ],
+   "primary_for": [
+    "dk"
+   ]
+  },
+  "DOP": {
+   "code": "DOP",
+   "name": "Dominican peso",
+   "symbol": "$",
+   "family": "peso",
+   "countries": [
+    "do"
+   ],
+   "primary_for": [
+    "do"
+   ]
+  },
+  "DZD": {
+   "code": "DZD",
+   "name": "Algerian dinar",
+   "symbol": "د.ج",
+   "family": "dinar",
+   "countries": [
+    "dz"
+   ],
+   "primary_for": [
+    "dz"
+   ]
+  },
+  "EGP": {
+   "code": "EGP",
+   "name": "Egyptian pound",
+   "symbol": "£",
+   "family": "pound",
+   "countries": [
+    "eg"
+   ],
+   "primary_for": [
+    "eg"
+   ]
+  },
+  "ERN": {
+   "code": "ERN",
+   "name": "Eritrean nakfa",
+   "symbol": "Nfk",
+   "family": "ERN",
+   "countries": [
+    "er"
+   ],
+   "primary_for": [
+    "er"
+   ]
+  },
+  "ETB": {
+   "code": "ETB",
+   "name": "Ethiopian birr",
+   "symbol": "Br",
+   "family": "ETB",
+   "countries": [
+    "et"
+   ],
+   "primary_for": [
+    "et"
+   ]
+  },
+  "EUR": {
+   "code": "EUR",
+   "name": "Euro",
+   "symbol": "€",
+   "family": "EUR",
+   "countries": [
+    "ad",
+    "at",
+    "be",
+    "bg",
+    "hr",
+    "cy",
+    "ee",
+    "fi",
+    "fr",
+    "de",
+    "gr",
+    "ie",
+    "it",
+    "lv",
+    "lt",
+    "lu",
+    "mt",
+    "mc",
+    "me",
+    "nl",
+    "pt",
+    "sm",
+    "sk",
+    "si",
+    "es",
+    "va",
+    "zw"
+   ],
+   "primary_for": [
+    "ad",
+    "at",
+    "be",
+    "bg",
+    "hr",
+    "cy",
+    "ee",
+    "fi",
+    "fr",
+    "de",
+    "gr",
+    "ie",
+    "it",
+    "lv",
+    "lt",
+    "lu",
+    "mt",
+    "mc",
+    "me",
+    "nl",
+    "pt",
+    "sm",
+    "sk",
+    "si",
+    "es",
+    "va"
+   ]
+  },
+  "FJD": {
+   "code": "FJD",
+   "name": "Fijian dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "fj"
+   ],
+   "primary_for": [
+    "fj"
+   ]
+  },
+  "GBP": {
+   "code": "GBP",
+   "name": "British pound",
+   "symbol": "£",
+   "family": "pound",
+   "countries": [
+    "gb",
+    "zw"
+   ],
+   "primary_for": [
+    "gb"
+   ]
+  },
+  "GEL": {
+   "code": "GEL",
+   "name": "Georgian lari",
+   "symbol": "₾",
+   "family": "GEL",
+   "countries": [
+    "ge"
+   ],
+   "primary_for": [
+    "ge"
+   ]
+  },
+  "GHS": {
+   "code": "GHS",
+   "name": "Ghanaian cedi",
+   "symbol": "₵",
+   "family": "GHS",
+   "countries": [
+    "gh"
+   ],
+   "primary_for": [
+    "gh"
+   ]
+  },
+  "GMD": {
+   "code": "GMD",
+   "name": "Gambian dalasi",
+   "symbol": "D",
+   "family": "GMD",
+   "countries": [
+    "gm"
+   ],
+   "primary_for": [
+    "gm"
+   ]
+  },
+  "GNF": {
+   "code": "GNF",
+   "name": "Guinean franc",
+   "symbol": "Fr",
+   "family": "franc",
+   "countries": [
+    "gn"
+   ],
+   "primary_for": [
+    "gn"
+   ]
+  },
+  "GTQ": {
+   "code": "GTQ",
+   "name": "Guatemalan quetzal",
+   "symbol": "Q",
+   "family": "GTQ",
+   "countries": [
+    "gt"
+   ],
+   "primary_for": [
+    "gt"
+   ]
+  },
+  "GYD": {
+   "code": "GYD",
+   "name": "Guyanese dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "gy"
+   ],
+   "primary_for": [
+    "gy"
+   ]
+  },
+  "HNL": {
+   "code": "HNL",
+   "name": "Honduran lempira",
+   "symbol": "L",
+   "family": "HNL",
+   "countries": [
+    "hn"
+   ],
+   "primary_for": [
+    "hn"
+   ]
+  },
+  "HTG": {
+   "code": "HTG",
+   "name": "Haitian gourde",
+   "symbol": "G",
+   "family": "HTG",
+   "countries": [
+    "ht"
+   ],
+   "primary_for": [
+    "ht"
+   ]
+  },
+  "HUF": {
+   "code": "HUF",
+   "name": "Hungarian forint",
+   "symbol": "Ft",
+   "family": "HUF",
+   "countries": [
+    "hu"
+   ],
+   "primary_for": [
+    "hu"
+   ]
+  },
+  "IDR": {
+   "code": "IDR",
+   "name": "Indonesian rupiah",
+   "symbol": "Rp",
+   "family": "rupee",
+   "countries": [
+    "id"
+   ],
+   "primary_for": [
+    "id"
+   ]
+  },
+  "ILS": {
+   "code": "ILS",
+   "name": "Israeli new shekel",
+   "symbol": "₪",
+   "family": "ILS",
+   "countries": [
+    "il"
+   ],
+   "primary_for": [
+    "il"
+   ]
+  },
+  "INR": {
+   "code": "INR",
+   "name": "Indian rupee",
+   "symbol": "₹",
+   "family": "rupee",
+   "countries": [
+    "bt",
+    "in",
+    "zw"
+   ],
+   "primary_for": [
+    "in"
+   ]
+  },
+  "IQD": {
+   "code": "IQD",
+   "name": "Iraqi dinar",
+   "symbol": "ع.د",
+   "family": "dinar",
+   "countries": [
+    "iq"
+   ],
+   "primary_for": [
+    "iq"
+   ]
+  },
+  "IRR": {
+   "code": "IRR",
+   "name": "Iranian rial",
+   "symbol": "﷼",
+   "family": "rial",
+   "countries": [
+    "ir"
+   ],
+   "primary_for": [
+    "ir"
+   ]
+  },
+  "ISK": {
+   "code": "ISK",
+   "name": "Icelandic króna",
+   "symbol": "kr",
+   "family": "krone",
+   "countries": [
+    "is"
+   ],
+   "primary_for": [
+    "is"
+   ]
+  },
+  "JMD": {
+   "code": "JMD",
+   "name": "Jamaican dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "jm"
+   ],
+   "primary_for": [
+    "jm"
+   ]
+  },
+  "JOD": {
+   "code": "JOD",
+   "name": "Jordanian dinar",
+   "symbol": "د.ا",
+   "family": "dinar",
+   "countries": [
+    "jo"
+   ],
+   "primary_for": [
+    "jo"
+   ]
+  },
+  "JPY": {
+   "code": "JPY",
+   "name": "Japanese yen",
+   "symbol": "¥",
+   "family": "JPY",
+   "countries": [
+    "jp",
+    "zw"
+   ],
+   "primary_for": [
+    "jp"
+   ]
+  },
+  "KES": {
+   "code": "KES",
+   "name": "Kenyan shilling",
+   "symbol": "Sh",
+   "family": "shilling",
+   "countries": [
+    "ke"
+   ],
+   "primary_for": [
+    "ke"
+   ]
+  },
+  "KGS": {
+   "code": "KGS",
+   "name": "Kyrgyzstani som",
+   "symbol": "с",
+   "family": "som",
+   "countries": [
+    "kg"
+   ],
+   "primary_for": [
+    "kg"
+   ]
+  },
+  "KHR": {
+   "code": "KHR",
+   "name": "Cambodian riel",
+   "symbol": "៛",
+   "family": "KHR",
+   "countries": [
+    "kh"
+   ],
+   "primary_for": [
+    "kh"
+   ]
+  },
+  "KMF": {
+   "code": "KMF",
+   "name": "Comorian franc",
+   "symbol": "Fr",
+   "family": "franc",
+   "countries": [
+    "km"
+   ],
+   "primary_for": [
+    "km"
+   ]
+  },
+  "KPW": {
+   "code": "KPW",
+   "name": "North Korean won",
+   "symbol": "₩",
+   "family": "won",
+   "countries": [
+    "kp"
+   ],
+   "primary_for": [
+    "kp"
+   ]
+  },
+  "KRW": {
+   "code": "KRW",
+   "name": "South Korean won",
+   "symbol": "₩",
+   "family": "won",
+   "countries": [
+    "kr"
+   ],
+   "primary_for": [
+    "kr"
+   ]
+  },
+  "KWD": {
+   "code": "KWD",
+   "name": "Kuwaiti dinar",
+   "symbol": "د.ك",
+   "family": "dinar",
+   "countries": [
+    "kw"
+   ],
+   "primary_for": [
+    "kw"
+   ]
+  },
+  "KZT": {
+   "code": "KZT",
+   "name": "Kazakhstani tenge",
+   "symbol": "₸",
+   "family": "KZT",
+   "countries": [
+    "kz"
+   ],
+   "primary_for": [
+    "kz"
+   ]
+  },
+  "LAK": {
+   "code": "LAK",
+   "name": "Lao kip",
+   "symbol": "₭",
+   "family": "LAK",
+   "countries": [
+    "la"
+   ],
+   "primary_for": [
+    "la"
+   ]
+  },
+  "LBP": {
+   "code": "LBP",
+   "name": "Lebanese pound",
+   "symbol": "ل.ل",
+   "family": "pound",
+   "countries": [
+    "lb"
+   ],
+   "primary_for": [
+    "lb"
+   ]
+  },
+  "LKR": {
+   "code": "LKR",
+   "name": "Sri Lankan rupee",
+   "symbol": "Rs",
+   "family": "rupee",
+   "countries": [
+    "lk"
+   ],
+   "primary_for": [
+    "lk"
+   ]
+  },
+  "LRD": {
+   "code": "LRD",
+   "name": "Liberian dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "lr"
+   ],
+   "primary_for": [
+    "lr"
+   ]
+  },
+  "LSL": {
+   "code": "LSL",
+   "name": "Lesotho loti",
+   "symbol": "L",
+   "family": "LSL",
+   "countries": [
+    "ls"
+   ],
+   "primary_for": [
+    "ls"
+   ]
+  },
+  "LYD": {
+   "code": "LYD",
+   "name": "Libyan dinar",
+   "symbol": "ل.د",
+   "family": "dinar",
+   "countries": [
+    "ly"
+   ],
+   "primary_for": [
+    "ly"
+   ]
+  },
+  "MAD": {
+   "code": "MAD",
+   "name": "Moroccan dirham",
+   "symbol": "د.م.",
+   "family": "dirham",
+   "countries": [
+    "ma"
+   ],
+   "primary_for": [
+    "ma"
+   ]
+  },
+  "MDL": {
+   "code": "MDL",
+   "name": "Moldovan leu",
+   "symbol": "L",
+   "family": "leu",
+   "countries": [
+    "md"
+   ],
+   "primary_for": [
+    "md"
+   ]
+  },
+  "MGA": {
+   "code": "MGA",
+   "name": "Malagasy ariary",
+   "symbol": "Ar",
+   "family": "MGA",
+   "countries": [
+    "mg"
+   ],
+   "primary_for": [
+    "mg"
+   ]
+  },
+  "MKD": {
+   "code": "MKD",
+   "name": "Macedonian denar",
+   "symbol": "ден",
+   "family": "dinar",
+   "countries": [
+    "mk"
+   ],
+   "primary_for": [
+    "mk"
+   ]
+  },
+  "MMK": {
+   "code": "MMK",
+   "name": "Burmese kyat",
+   "symbol": "Ks",
+   "family": "MMK",
+   "countries": [
+    "mm"
+   ],
+   "primary_for": [
+    "mm"
+   ]
+  },
+  "MNT": {
+   "code": "MNT",
+   "name": "Mongolian tögrög",
+   "symbol": "₮",
+   "family": "MNT",
+   "countries": [
+    "mn"
+   ],
+   "primary_for": [
+    "mn"
+   ]
+  },
+  "MRU": {
+   "code": "MRU",
+   "name": "Mauritanian ouguiya",
+   "symbol": "UM",
+   "family": "MRU",
+   "countries": [
+    "mr"
+   ],
+   "primary_for": [
+    "mr"
+   ]
+  },
+  "MUR": {
+   "code": "MUR",
+   "name": "Mauritian rupee",
+   "symbol": "₨",
+   "family": "rupee",
+   "countries": [
+    "mu"
+   ],
+   "primary_for": [
+    "mu"
+   ]
+  },
+  "MVR": {
+   "code": "MVR",
+   "name": "Maldivian rufiyaa",
+   "symbol": ".ރ",
+   "family": "MVR",
+   "countries": [
+    "mv"
+   ],
+   "primary_for": [
+    "mv"
+   ]
+  },
+  "MWK": {
+   "code": "MWK",
+   "name": "Malawian kwacha",
+   "symbol": "MK",
+   "family": "kwacha",
+   "countries": [
+    "mw"
+   ],
+   "primary_for": [
+    "mw"
+   ]
+  },
+  "MXN": {
+   "code": "MXN",
+   "name": "Mexican peso",
+   "symbol": "$",
+   "family": "peso",
+   "countries": [
+    "mx"
+   ],
+   "primary_for": [
+    "mx"
+   ]
+  },
+  "MYR": {
+   "code": "MYR",
+   "name": "Malaysian ringgit",
+   "symbol": "RM",
+   "family": "MYR",
+   "countries": [
+    "my"
+   ],
+   "primary_for": [
+    "my"
+   ]
+  },
+  "MZN": {
+   "code": "MZN",
+   "name": "Mozambican metical",
+   "symbol": "MT",
+   "family": "MZN",
+   "countries": [
+    "mz"
+   ],
+   "primary_for": [
+    "mz"
+   ]
+  },
+  "NAD": {
+   "code": "NAD",
+   "name": "Namibian dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "na"
+   ],
+   "primary_for": [
+    "na"
+   ]
+  },
+  "NGN": {
+   "code": "NGN",
+   "name": "Nigerian naira",
+   "symbol": "₦",
+   "family": "NGN",
+   "countries": [
+    "ng"
+   ],
+   "primary_for": [
+    "ng"
+   ]
+  },
+  "NIO": {
+   "code": "NIO",
+   "name": "Nicaraguan córdoba",
+   "symbol": "C$",
+   "family": "NIO",
+   "countries": [
+    "ni"
+   ],
+   "primary_for": [
+    "ni"
+   ]
+  },
+  "NOK": {
+   "code": "NOK",
+   "name": "Norwegian krone",
+   "symbol": "kr",
+   "family": "krone",
+   "countries": [
+    "no"
+   ],
+   "primary_for": [
+    "no"
+   ]
+  },
+  "NPR": {
+   "code": "NPR",
+   "name": "Nepalese rupee",
+   "symbol": "₨",
+   "family": "rupee",
+   "countries": [
+    "np"
+   ],
+   "primary_for": [
+    "np"
+   ]
+  },
+  "NZD": {
+   "code": "NZD",
+   "name": "New Zealand dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "nz"
+   ],
+   "primary_for": [
+    "nz"
+   ]
+  },
+  "OMR": {
+   "code": "OMR",
+   "name": "Omani rial",
+   "symbol": "ر.ع.",
+   "family": "rial",
+   "countries": [
+    "om"
+   ],
+   "primary_for": [
+    "om"
+   ]
+  },
+  "PAB": {
+   "code": "PAB",
+   "name": "Panamanian balboa",
+   "symbol": "B/.",
+   "family": "PAB",
+   "countries": [
+    "pa"
+   ],
+   "primary_for": [
+    "pa"
+   ]
+  },
+  "PEN": {
+   "code": "PEN",
+   "name": "Peruvian sol",
+   "symbol": "S/.",
+   "family": "PEN",
+   "countries": [
+    "pe"
+   ],
+   "primary_for": [
+    "pe"
+   ]
+  },
+  "PGK": {
+   "code": "PGK",
+   "name": "Papua New Guinean kina",
+   "symbol": "K",
+   "family": "PGK",
+   "countries": [
+    "pg"
+   ],
+   "primary_for": [
+    "pg"
+   ]
+  },
+  "PHP": {
+   "code": "PHP",
+   "name": "Philippine peso",
+   "symbol": "₱",
+   "family": "peso",
+   "countries": [
+    "ph"
+   ],
+   "primary_for": [
+    "ph"
+   ]
+  },
+  "PKR": {
+   "code": "PKR",
+   "name": "Pakistani rupee",
+   "symbol": "₨",
+   "family": "rupee",
+   "countries": [
+    "pk"
+   ],
+   "primary_for": [
+    "pk"
+   ]
+  },
+  "PLN": {
+   "code": "PLN",
+   "name": "Polish złoty",
+   "symbol": "zł",
+   "family": "PLN",
+   "countries": [
+    "pl"
+   ],
+   "primary_for": [
+    "pl"
+   ]
+  },
+  "PYG": {
+   "code": "PYG",
+   "name": "Paraguayan guaraní",
+   "symbol": "₲",
+   "family": "PYG",
+   "countries": [
+    "py"
+   ],
+   "primary_for": [
+    "py"
+   ]
+  },
+  "QAR": {
+   "code": "QAR",
+   "name": "Qatari riyal",
+   "symbol": "ر.ق",
+   "family": "rial",
+   "countries": [
+    "qa"
+   ],
+   "primary_for": [
+    "qa"
+   ]
+  },
+  "RON": {
+   "code": "RON",
+   "name": "Romanian leu",
+   "symbol": "lei",
+   "family": "leu",
+   "countries": [
+    "ro"
+   ],
+   "primary_for": [
+    "ro"
+   ]
+  },
+  "RSD": {
+   "code": "RSD",
+   "name": "Serbian dinar",
+   "symbol": "дин.",
+   "family": "dinar",
+   "countries": [
+    "rs"
+   ],
+   "primary_for": [
+    "rs"
+   ]
+  },
+  "RUB": {
+   "code": "RUB",
+   "name": "Russian ruble",
+   "symbol": "₽",
+   "family": "ruble",
+   "countries": [
+    "ru"
+   ],
+   "primary_for": [
+    "ru"
+   ]
+  },
+  "RWF": {
+   "code": "RWF",
+   "name": "Rwandan franc",
+   "symbol": "Fr",
+   "family": "franc",
+   "countries": [
+    "rw"
+   ],
+   "primary_for": [
+    "rw"
+   ]
+  },
+  "SAR": {
+   "code": "SAR",
+   "name": "Saudi riyal",
+   "symbol": "ر.س",
+   "family": "rial",
+   "countries": [
+    "sa"
+   ],
+   "primary_for": [
+    "sa"
+   ]
+  },
+  "SBD": {
+   "code": "SBD",
+   "name": "Solomon Islands dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "sb"
+   ],
+   "primary_for": [
+    "sb"
+   ]
+  },
+  "SCR": {
+   "code": "SCR",
+   "name": "Seychellois rupee",
+   "symbol": "₨",
+   "family": "rupee",
+   "countries": [
+    "sc"
+   ],
+   "primary_for": [
+    "sc"
+   ]
+  },
+  "SDG": {
+   "code": "SDG",
+   "name": "Sudanese pound",
+   "symbol": "PT",
+   "family": "pound",
+   "countries": [
+    "sd"
+   ],
+   "primary_for": [
+    "sd"
+   ]
+  },
+  "SEK": {
+   "code": "SEK",
+   "name": "Swedish krona",
+   "symbol": "kr",
+   "family": "krone",
+   "countries": [
+    "se"
+   ],
+   "primary_for": [
+    "se"
+   ]
+  },
+  "SGD": {
+   "code": "SGD",
+   "name": "Singapore dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "bn",
+    "sg"
+   ],
+   "primary_for": [
+    "sg"
+   ]
+  },
+  "SLE": {
+   "code": "SLE",
+   "name": "Sierra Leonean leone",
+   "symbol": "Le",
+   "family": "leone",
+   "countries": [
+    "sl"
+   ],
+   "primary_for": [
+    "sl"
+   ]
+  },
+  "SOS": {
+   "code": "SOS",
+   "name": "Somali shilling",
+   "symbol": "Sh",
+   "family": "shilling",
+   "countries": [
+    "so"
+   ],
+   "primary_for": [
+    "so"
+   ]
+  },
+  "SRD": {
+   "code": "SRD",
+   "name": "Surinamese dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "sr"
+   ],
+   "primary_for": [
+    "sr"
+   ]
+  },
+  "SSP": {
+   "code": "SSP",
+   "name": "South Sudanese pound",
+   "symbol": "£",
+   "family": "pound",
+   "countries": [
+    "ss"
+   ],
+   "primary_for": [
+    "ss"
+   ]
+  },
+  "STN": {
+   "code": "STN",
+   "name": "São Tomé and Príncipe dobra",
+   "symbol": "Db",
+   "family": "dobra",
+   "countries": [
+    "st"
+   ],
+   "primary_for": [
+    "st"
+   ]
+  },
+  "SYP": {
+   "code": "SYP",
+   "name": "Syrian pound",
+   "symbol": "£",
+   "family": "pound",
+   "countries": [
+    "sy"
+   ],
+   "primary_for": [
+    "sy"
+   ]
+  },
+  "SZL": {
+   "code": "SZL",
+   "name": "Swazi lilangeni",
+   "symbol": "L",
+   "family": "SZL",
+   "countries": [
+    "sz"
+   ],
+   "primary_for": [
+    "sz"
+   ]
+  },
+  "THB": {
+   "code": "THB",
+   "name": "Thai baht",
+   "symbol": "฿",
+   "family": "THB",
+   "countries": [
+    "th"
+   ],
+   "primary_for": [
+    "th"
+   ]
+  },
+  "TJS": {
+   "code": "TJS",
+   "name": "Tajikistani somoni",
+   "symbol": "ЅМ",
+   "family": "som",
+   "countries": [
+    "tj"
+   ],
+   "primary_for": [
+    "tj"
+   ]
+  },
+  "TMT": {
+   "code": "TMT",
+   "name": "Turkmenistan manat",
+   "symbol": "m",
+   "family": "manat",
+   "countries": [
+    "tm"
+   ],
+   "primary_for": [
+    "tm"
+   ]
+  },
+  "TND": {
+   "code": "TND",
+   "name": "Tunisian dinar",
+   "symbol": "د.ت",
+   "family": "dinar",
+   "countries": [
+    "tn"
+   ],
+   "primary_for": [
+    "tn"
+   ]
+  },
+  "TOP": {
+   "code": "TOP",
+   "name": "Tongan paʻanga",
+   "symbol": "T$",
+   "family": "TOP",
+   "countries": [
+    "to"
+   ],
+   "primary_for": [
+    "to"
+   ]
+  },
+  "TRY": {
+   "code": "TRY",
+   "name": "Turkish lira",
+   "symbol": "₺",
+   "family": "lira",
+   "countries": [
+    "tr"
+   ],
+   "primary_for": [
+    "tr"
+   ]
+  },
+  "TTD": {
+   "code": "TTD",
+   "name": "Trinidad and Tobago dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "tt"
+   ],
+   "primary_for": [
+    "tt"
+   ]
+  },
+  "TZS": {
+   "code": "TZS",
+   "name": "Tanzanian shilling",
+   "symbol": "Sh",
+   "family": "shilling",
+   "countries": [
+    "tz"
+   ],
+   "primary_for": [
+    "tz"
+   ]
+  },
+  "UAH": {
+   "code": "UAH",
+   "name": "Ukrainian hryvnia",
+   "symbol": "₴",
+   "family": "UAH",
+   "countries": [
+    "ua"
+   ],
+   "primary_for": [
+    "ua"
+   ]
+  },
+  "UGX": {
+   "code": "UGX",
+   "name": "Ugandan shilling",
+   "symbol": "Sh",
+   "family": "shilling",
+   "countries": [
+    "ug"
+   ],
+   "primary_for": [
+    "ug"
+   ]
+  },
+  "USD": {
+   "code": "USD",
+   "name": "United States dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "bs",
+    "kh",
+    "ec",
+    "sv",
+    "ht",
+    "mh",
+    "fm",
+    "pw",
+    "pa",
+    "tl",
+    "us",
+    "zw"
+   ],
+   "primary_for": [
+    "ec",
+    "sv",
+    "mh",
+    "fm",
+    "pw",
+    "tl",
+    "us"
+   ]
+  },
+  "UYU": {
+   "code": "UYU",
+   "name": "Uruguayan peso",
+   "symbol": "$",
+   "family": "peso",
+   "countries": [
+    "uy"
+   ],
+   "primary_for": [
+    "uy"
+   ]
+  },
+  "UZS": {
+   "code": "UZS",
+   "name": "Uzbekistani soʻm",
+   "symbol": "so'm",
+   "family": "UZS",
+   "countries": [
+    "uz"
+   ],
+   "primary_for": [
+    "uz"
+   ]
+  },
+  "VES": {
+   "code": "VES",
+   "name": "Venezuelan bolívar",
+   "symbol": "Bs.",
+   "family": "VES",
+   "countries": [
+    "ve"
+   ],
+   "primary_for": [
+    "ve"
+   ]
+  },
+  "VND": {
+   "code": "VND",
+   "name": "Vietnamese đồng",
+   "symbol": "₫",
+   "family": "VND",
+   "countries": [
+    "vn"
+   ],
+   "primary_for": [
+    "vn"
+   ]
+  },
+  "VUV": {
+   "code": "VUV",
+   "name": "Vanuatu vatu",
+   "symbol": "Vt",
+   "family": "VUV",
+   "countries": [
+    "vu"
+   ],
+   "primary_for": [
+    "vu"
+   ]
+  },
+  "WST": {
+   "code": "WST",
+   "name": "Samoan tālā",
+   "symbol": "T",
+   "family": "WST",
+   "countries": [
+    "ws"
+   ],
+   "primary_for": [
+    "ws"
+   ]
+  },
+  "XAF": {
+   "code": "XAF",
+   "name": "Central African CFA franc",
+   "symbol": "Fr",
+   "family": "franc",
+   "countries": [
+    "cm",
+    "cf",
+    "td",
+    "gq",
+    "ga",
+    "cg"
+   ],
+   "primary_for": [
+    "cm",
+    "cf",
+    "td",
+    "gq",
+    "ga",
+    "cg"
+   ]
+  },
+  "XCD": {
+   "code": "XCD",
+   "name": "Eastern Caribbean dollar",
+   "symbol": "$",
+   "family": "dollar",
+   "countries": [
+    "ag",
+    "dm",
+    "gd",
+    "kn",
+    "lc",
+    "vc"
+   ],
+   "primary_for": [
+    "ag",
+    "dm",
+    "gd",
+    "kn",
+    "lc",
+    "vc"
+   ]
+  },
+  "XOF": {
+   "code": "XOF",
+   "name": "West African CFA franc",
+   "symbol": "Fr",
+   "family": "franc",
+   "countries": [
+    "bj",
+    "bf",
+    "ci",
+    "gw",
+    "ml",
+    "ne",
+    "sn",
+    "tg"
+   ],
+   "primary_for": [
+    "bj",
+    "bf",
+    "ci",
+    "gw",
+    "ml",
+    "ne",
+    "sn",
+    "tg"
+   ]
+  },
+  "YER": {
+   "code": "YER",
+   "name": "Yemeni rial",
+   "symbol": "﷼",
+   "family": "rial",
+   "countries": [
+    "ye"
+   ],
+   "primary_for": [
+    "ye"
+   ]
+  },
+  "ZAR": {
+   "code": "ZAR",
+   "name": "South African rand",
+   "symbol": "R",
+   "family": "ZAR",
+   "countries": [
+    "sz",
+    "ls",
+    "na",
+    "za",
+    "zw"
+   ],
+   "primary_for": [
+    "za"
+   ]
+  },
+  "ZMW": {
+   "code": "ZMW",
+   "name": "Zambian kwacha",
+   "symbol": "ZK",
+   "family": "kwacha",
+   "countries": [
+    "zm"
+   ],
+   "primary_for": [
+    "zm"
+   ]
+  },
+  "ZWG": {
+   "code": "ZWG",
+   "name": "Zimbabwe Gold",
+   "symbol": "ZiG",
+   "family": "ZWG",
+   "countries": [
+    "zw"
+   ],
+   "primary_for": [
+    "zw"
+   ]
+  }
+ }
+}

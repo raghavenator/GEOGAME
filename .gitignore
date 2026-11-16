@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .pytest_cache/
 app/games/border_bridge/data/raw/
+app/games/currency_quest/data/raw/

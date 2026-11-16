@@ -1,0 +1,243 @@
+{#
+  Currency Quest embed: the same markup and component serve the full page
+  (mode="page", with a start screen) and the feed card (mode="feed": portrait
+  layout, prepared in the background, started from the card's "Tap to play").
+  ctx = routes.embed_context(): {game, config, settings_defaults, world}
+
+  There is no interactive map: the whole card is a swipe zone. The optional locator is a
+  decorative globe thumbnail with pointer-events: none.
+#}
+{% import "_components.html" as ui %}
+
+{% macro styles() %}
+  <link rel="stylesheet" href="{{ url_for('currency_quest.static', filename='currency_quest.css') }}">
+{% endmacro %}
+
+{% macro scripts() %}
+  <script src="{{ url_for('static', filename='vendor/d3/d3.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='vendor/topojson/topojson-client.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/map_view.js') }}" defer></script>
+  <script src="{{ url_for('currency_quest.static', filename='currency_quest.js') }}" defer></script>
+  <script src="{{ url_for('currency_quest.static', filename='embed.js') }}" defer></script>
+{% endmacro %}
+
+{% macro panel(ctx, mode="page") %}
+{% set game = ctx.game %}
+{% set config = ctx.config %}
+{% set feed = mode == "feed" %}
+<div class="cur-container {{ 'cur--embed' if feed else 'container page' }}"
+     data-game-root="currency-quest" data-game="currency-quest" data-mode="{{ mode }}"
+     :class="{ 'is-paused': lifecycle === 'paused', 'is-ready': phase === 'ready' }"
+     x-data="currencyQuest({{ {
+        'apiBase': url_for('currency_quest.play').rstrip('/') ~ '/api',
+        'mode': mode,
+        'topoUrl': ctx.world.topoUrl,
+        'metaUrl': ctx.world.metaUrl,
+        'startPoints': config.start_points,
+        'wrongPenalty': config.wrong_penalty,
+        'minPoints': config.min_correct_points,
+        'resultMs': config.result_ms,
+     } | tojson | forceescape }})">
+
+  <div class="visually-hidden" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
+
+  {% if not feed %}
+  {# ============================================================ START (full page) #}
+  <section class="card cur-start stack stack--lg" x-show="screen === 'start'" x-transition.opacity.duration.250ms>
+    <div class="cur-start__hero">
+      <span class="game-card__icon cur-start__icon">{{ icon(game.icon, 'icon--xl') }}</span>
+      <div class="stack stack--sm">
+        <h1>{{ game.title }}</h1>
+        <p class="muted">{{ game.description }}</p>
+      </div>
+    </div>
+
+    <ol class="cur-steps" aria-label="How to play">
+      <li class="cur-step">
+        <span class="cur-step__icon">{{ icon('flag') }}</span>
+        <strong>A country appears</strong>
+        <span class="subtle">Its name and flag, plus a small globe if you're not sure where it is.</span>
+      </li>
+      <li class="cur-step">
+        <span class="cur-step__icon">{{ icon('banknote') }}</span>
+        <strong>Pick its currency</strong>
+        <span class="subtle">Options show only the ISO code and symbol, like EUR €. A wrong one disappears, and the clock keeps running.</span>
+      </li>
+      <li class="cur-step">
+        <span class="cur-step__icon">{{ icon('zap') }}</span>
+        <strong>Be quick</strong>
+        <span class="subtle">Points drain away every second, so answer fast.</span>
+      </li>
+    </ol>
+
+    <p class="muted cur-start__rules">
+      Each question starts at <strong>{{ config.start_points }}</strong> points and drains to 0 over the time limit;
+      a wrong pick costs <strong>{{ config.wrong_penalty }}</strong>, and a right answer in time is worth at least
+      <strong>{{ config.min_correct_points }}</strong>.
+    </p>
+
+    <div class="cur-settings-summary">
+      <div class="row">
+        <span class="badge">{{ icon('banknote') }}<span x-text="$settings.values.questions + ' questions'"></span></span>
+        <span class="badge">{{ icon('timer') }}<span x-text="$settings.display('seconds') + ' each'"></span></span>
+        <span class="badge">{{ icon('layout-grid') }}<span x-text="$settings.display('options')"></span></span>
+        <span class="badge">{{ icon('target') }}<span x-text="$settings.display('difficulty')"></span></span>
+        <span class="badge">{{ icon('globe') }}<span x-text="'Locator ' + $settings.display('locator').toLowerCase()"></span></span>
+        <span class="badge">{{ icon('map') }}<span x-text="$settings.display('region')"></span></span>
+      </div>
+      <button type="button" class="btn btn--sm btn--soft" @click="$settings.openModal($el)">{{ icon('settings-2', 'icon--sm') }}Change</button>
+    </div>
+
+    <div class="cur-best">
+      {{ icon('trophy') }}
+      <span>Best for these settings:
+        <strong x-text="best === null ? 'No score yet' : best + ' / ' + ($settings.values.questions * {{ config.start_points }})"></strong>
+      </span>
+    </div>
+
+    <div class="alert" role="alert" x-show="error" x-cloak>{{ icon('info') }}<span x-text="error"></span></div>
+
+    <button type="button" class="btn btn--primary btn--lg btn--block" @click="play()" :disabled="busy" x-ref="startBtn">
+      {{ icon('play') }}<span x-text="busy ? 'Starting…' : 'Start'">Start</span>
+    </button>
+  </section>
+  {% endif %}
+
+  {# ============================================================ PLAY #}
+  <section class="cur-play" x-show="screen === 'play'" {% if not feed %}x-cloak{% endif %}>
+    <div class="card card--flat cur-hud">
+      <div class="cur-stat">
+        <span class="eyebrow">Question</span>
+        <strong class="cur-stat__value"><span x-text="q ? q.number : '–'"></span><span class="cur-stat__of"> / <span x-text="total || '–'"></span></span></strong>
+      </div>
+      <div class="cur-stat">
+        <span class="eyebrow">Score</span>
+        <strong class="cur-stat__value" x-text="score"></strong>
+      </div>
+      {{ ui.points_meter(config.start_points) }}
+    </div>
+
+    <div class="cur-main">
+      {# The country: flag, name and the optional locator. Empty (skeletons) until the tap. #}
+      <div class="card cur-country" :class="result && (result.status === 'correct' ? 'is-correct' : 'is-missed')">
+        <div class="cur-country__flag">
+          <template x-if="q">
+            <img class="cur-flag" :src="q.country.flag_url" :alt="'Flag of ' + q.country.name" :key="q.index" width="120" height="90">
+          </template>
+          <span class="cur-flag cur-flag--skeleton shimmer" x-show="!q" aria-hidden="true"></span>
+        </div>
+        <div class="cur-locator" x-show="showLocator" aria-hidden="true">
+          <canvas class="cur-locator__canvas" x-ref="locator"></canvas>
+          <span class="cur-locator__skeleton shimmer" x-show="!locatorShown"></span>
+        </div>
+        <div class="cur-country__text" x-show="!(phase === 'result' && result)">
+          <span class="cur-country__kicker" x-show="q">Which currency is used in</span>
+          <h2 class="cur-country__name" x-show="q" x-text="q ? q.country.name + '?' : ''"></h2>
+          <span class="cur-line shimmer" x-show="!q" aria-hidden="true"></span>
+          <span class="cur-line cur-line--short shimmer" x-show="!q" aria-hidden="true"></span>
+        </div>
+
+        {# The result takes the question's place: the currency, its code and symbol, and where else it's used. #}
+        <template x-if="phase === 'result' && result">
+          <div class="cur-result" :class="result.status === 'correct' ? 'is-correct' : 'is-missed'">
+            <div class="cur-result__text">
+              <span class="cur-result__kicker"
+                    x-text="(result.status === 'correct' ? 'Correct! ' : 'Time\'s up. ') + result.answer.country + ' uses'"></span>
+              <strong class="cur-result__name">
+                <span x-text="result.answer.currency.name"></span>
+                <span class="cur-result__code" x-text="'(' + [result.answer.currency.code, result.answer.currency.symbol].filter(Boolean).join(', ') + ')'"></span>
+              </strong>
+              <span class="cur-result__also" x-show="result.answer.also_used_in.length" x-text="alsoUsedIn(result.answer)"></span>
+              <span class="cur-result__also" x-show="!result.answer.also_used_in.length">Only used here.</span>
+            </div>
+            <span class="badge cur-result__pts" :class="result.points > 0 ? 'badge--success' : 'badge--error'"
+                  x-text="(result.points > 0 ? '+' : '') + result.points + ' pts'"></span>
+          </div>
+        </template>
+      </div>
+
+      <div class="cur-panel">
+        <p class="cur-prompt visually-hidden" id="cur-prompt-{{ mode }}">Pick the currency</p>
+        <div class="cur-options" role="group" aria-labelledby="cur-prompt-{{ mode }}" :data-count="phase === 'ready' ? skeletons : optionCount">
+          <template x-for="i in (phase === 'ready' ? skeletons : 0)" :key="'s' + i">
+            <span class="cur-option cur-option--skeleton shimmer" aria-hidden="true"></span>
+          </template>
+          <template x-for="(opt, i) in options" :key="(q ? q.index : 0) + '-' + opt.id">
+            <button type="button" class="cur-option" @click="pick(opt)" :style="'--i:' + i"
+                    :class="{ 'is-wrong': opt.state === 'wrong', 'is-leaving': opt.state === 'leaving',
+                              'is-correct': opt.state === 'correct', 'is-answer': opt.state === 'answer',
+                              'is-dim': opt.state === 'dim' }"
+                    :disabled="phase !== 'question' || !!opt.state" :aria-keyshortcuts="String(i + 1)"
+                    :aria-label="optionLabel(opt)">
+              <kbd class="cur-option__key" x-text="i + 1" aria-hidden="true"></kbd>
+              <span class="cur-option__body" aria-hidden="true">
+                <span class="cur-option__label">
+                  <span class="cur-option__code" x-text="opt.code"></span>
+                  <span class="cur-option__symbol" x-show="opt.symbol" x-text="opt.symbol"></span>
+                </span>
+                {# The name only once it gives nothing away: after a wrong pick, or when the question ends. #}
+                <span class="cur-option__name" x-show="opt.name" x-text="opt.name"></span>
+              </span>
+            </button>
+          </template>
+        </div>
+
+        <div class="cur-footer">
+          <p class="cur-feedback" :class="'is-' + feedbackKind" x-text="feedback"></p>
+          <p class="cur-keys subtle" x-show="phase === 'question' && !feedback">Tip: press <kbd>1</kbd>–<kbd x-text="options.length">8</kbd> to pick.</p>
+          <button type="button" class="btn btn--primary cur-next" x-show="phase === 'result'" x-ref="nextBtn" @click="next()" :disabled="advancing">
+            <span x-text="result && result.is_last ? 'See results' : 'Next'"></span>{{ icon('chevron-right') }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="game-paused" aria-hidden="true">{{ icon('timer') }}Paused</div>
+  </section>
+
+  {# ============================================================ SUMMARY #}
+  <section class="card cur-summary stack stack--lg" x-show="screen === 'summary'" x-cloak>
+    <template x-if="summary">
+      <div class="stack stack--lg">
+        <div class="cur-summary__head">
+          <p class="eyebrow">Round complete</p>
+          <div class="cur-summary__score">
+            <strong x-ref="totalScore">0</strong><span>/ <span x-text="summary.max_score"></span></span>
+          </div>
+          <p class="muted" x-text="verdict()"></p>
+          <div class="row row--center">
+            <span class="badge badge--warning cur-new-best" x-show="summary.is_new_best && summary.score > 0">{{ icon('trophy') }}New best!</span>
+            <span class="badge" x-show="!(summary.is_new_best && summary.score > 0)">{{ icon('trophy') }}Best: <span x-text="summary.best + ' / ' + summary.max_score"></span></span>
+          </div>
+        </div>
+
+        <ol class="cur-rows" aria-label="Per-question results">
+          <template x-for="row in summary.questions" :key="row.number">
+            <li class="cur-row" :style="'animation-delay:' + (row.number * 50) + 'ms'">
+              <span class="cur-row__num" x-text="row.number"></span>
+              <img class="cur-row__flag" :src="row.flag_url" :alt="'Flag of ' + row.country" loading="lazy">
+              <div class="cur-row__main">
+                <strong x-text="row.currency.name + ' (' + row.currency.code + ')'"></strong>
+                <span class="subtle" x-text="row.country"></span>
+                <span class="cur-row__meta subtle">
+                  <span x-text="row.status === 'timeout' ? 'Timed out' : formatTime(row.elapsed_ms)"></span>
+                  <span x-show="row.wrong" x-text="'· ' + row.wrong + ' wrong (' + row.wrong_picks.join(', ') + ')'"></span>
+                </span>
+              </div>
+              <span class="badge" :class="row.points > 0 ? 'badge--success' : 'badge--error'" x-text="row.points + ' / ' + row.max_points"></span>
+            </li>
+          </template>
+        </ol>
+
+        <div class="cur-summary__actions">
+          <button type="button" class="btn btn--primary btn--lg" @click="play()" :disabled="busy" x-ref="againBtn">{{ icon('rotate-ccw') }}Play again</button>
+          {% if feed %}
+            <button type="button" class="btn btn--lg" @click="nextGame()">Next game{{ icon('arrow-down') }}</button>
+          {% else %}
+            <a class="btn btn--lg" href="{{ url_for('hub') }}">{{ icon('layout-grid') }}All games</a>
+          {% endif %}
+        </div>
+      </div>
+    </template>
+  </section>
+</div>
+{% endmacro %}

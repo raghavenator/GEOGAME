@@ -210,6 +210,45 @@ img { display: block; max-width: 100%; }
 }
 .progress-ring--paused .progress-ring__bar { stroke: var(--color-text-subtle); }
 
+/* ---------------------------------------------------------------- points meter
+   Capital Quest and Currency Quest (_components.html points_meter): a draining bar plus the
+   number a correct pick would score right now, and a floating +n / -n toast. */
+.points-meter {
+  --meter-color: var(--color-accent); --meter-text: var(--color-accent-text);
+  position: relative; flex: 1; min-width: 0; display: flex; align-items: center; gap: var(--space-3);
+}
+.points-meter[data-level="mid"] { --meter-color: var(--color-warning); --meter-text: var(--color-warning-text); }
+.points-meter[data-level="low"] { --meter-color: var(--color-error); --meter-text: var(--color-error-strong); }
+.points-meter.is-stopped { --meter-color: var(--color-text-subtle); --meter-text: var(--color-text-muted); }
+.points-meter__value {
+  display: inline-flex; align-items: baseline; gap: 2px; min-width: 3.25rem; justify-content: flex-end;
+  color: var(--meter-text); font-variant-numeric: tabular-nums; transition: color var(--dur-base) var(--ease-out);
+}
+.points-meter__value strong { font-size: var(--text-2xl); font-weight: var(--weight-black); line-height: 1; }
+.points-meter__unit { font-size: var(--text-xs); font-weight: var(--weight-semibold); }
+.points-meter__track {
+  position: relative; flex: 1; height: 0.625rem; border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken); overflow: hidden;
+}
+.points-meter__bar {
+  position: absolute; inset: 0; border-radius: inherit; transform-origin: left; transform: scaleX(var(--fill, 1));
+  background: var(--meter-color); transition: background var(--dur-base) var(--ease-out);
+}
+.points-toast {
+  position: absolute; left: var(--space-8); top: calc(-1 * var(--space-4)); z-index: 3; padding: 0 var(--space-2);
+  font-weight: var(--weight-black); font-size: var(--text-lg); border-radius: var(--radius-pill);
+  opacity: 0; pointer-events: none; font-variant-numeric: tabular-nums;
+}
+.points-toast.is-good { color: var(--color-success-strong); background: var(--color-success-soft); }
+.points-toast.is-bad { color: var(--color-error-strong); background: var(--color-error-soft); }
+.points-toast.is-showing { animation: float-up 1100ms var(--ease-out) forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  /* No drain animation: the meter shows the number only. */
+  .points-meter__track { display: none; }
+  .points-meter__value { min-width: 0; justify-content: flex-start; }
+}
+
 /* ---------------------------------------------------------------- segmented meter */
 .meter { display: grid; grid-template-columns: repeat(var(--segments, 3), 1fr); gap: var(--space-1); }
 .meter__seg { position: relative; height: 0.5rem; border-radius: var(--radius-pill); background: var(--color-surface-sunken); overflow: hidden; }

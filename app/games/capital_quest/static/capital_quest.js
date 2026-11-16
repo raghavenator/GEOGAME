@@ -19,7 +19,6 @@
   const MISSED_MS = 2600;        // a timeout's reveal stays up a little longer than a correct answer
   const REGION_ZOOM_OUT = 0.4;   // "Zoom to region": fit the country, then pull back to show its neighbours
   const sleep = (ms) => new Promise((r) => setTimeout(r, GA.reducedMotion() ? 0 : ms));
-  const roundHalfUp = (x) => Math.floor(x + 0.5);
 
   function formatTime(ms) {
     return `${(Math.max(0, ms) / 1000).toFixed(1)}s`;
@@ -307,20 +306,16 @@
           P.auto = null;
         },
 
-        /** Same formula as logic.correct_points; display only. */
+        /** Same formula as logic.correct_points (GA.drainMeter); display only. */
         tick() {
           if (this.phase !== "question") return;
-          const e = Math.min(this.elapsedMs(), P.limitMs);
-          const available = cfg.startPoints * Math.max(0, 1 - e / P.limitMs);
-          const raw = available - cfg.wrongPenalty * this.wrong;
-          const pts = e >= P.limitMs ? 0 : Math.max(cfg.minPoints, roundHalfUp(raw));
-          this.setPotential(pts, Math.max(0, raw) / cfg.startPoints);
+          const m = GA.drainMeter(this.elapsedMs(), P.limitMs, this.wrong, cfg);
+          this.setPotential(m.points, m.fill);
         },
 
         setPotential(points, fill) {
           if (points !== this.potential) this.potential = points;
-          const ratio = points / cfg.startPoints;
-          const level = ratio > 0.5 ? "high" : ratio > 0.25 ? "mid" : "low";
+          const level = GA.meterLevel(points, cfg.startPoints);
           if (level !== this.level) this.level = level;
           const bar = this.ref("meterBar");
           if (bar) bar.style.setProperty("--fill", String(Math.max(0, Math.min(1, fill))));

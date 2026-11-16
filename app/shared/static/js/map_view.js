@@ -134,9 +134,11 @@
     /** options.tinyArea: highlighted shapes whose projected area (px²) is at most this get a
         marker ring so they stay findable. options.kMax: maximum manual zoom (default per view).
         options.inertia: a flicked drag keeps gliding. options.clampToWorld: the flat map can't be
-        dragged or zoomed so that space above the north pole or below the south pole shows. */
+        dragged or zoomed so that space above the north pole or below the south pole shows.
+        options.interactive: false binds no pointer, wheel or key input (a decorative thumbnail,
+        e.g. Currency Quest's locator; give its element pointer-events: none so swipes pass through). */
     constructor(canvas, world, { kind, onInteract = () => {}, tinyArea = 36, kMax, inertia = false,
-                                 clampToWorld = false }) {
+                                 clampToWorld = false, interactive = true }) {
       this.canvas = canvas;
       this.ctx = canvas.getContext("2d");
       this.world = world;
@@ -169,7 +171,7 @@
       this.target = null;
       this.anim = null;
       this.raf = 0;
-      this.bindInput();
+      if (interactive) this.bindInput();
       this.paused = false;
       this.autoRotate = false;
       this.ro = new ResizeObserver(() => this.resize());

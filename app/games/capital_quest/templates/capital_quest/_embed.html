@@ -4,6 +4,8 @@
   layout, prepared in the background, started from the card's "Tap to play").
   ctx = routes.embed_context(): {game, config, settings_defaults, world}
 #}
+{% import "_components.html" as ui %}
+
 {% macro styles() %}
   <link rel="stylesheet" href="{{ url_for('capital_quest.static', filename='capital_quest.css') }}">
 {% endmacro %}
@@ -16,16 +18,8 @@
   <script src="{{ url_for('capital_quest.static', filename='embed.js') }}" defer></script>
 {% endmacro %}
 
-{# The live points meter: a draining bar plus the number a correct pick would score now. #}
-{% macro points_meter(max_points) %}
-  <div class="cq-meter" :data-level="level" :class="{ 'is-stopped': phase !== 'question' }"
-       role="meter" aria-label="Points available" aria-valuemin="0" aria-valuemax="{{ max_points }}"
-       :aria-valuenow="potential" :aria-valuetext="potential + ' of {{ max_points }} points available'">
-    <span class="cq-meter__value" aria-hidden="true"><strong x-text="potential">{{ max_points }}</strong><span class="cq-meter__unit">pts</span></span>
-    <span class="cq-meter__track" aria-hidden="true"><span class="cq-meter__bar" x-ref="meterBar"></span></span>
-    <span class="cq-toast" x-ref="toast" :class="toast && 'is-' + toast.kind" x-text="toast && toast.text" aria-hidden="true"></span>
-  </div>
-{% endmacro %}
+{# The live points meter is shared with Currency Quest (_components.html). #}
+{% macro points_meter(max_points) %}{{ ui.points_meter(max_points) }}{% endmacro %}
 
 {% macro panel(ctx, mode="page") %}
 {% set game = ctx.game %}

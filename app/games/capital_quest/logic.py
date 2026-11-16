@@ -11,11 +11,20 @@ from __future__ import annotations
 import math
 import random
 from collections.abc import Sequence
-from dataclasses import dataclass, field
-from typing import Any, Literal
+from dataclasses import dataclass
+from typing import Any
 
+from app.shared import scoring as _scoring
+from app.shared import timed_choice as _tc
 from app.shared.countries import REGIONS
 from app.shared.settings import ChoiceSetting, IntSetting, SettingsSchema
+# The question/round state machine and the drain scoring are shared with Currency Quest
+# (app/shared/timed_choice.py, app/shared/scoring.py); re-exported here unchanged.
+from app.shared.scoring import round_half_up
+from app.shared.timed_choice import (  # noqa: F401  (re-exported)
+    OptionUnavailable, PickOutcome, Question, QuestionActive, QuestionOver, Round, Status, TimeoutTooEarly,
+    begin, pause, resume,
+)
 
 from .capital_data import CapitalEntry, name_key
 
@@ -63,51 +72,21 @@ SETTINGS_SCHEMA: SettingsSchema = (
                   help="Only ask about countries from this part of the world."),
 )
 
-Status = Literal["active", "correct", "timeout"]
-
-
-class QuestionOver(Exception):
-    """The question has already ended (answered or timed out)."""
-
-
-class QuestionActive(Exception):
-    """Can't move on while the question is still being played."""
-
-
-class OptionUnavailable(Exception):
-    """The picked option doesn't exist or was already eliminated."""
-
-
-class TimeoutTooEarly(Exception):
-    def __init__(self, remaining_s: float) -> None:
-        super().__init__(f"{remaining_s:.2f}s left")
-        self.remaining_s = remaining_s
-
-
 # --------------------------------------------------------------------------- scoring
-def round_half_up(x: float) -> int:
-    """Whole points, rounding .5 up (Python's round() would send 2.5 to 2)."""
-    return math.floor(x + 0.5)
-
-
+# Thin wrappers binding the shared drain scoring to this game's CONFIG.
 def available_points(elapsed_s: float, limit_s: float, cfg: CapitalQuestConfig = CONFIG) -> float:
     """Points before penalties: start_points at 0 s, falling linearly to 0 at the limit."""
-    if limit_s <= 0:
-        return 0.0
-    return cfg.start_points * min(1.0, max(0.0, 1.0 - elapsed_s / limit_s))
+    return _scoring.drain_available_points(elapsed_s, limit_s, cfg)
 
 
 def potential_points(elapsed_s: float, wrong: int, limit_s: float, cfg: CapitalQuestConfig = CONFIG) -> int:
     """What a correct pick right now would score (the live meter's number)."""
-    if elapsed_s >= limit_s:
-        return 0
-    return correct_points(elapsed_s, wrong, limit_s, cfg)
+    return _scoring.drain_potential_points(elapsed_s, wrong, limit_s, cfg)
 
 
 def correct_points(elapsed_s: float, wrong: int, limit_s: float, cfg: CapitalQuestConfig = CONFIG) -> int:
     """max(min_correct_points, available - penalty x wrong), as a whole number."""
-    raw = available_points(elapsed_s, limit_s, cfg) - cfg.wrong_penalty * wrong
-    return max(cfg.min_correct_points, round_half_up(raw))
+    return _scoring.drain_correct_points(elapsed_s, wrong, limit_s, cfg)
 
 
 def max_score_for(questions: int, cfg: CapitalQuestConfig = CONFIG) -> int:
@@ -174,178 +153,41 @@ def generate_options(target: CapitalEntry, pool: Sequence[CapitalEntry], count: 
 
 
 # --------------------------------------------------------------------------- state
-@dataclass
-class Question:
-    code: str
-    options: list[str]                       # country codes; an option's id is its index
-    eliminated: set[int] = field(default_factory=set)
-    wrong_picks: list[int] = field(default_factory=list)
-    status: Status = "active"
-    started_at: float | None = None          # server clock when the question was shown (after begin)
-    ended_at: float | None = None
-    points: int = 0
-
-    @property
-    def answer_option(self) -> int:
-        return self.options.index(self.code)
-
-    @property
-    def wrong(self) -> int:
-        return len(self.wrong_picks)
-
-    def live_options(self) -> list[int]:
-        return [i for i in range(len(self.options)) if i not in self.eliminated]
-
-    def elapsed(self, now: float) -> float:
-        if self.started_at is None:
-            return 0.0
-        return max(0.0, (self.ended_at if self.ended_at is not None else now) - self.started_at)
-
-
-@dataclass
-class Round:
-    id: str
-    settings: dict[str, Any]
-    questions: list[Question]
-    index: int = 0
-    finished: bool = False
-    recorded: bool = False
-    begun: bool = False                      # set by begin(): the player tapped play
-    paused_at: float | None = None
-    extra: dict[str, Any] = field(default_factory=dict)
-
-    @property
-    def current(self) -> Question:
-        return self.questions[self.index]
-
-    @property
-    def is_last(self) -> bool:
-        return self.index == len(self.questions) - 1
-
-    @property
-    def limit(self) -> int:
-        return int(self.settings["seconds"])
-
-    @property
-    def score(self) -> int:
-        return sum(q.points for q in self.questions)
-
-    @property
-    def max_score(self) -> int:
-        return max_score_for(len(self.questions))
-
-
 def new_round(round_id: str, settings: dict[str, Any], pool: Sequence[CapitalEntry], rng: random.Random,
               cfg: CapitalQuestConfig = CONFIG) -> Round:
     """Targets come from the region; distractors from the whole eligible pool."""
     targets = pick_targets(region_pool(pool, settings["region"]), settings["questions"], rng)
     n = int(settings["options"])
     questions = [Question(code=t.code, options=generate_options(t, pool, n, rng, cfg)) for t in targets]
-    return Round(id=round_id, settings=settings, questions=questions)
+    return Round(id=round_id, settings=settings, questions=questions, points_per_question=cfg.start_points)
 
 
-# --------------------------------------------------------------------------- play clock
-# The feed prepares rounds long before they're played, so a question's time starts at
-# begin() (the tap), and pause()/resume() shift paused time out of the active question.
-def begin(rnd: Round, now: float) -> bool:
-    """Start play. Idempotent: returns False if the round had already begun."""
-    if rnd.begun:
-        return False
-    rnd.begun = True
-    rnd.current.started_at = now
-    return True
-
-
-def pause(rnd: Round, now: float) -> bool:
-    if not rnd.begun or rnd.paused_at is not None:
-        return False
-    rnd.paused_at = now
-    return True
-
-
-def resume(rnd: Round, now: float) -> bool:
-    if rnd.paused_at is None:
-        return False
-    q = rnd.current
-    if q.status == "active" and q.started_at is not None:
-        q.started_at += max(0.0, now - rnd.paused_at)
-    rnd.paused_at = None
-    return True
-
-
-# --------------------------------------------------------------------------- answering
-@dataclass(frozen=True)
-class PickOutcome:
-    kind: Literal["correct", "wrong", "timeout"]
-    option_id: int
-    points: int        # awarded (correct/timeout) or 0 (wrong)
-    potential: int     # what a correct pick would score now (after this pick)
-
-
-def _finish(q: Question, status: Status, now: float, points: int) -> None:
-    q.status = status
-    q.ended_at = now
-    q.points = points
-
-
+# --------------------------------------------------------------------------- play clock and answering
+# begin / pause / resume are re-exported from app.shared.timed_choice (see the imports).
+# These wrappers bind the shared rules to this game's CONFIG.
 def is_overdue(q: Question, now: float, limit_s: float, cfg: CapitalQuestConfig = CONFIG) -> bool:
-    return q.status == "active" and q.elapsed(now) > limit_s + cfg.late_pick_grace_seconds
+    return _tc.is_overdue(q, now, limit_s, cfg)
 
 
 def expire_if_overdue(q: Question, now: float, limit_s: float, cfg: CapitalQuestConfig = CONFIG) -> bool:
     """End an active question whose time (plus grace) is up with 0 points. Returns True if it did."""
-    if not is_overdue(q, now, limit_s, cfg):
-        return False
-    _finish(q, "timeout", q.started_at + limit_s if q.started_at is not None else now, 0)  # type: ignore[operator]
-    return True
+    return _tc.expire_if_overdue(q, now, limit_s, cfg)
 
 
 def apply_pick(q: Question, option_id: int, now: float, limit_s: float,
                cfg: CapitalQuestConfig = CONFIG) -> PickOutcome:
-    if q.status != "active":
-        raise QuestionOver
-    if not 0 <= option_id < len(q.options) or option_id in q.eliminated:
-        raise OptionUnavailable
-    if expire_if_overdue(q, now, limit_s, cfg):
-        return PickOutcome("timeout", option_id, 0, 0)
-    elapsed = q.elapsed(now)
-    if option_id == q.answer_option:
-        points = correct_points(elapsed, q.wrong, limit_s, cfg)
-        _finish(q, "correct", now, points)
-        return PickOutcome("correct", option_id, points, points)
-    q.eliminated.add(option_id)
-    q.wrong_picks.append(option_id)
-    return PickOutcome("wrong", option_id, 0, potential_points(elapsed, q.wrong, limit_s, cfg))
+    return _tc.apply_pick(q, option_id, now, limit_s, cfg)
 
 
 def apply_timeout(q: Question, now: float, limit_s: float, cfg: CapitalQuestConfig = CONFIG) -> bool:
-    """The client's countdown ran out. Ends the question with 0 points.
-
-    Idempotent: returns False if the question had already ended (a double-fired timer).
-    Raises TimeoutTooEarly if the server's clock says there's clearly time left.
-    """
-    if q.status != "active":
-        return False
-    remaining = limit_s - q.elapsed(now)
-    if remaining > cfg.early_timeout_tolerance_seconds:
-        raise TimeoutTooEarly(remaining)
-    _finish(q, "timeout", now, 0)
-    return True
+    """The client's countdown ran out. Ends the question with 0 points (idempotent).
+    Raises TimeoutTooEarly if the server's clock says there's clearly time left."""
+    return _tc.apply_timeout(q, now, limit_s, cfg)
 
 
 def advance(rnd: Round, from_index: int, now: float, cfg: CapitalQuestConfig = CONFIG) -> None:
-    """Move past question ``from_index``. Idempotent: repeats for an old index are no-ops.
-    A question whose time ran out on the server is closed as a timeout first."""
-    if rnd.finished or from_index != rnd.index:
-        return
-    expire_if_overdue(rnd.current, now, rnd.limit, cfg)
-    if rnd.current.status == "active":
-        raise QuestionActive
-    if rnd.is_last:
-        rnd.finished = True
-        return
-    rnd.index += 1
-    rnd.current.started_at = now if rnd.paused_at is None else rnd.paused_at
+    """Move past question ``from_index`` (idempotent; closes an overdue question as a timeout first)."""
+    _tc.advance(rnd, from_index, now, cfg)
 
 
 def scored_settings(settings: dict[str, Any], cfg: CapitalQuestConfig = CONFIG) -> dict[str, Any]:

@@ -6,6 +6,7 @@ from app.shared.game import GameSpec
 
 from .border_bridge import GAME as BORDER_BRIDGE
 from .capital_quest import GAME as CAPITAL_QUEST
+from .currency_quest import GAME as CURRENCY_QUEST
 from .flag_reveal import GAME as FLAG_REVEAL
 from .pinpoint import GAME as PINPOINT
 
@@ -14,6 +15,7 @@ GAMES: tuple[GameSpec, ...] = (
     BORDER_BRIDGE,
     CAPITAL_QUEST,
     PINPOINT,
+    CURRENCY_QUEST,
     # Placeholders shown greyed-out on the hub until they're built.
     GameSpec(
         id="shape-shifter",

@@ -1,6 +1,6 @@
 /* Geo Arcade shared browser helpers. Plain JS, no build step.
    Exposes window.GeoArcade = { api, normalize, StageTimer, pausableDelay, Autocomplete, countUp,
-   replayAnimation, reducedMotion, games, alpineEmbed }. */
+   replayAnimation, reducedMotion, drainMeter, meterLevel, games, alpineEmbed }. */
 (function () {
   "use strict";
 
@@ -285,6 +285,24 @@
     });
   }
 
+  /* ------------------------------------------------------------------ draining points meter
+     Capital Quest and Currency Quest. Mirrors app/shared/scoring.py drain_correct_points /
+     drain_potential_points; display only (the server's number is the score).
+     Returns { points: what a correct pick would score now, fill: the bar's 0..1 width }. */
+  function drainMeter(elapsedMs, limitMs, wrong, { startPoints, wrongPenalty, minPoints }) {
+    const e = Math.min(elapsedMs, limitMs);
+    const available = startPoints * Math.max(0, 1 - e / limitMs);
+    const raw = available - wrongPenalty * wrong;
+    const points = e >= limitMs ? 0 : Math.max(minPoints, Math.floor(raw + 0.5));
+    return { points, fill: Math.max(0, Math.min(1, raw / startPoints)) };
+  }
+
+  /** The meter's colour band: high above half, mid above a quarter, else low. */
+  function meterLevel(points, startPoints) {
+    const ratio = points / startPoints;
+    return ratio > 0.5 ? "high" : ratio > 0.25 ? "mid" : "low";
+  }
+
   /* ------------------------------------------------------------------ embedding
      Every game registers GeoArcade.games[id] = { mount(container, options) }.
      mount() returns an instance the host (the feed, or a full game page) drives:
@@ -339,6 +357,6 @@
 
   window.GeoArcade = Object.assign(window.GeoArcade || {}, {
     api, ApiError, normalize, StageTimer, pausableDelay, Autocomplete, countUp, replayAnimation, reducedMotion,
-    games, alpineEmbed, restart,
+    drainMeter, meterLevel, games, alpineEmbed, restart,
   });
 })();
