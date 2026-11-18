@@ -213,7 +213,7 @@ def test_invalid_settings(client: FlaskClient) -> None:
         e = post(client, "start", {"settings": bad}, status=400)["error"]
         assert e["code"] == "invalid_settings" and field in e["details"]["fields"]
     e = post(client, "start", {"settings": {"region": "oceania", "questions": 20}}, status=400)["error"]
-    assert "Only 14" in e["details"]["fields"]["questions"]
+    assert "Oceania has 14 countries" in e["details"]["fields"]["questions"]
 
 
 def test_page_renders(client: FlaskClient) -> None:

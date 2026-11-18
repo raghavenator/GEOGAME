@@ -47,6 +47,15 @@
   gap: var(--space-3) var(--space-6); padding: var(--space-4) var(--space-5);
 }
 .pp-hud__ask { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pp-hud__kicker { display: flex; align-items: center; gap: var(--space-2); min-width: 0; }
+.pp-region-chip {
+  display: inline-flex; align-items: center; gap: var(--space-1); min-width: 0; max-width: 100%;
+  padding: 1px var(--space-2); border-radius: var(--radius-pill);
+  background: var(--color-accent-soft); color: var(--color-accent-text);
+  font-size: var(--text-xs); font-weight: var(--weight-semibold); line-height: 1.4;
+}
+.pp-region-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pp-region-chip .icon { flex: none; }
 .pp-hud__name {
   font-size: var(--text-3xl); font-weight: var(--weight-black); letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight); color: var(--color-text); overflow-wrap: anywhere;
@@ -180,6 +189,7 @@
 .pp--embed .pp-play { flex: 1; min-height: 0; gap: var(--space-2); }
 .pp--embed .pp-hud { flex: none; padding: var(--space-2) var(--space-4); gap: var(--space-1) var(--space-4); }
 .pp--embed .pp-hud .eyebrow { font-size: 0.625rem; }
+.pp--embed .pp-region-chip { font-size: 0.625rem; }
 .pp--embed .pp-hud__name { font-size: var(--text-2xl); }
 .pp--embed .pp-stat__value { font-size: var(--text-base); }
 .pp--embed .pp-stat__of { font-size: var(--text-xs); }

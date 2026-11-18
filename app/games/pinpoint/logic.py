@@ -23,10 +23,10 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from app.shared.countries import REGIONS
 from app.shared.settings import ChoiceSetting, IntSetting, SettingsSchema
 
-from .location_data import Location, Polygon, point_in_polygons
+from .location_data import Location, Polygon, load_locations, point_in_polygons
+from .regions import RegionConfig, load_regions, pool_sizes
 
 EARTH_RADIUS_KM = 6371.0
 KM_PER_MILE = 1.609344
@@ -69,10 +69,23 @@ class PinpointConfig:
 
 
 CONFIG = PinpointConfig()
+REGIONS: RegionConfig = load_regions()
+
+
+def region_setting(regions: RegionConfig, pool: Sequence[Location]) -> ChoiceSetting:
+    """The Region choice, generated from regions.json: grouped, with each region's pool size."""
+    sizes = pool_sizes(regions, pool)
+    return ChoiceSetting(
+        "region", "Region", regions.default, tuple((r.id, r.label) for r in regions.regions),
+        help="Only ask about countries from this part of the world. The map starts framed on it.",
+        groups=tuple((label, tuple(r.id for r in regions.regions if r.group == gid)) for gid, label in regions.groups),
+        counts=tuple(sizes.items()))
+
 
 SETTINGS_SCHEMA: SettingsSchema = (
     IntSetting("questions", "Questions per round", CONFIG.questions, *CONFIG.questions_range,
-               help="How many countries you'll look for in one round."),
+               help="How many countries you'll look for in one round.",
+               cap_by="region", cap_note="{choice} has {cap} countries, so the maximum is {cap} questions."),
     IntSetting("seconds", "Time limit per question", CONFIG.time_limit_seconds, *CONFIG.time_limit_range,
                help="When it runs out, your crosshair position is submitted for you.", unit="s"),
     ChoiceSetting("difficulty", "Difficulty", CONFIG.default_difficulty,
@@ -83,9 +96,7 @@ SETTINGS_SCHEMA: SettingsSchema = (
     ChoiceSetting("borders", "Show country borders", "on", (("on", "On"), ("off", "Off (harder)")),
                   help="Off draws the land as one seamless mass."),
     ChoiceSetting("units", "Distance units", "km", (("km", "Kilometres"), ("mi", "Miles"))),
-    ChoiceSetting("region", "Region", "all",
-                  (("all", "Whole world"), *((r.lower(), r) for r in REGIONS)),
-                  help="Only ask about countries from this part of the world."),
+    region_setting(REGIONS, load_locations()),
 )
 
 
@@ -178,8 +189,10 @@ def max_score_for(questions: int, cfg: PinpointConfig = CONFIG) -> int:
 
 
 # --------------------------------------------------------------------------- pools
-def region_pool(pool: Sequence[Location], region: str) -> list[Location]:
-    return [e for e in pool if region == "all" or e.region.lower() == region]
+def region_pool(pool: Sequence[Location], region: str, regions: RegionConfig = REGIONS) -> list[Location]:
+    """The countries a round in ``region`` draws from (regions.json). Unknown ids raise KeyError;
+    the settings schema rejects them before they get here."""
+    return regions.get(region).pool(pool)
 
 
 def pick_targets(pool: Sequence[Location], count: int, rng: random.Random) -> list[Location]:

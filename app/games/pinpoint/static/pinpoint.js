@@ -26,10 +26,19 @@
   // already turns freely at zoom 1.
   const START_FILL = 1.1;
 
-  /** The same view for every question (it never hints at the answer). */
-  function startCamera(kind, view) {
-    const k = kind === "flat" ? Math.min(view.limits.kMax, view.fillZoom() * START_FILL) : 1;
-    return { ...START_CAMERA[kind], k };
+  /** The whole-world start view (it never hints at the answer). */
+  function worldCamera(view) {
+    const k = view.kind === "flat" ? Math.min(view.limits.kMax, view.fillZoom() * START_FILL) : 1;
+    return { ...START_CAMERA[view.kind], k };
+  }
+
+  /** The start framing for a region (cfg.regions from regions.json): its box fitted to the map
+      zone with cfg.regionPadding on each side, or the world view. The same for every question
+      in the round, so it never hints at the answer. Returns a function of the view, so the
+      renderer can redo it when the map zone is resized or first shown. */
+  function homeCamera(region, padding) {
+    if (!region || region.world) return worldCamera;
+    return (view) => view.boxCamera(region.box, padding);
   }
 
   function formatTime(ms) {
@@ -90,6 +99,18 @@
 
         settings() { return GA.settings(GAME_ID); },
         get view() { return this.settings().values.view; },
+        /** The round's region id (from the server's echo of the settings once prepared). */
+        regionId() {
+          const id = P.region || this.settings().values.region;
+          return cfg.regions[id] ? id : "all";
+        },
+        region() { return cfg.regions[this.regionId()]; },
+        /** The region chip's text, "" for the whole world. */
+        get regionChip() {
+          const r = this.region();
+          return r && !r.world ? r.label : "";
+        },
+        startFraming() { return homeCamera(this.region(), cfg.regionPadding); },
 
         async refreshBest() {
           try {
@@ -128,25 +149,29 @@
           Object.values(P.views).forEach((v) => v.setBorders(on));
         },
 
-        /** No names, no highlights: just the map, at the same start view for every question. */
+        /** No names, no highlights: just the map at the region's start framing, the same for every
+            question. idle (the ready state): jump there; with the whole world the globe turns slowly. */
         clearMap({ idle = false } = {}) {
-          for (const [kind, v] of Object.entries(P.views)) {
+          const fn = this.startFraming();
+          const world = !this.regionChip;
+          for (const v of Object.values(P.views)) {
             v.setState({}, { fresh: true });
-            if (idle) v.idle();
-            else v.show(startCamera(kind, v), !GA.reducedMotion(), 500);
+            if (idle && world) v.idle();
+            else v.showHome(fn, !idle && !GA.reducedMotion(), 500);
           }
         },
 
+        /** Back to the start framing (the region, or the whole world); in the result, to the result's frame. */
         resetView() {
           if (this.phase === "result") Object.values(P.views).forEach((v) => v.resetView());
-          else for (const [kind, v] of Object.entries(P.views)) v.show(startCamera(kind, v), true, 500);
+          else Object.values(P.views).forEach((v) => { v.stopMotion(); v.showHome(this.startFraming(), true, 500); });
         },
         zoomBy(f) { Object.values(P.views).forEach((v) => { v.stopMotion(); v.zoomBy(f); }); },
         /** Read-only access to the map renderers (debugging and browser tests). */
         mapViews() { return P.views; },
 
         mapLabel() {
-          const name = this.view === "globe" ? "Globe" : "Flat map";
+          const name = (this.view === "globe" ? "Globe" : "Flat map") + (this.regionChip ? ` of ${this.regionChip}` : "");
           if (this.phase === "result" && this.result) {
             return `${name} showing your guess and ${this.result.target.name}, ${this.formatDistance(this.result)} apart.`;
           }
@@ -170,6 +195,7 @@
             try {
               const r = await P.api.post("start", { settings: this.settings().values });
               this.roundId = r.round_id;
+              P.region = r.settings.region;
               this.maxScore = r.max_score;
               this.best = r.best;
               this.total = r.total;
@@ -451,7 +477,9 @@
             points.push(g, t);
           });
           v.setState({ pins, links }, { fresh: true });
-          v.frame([], [], false, 0, { points, clipDeg: 180, frameMax: 6, zoomOut: 0.8 });
+          const region = this.region();
+          if (region && !region.world) v.showHome(homeCamera(region, cfg.regionPadding), false);
+          else v.frame([], [], false, 0, { points, clipDeg: 180, frameMax: 6, zoomOut: 0.8 });
           if (P.dormant) v.pause();
         },
 
