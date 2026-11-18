@@ -21,6 +21,11 @@ class IntSetting:
     step: int = 1
     help: str = ""
     unit: str = ""
+    # Optional cap from a ChoiceSetting's ``counts``: the value can't exceed the count of the
+    # choice picked in setting ``cap_by`` (e.g. questions <= countries in the region).
+    # ``cap_note`` is shown and used as the error: "{choice}" = its label, "{cap}" = the count.
+    cap_by: str = ""
+    cap_note: str = ""
 
     def validate(self, value: Any) -> int:
         if isinstance(value, bool):
@@ -36,8 +41,11 @@ class IntSetting:
         return value
 
     def to_json(self) -> dict[str, Any]:
-        return {"type": "int", "key": self.key, "label": self.label, "default": self.default,
-                "min": self.min, "max": self.max, "step": self.step, "help": self.help, "unit": self.unit}
+        out = {"type": "int", "key": self.key, "label": self.label, "default": self.default,
+               "min": self.min, "max": self.max, "step": self.step, "help": self.help, "unit": self.unit}
+        if self.cap_by:
+            out.update(cap_by=self.cap_by, cap_note=self.cap_note)
+        return out
 
 
 @dataclass(frozen=True)
@@ -47,6 +55,13 @@ class ChoiceSetting:
     default: str
     choices: tuple[tuple[str, str], ...]  # (value, label)
     help: str = ""
+    # Optional: show the choices under headings, ((heading, (value, ...)), ...), and a count
+    # next to each label ((value, n), ...), which an IntSetting's ``cap_by`` can also use.
+    groups: tuple[tuple[str, tuple[str, ...]], ...] = ()
+    counts: tuple[tuple[str, int], ...] = ()
+
+    def label_for(self, value: str) -> str:
+        return dict(self.choices).get(value, value)
 
     def validate(self, value: Any) -> str:
         allowed = {v for v, _ in self.choices}
@@ -55,8 +70,16 @@ class ChoiceSetting:
         return value
 
     def to_json(self) -> dict[str, Any]:
-        return {"type": "choice", "key": self.key, "label": self.label, "default": self.default,
-                "choices": [{"value": v, "label": lbl} for v, lbl in self.choices], "help": self.help}
+        out: dict[str, Any] = {"type": "choice", "key": self.key, "label": self.label, "default": self.default,
+                               "choices": [{"value": v, "label": lbl} for v, lbl in self.choices], "help": self.help}
+        if self.counts:
+            counts = dict(self.counts)
+            for c in out["choices"]:
+                if c["value"] in counts:
+                    c["count"] = counts[c["value"]]
+        if self.groups:
+            out["groups"] = [{"label": heading, "values": list(values)} for heading, values in self.groups]
+        return out
 
 
 Setting = Union[IntSetting, ChoiceSetting]
@@ -91,9 +114,26 @@ def validate_settings(schema: SettingsSchema, raw: Any) -> dict[str, Any]:
             clean[field.key] = field.validate(value)
         except ValueError as exc:
             errors[field.key] = str(exc)
+    for field in schema:
+        if isinstance(field, IntSetting) and field.cap_by and field.key in clean and field.cap_by in clean:
+            message = cap_error(schema, field, clean)
+            if message:
+                errors[field.key] = message
     if errors:
         raise SettingsError(errors)
     return clean
+
+
+def cap_error(schema: SettingsSchema, field: IntSetting, clean: Mapping[str, Any]) -> str:
+    """The cap message if ``field``'s value exceeds the count of the choice it's capped by, else ""."""
+    source = next((s for s in schema if s.key == field.cap_by), None)
+    if not isinstance(source, ChoiceSetting):
+        return ""
+    choice = clean[field.cap_by]
+    cap = dict(source.counts).get(choice)
+    if cap is None or cap >= field.max or clean[field.key] <= cap:
+        return ""
+    return (field.cap_note or "{choice} allows at most {cap}.").format(choice=source.label_for(choice), cap=cap)
 
 
 def settings_key(settings: Mapping[str, Any]) -> str:

@@ -65,6 +65,8 @@ app/
     pinpoint/
       __init__.py          GAME metadata + blueprint
       location_data.py     reference-point override table, point-in-polygon check + the data join
+      regions.json         the selectable regions: members, settings group and start framing (edit this)
+      regions.py           loads and checks regions.json against the pool
       logic.py             pure rules: haversine, size-relative scoring, speed factor, play clock, state
       routes.py            page + JSON API (start/begin/submit/next/pause/resume/summary)
       data/locations.json  the eligible pool, built by scripts/build_locations.py
@@ -353,7 +355,7 @@ until the large fixed crosshair in the middle of the map zone sits on it, then p
 - **The guess** is the point under the crosshair: `MapView.centerLonLat()` inverts the projection at the centre of the
   map zone, which works for the flat map and the globe. Longitude is normalised to [-180, 180].
 - **The map moves, the crosshair doesn't.** Drag (with inertia), pinch, wheel, +/− and Reset; arrow keys pan and
-  +/− zoom. Zoom runs from the whole world to 24×. The flat map is clamped so the crosshair can never leave the map
+  +/− zoom. Zoom runs from the whole world to 24×, whatever the region. The flat map is clamped so the crosshair can never leave the map
   past a pole, and it stays centred while the whole map fits.
 - **The result** drops a guess pin and an actual pin, draws a dashed great-circle line between them, highlights the
   country and flies the camera to fit all three (on the globe, pins more than 80° apart are shown by facing the
@@ -399,8 +401,62 @@ Example points on Normal with a 3-second guess that lands outside the country (i
   it ends; the server refuses it with `too_early` if its own clock has more than 1 s left, and scores it with the
   minimum speed factor otherwise (as it does any submit that arrives after the limit).
 
-**Settings:** questions (1–30), time limit (15–120 s), difficulty, map view (flat/globe), country borders (on/off),
-distance units (km/miles) and region. Best scores are kept per questions, time, difficulty, borders and region.
+**Settings:** questions (1–30, at most the region's number of countries), time limit (15–120 s), difficulty, map
+view (flat/globe), country borders (on/off), distance units (km/miles) and region. Best scores are kept per
+questions, time, difficulty, borders and region.
+
+### Regions
+
+The Region setting is grouped in the menu as World / Continents / Sub-regions, with each region's number of countries
+next to its name. Everything about a region lives in `app/games/pinpoint/regions.json`:
+
+- **Pool.** A round only asks about the region's `members`, and countries never repeat in a round. "Questions per
+  round" can't exceed the pool. The settings menu lowers the slider and says why ("Caribbean has 13 countries, so
+  the maximum is 13 questions"), and the server enforces the same cap (`IntSetting.cap_by` in
+  `app/shared/settings.py`). An unknown region id is rejected with `400 invalid_settings`.
+- **Start framing.** Each region has a hand-tuned `box` `[west, south, east, north]`, not one computed from its
+  countries' shapes (Russia, France and the United States have far-flung parts that would pull the view out).
+  `MapView.boxCamera(box, padding)` fits the box to the map zone, keeping `padding` (0.15 = 15% of the width and of
+  the height) clear on each side. It does the same for both views: the flat map turns so the box's middle longitude
+  is centred, and the globe faces the box. The ready state, the start of every question (animated, or instant with
+  reduced motion), Reset view and the summary map all use it. The player can still pan and zoom anywhere.
+  World keeps the original whole-world start view (any box spanning 300° of longitude or more does).
+- **Antimeridian.** A box with `west > east` crosses it. Because the flat map turns to the box's centre, Oceania
+  (`[112, -48, -168, 12]`) is framed properly on both views, Pacific-centred.
+- **Header chip.** While the pool is restricted, the region's name shows next to "Find".
+- **Scoring is unchanged.** Scores are relative to each country's size, so small regions stay fair.
+
+**Membership** (independent UN member states with a reference point, the same pool as before). The source is the
+UN geoscheme, with these rulings:
+- Caribbean: the 13 independent Caribbean countries.
+- Central America: the 7 countries from Belize to Panama. Mexico is in North America.
+- Eastern Europe: UN Eastern Europe without Russia (its reference point is in Siberia), plus the Baltic states and
+  the Balkans (Albania, Bosnia and Herzegovina, Croatia, Montenegro, North Macedonia, Serbia, Slovenia). Greece and
+  Türkiye are not included.
+- Middle East & North Africa: UN Northern Africa and Western Asia, plus Iran. Armenia, Azerbaijan and Georgia are
+  excluded, and Sudan counts as Sub-Saharan. Cyprus isn't included: the dataset places it in Southern Europe.
+- Sub-Saharan Africa: every other African country (49).
+- North America: everything in the Americas except South America (so it includes Central America and the
+  Caribbean). Western Europe, Central Asia, South Asia (which includes Iran), East Asia and Southeast Asia follow the
+  UN subregions.
+- The original options (`all`, `africa`, `americas`, `asia`, `europe`, `oceania`) keep their ids and their exact
+  pools, so stored settings and best scores still match. Europe keeps Russia: its European part is in view, and any
+  guess inside its borders scores full accuracy. It's listed under `framing_exempt`.
+- A stored region the menu no longer offers falls back to World (`settings.js` `sanitize`).
+
+### How to add or edit a Pinpoint region
+
+1. Edit `app/games/pinpoint/regions.json`. Add or remove ISO alpha-2 codes in `members` (they must be in
+   `data/locations.json`), or add a region:
+   `{"id": "nordics", "label": "Nordic countries", "group": "subregions", "box": [-25, 54, 32, 71], "members": [...]}`.
+   - The `id` becomes part of the best-score key, so never rename a region that has shipped (add a new one).
+   - `group` is one of `groups` (world, continents, subregions). The menu order is the file's order.
+   - To tune the `box`, make it tight around the members' reference points. `padding` adds the context around it.
+2. Run `pytest tests/test_pinpoint_regions.py`. It checks that members exist, aren't duplicated and are inside their
+   box, that boxes are valid, and the rulings above. The app also refuses to start if a member isn't in the pool.
+3. Check it in the browser: start a round in that region on both views at phone and desktop sizes, and make sure
+   every country is in view at the start. To check this programmatically, project each member's `latlng` with
+   `mapViews()[view].project([lng, lat])` (exposed by the Pinpoint component) and compare against the canvas size.
 
 ### Locations data
 

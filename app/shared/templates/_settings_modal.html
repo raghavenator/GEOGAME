@@ -1,9 +1,13 @@
 {#
   Generic settings modal, rendered from a game's declared settings schema.
-  Works for any game: it only knows about "int" and "choice" field types.
+  Works for any game: it only knows about "int" and "choice" field types. Optional extras:
+  a choice's "groups" (rendered as <optgroup>s) and per-choice "count" (shown after the label),
+  and an int's "cap_by" (its maximum is the count of the choice picked in that setting).
   State lives in that game's settings store ($settings, see static/js/settings.js),
   so several games' modals can share one page.
 #}
+{% macro choice_option(choice) %}<option value="{{ choice.value }}">{{ choice.label }}{% if choice.count is defined %} ({{ choice.count }}){% endif %}</option>{% endmacro %}
+
 {% macro settings_modal(game) %}
 {% set gid = game.id %}
 <div data-game="{{ gid }}">
@@ -35,22 +39,37 @@
             <div class="row" style="flex-wrap: nowrap">
               <input id="{{ fid }}" class="range" type="range"
                      min="{{ field.min }}" max="{{ field.max }}" step="{{ field.step }}"
+                     {% if field.cap_by %}:max="$settings.capFor('{{ field.key }}')"{% endif %}
                      x-model.number="$settings.draft['{{ field.key }}']"
                      aria-describedby="{{ fid }}-help">
               <input class="input number-input" type="number" inputmode="numeric"
                      min="{{ field.min }}" max="{{ field.max }}" step="{{ field.step }}"
+                     {% if field.cap_by %}:max="$settings.capFor('{{ field.key }}')"{% endif %}
                      x-model.number="$settings.draft['{{ field.key }}']"
                      :aria-invalid="!!$settings.errors['{{ field.key }}']"
                      aria-label="{{ field.label }}{% if field.unit %} ({{ field.unit }}){% endif %}">
             </div>
+            {% if field.cap_by %}
+            <p class="field__help" id="{{ fid }}-help">{{ field.help }}
+              (<span x-text="'{{ field.min }}–' + $settings.capFor('{{ field.key }}') + '{{ field.unit }}'">{{ field.min }}–{{ field.max }}{{ field.unit }}</span>)</p>
+            <p class="field__note" x-show="$settings.capNote('{{ field.key }}')" x-text="$settings.capNote('{{ field.key }}')"></p>
+            {% else %}
             <p class="field__help" id="{{ fid }}-help">{{ field.help }} ({{ field.min }}–{{ field.max }}{{ field.unit }})</p>
+            {% endif %}
           {% elif field.type == "choice" %}
             <label class="field__label" for="{{ fid }}">{{ field.label }}</label>
             <select id="{{ fid }}" class="select" x-model="$settings.draft['{{ field.key }}']"
+                    @change="$settings.clampCaps()"
                     aria-describedby="{{ fid }}-help" data-setting="{{ field.key }}">
-              {% for choice in field.choices %}
-                <option value="{{ choice.value }}">{{ choice.label }}</option>
-              {% endfor %}
+              {% if field.groups %}
+                {% for group in field.groups %}
+                  <optgroup label="{{ group.label }}">
+                    {% for choice in field.choices if choice.value in group['values'] %}{{ choice_option(choice) }}{% endfor %}
+                  </optgroup>
+                {% endfor %}
+              {% else %}
+                {% for choice in field.choices %}{{ choice_option(choice) }}{% endfor %}
+              {% endif %}
             </select>
             <p class="field__help" id="{{ fid }}-help">{{ field.help }}</p>
           {% endif %}

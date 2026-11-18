@@ -24,7 +24,8 @@ from app.shared.settings import SettingsError, defaults, settings_key, validate_
 from . import bp
 from . import logic
 from .location_data import Location, load_locations, locations_by_code
-from .logic import CONFIG, SETTINGS_SCHEMA, Question, Round
+from .logic import CONFIG, REGIONS, SETTINGS_SCHEMA, Question, Round
+from .regions import RegionConfigError, check_against_pool
 
 GAME_ID = "pinpoint"
 
@@ -39,6 +40,9 @@ def _setup(state: BlueprintSetupState) -> None:
     app.extensions["pinpoint.rng"] = random.Random(seed) if seed is not None else random.SystemRandom()
     app.extensions["pinpoint.clock"] = app.config.get("PINPOINT_CLOCK", time.monotonic)
     load_locations()  # fail at startup, not on the first request, if the data is missing
+    problems = check_against_pool(REGIONS, (e.code for e in load_locations()))
+    if problems:
+        raise RegionConfigError("regions.json: " + "; ".join(problems))
     load_country_polygons()  # decode the borders once (~0.5 s) so the first submit isn't slow
 
 
@@ -129,7 +133,9 @@ def embed_context() -> dict[str, Any]:
     from app.games.registry import get_game
 
     return {"game": get_game(GAME_ID), "config": CONFIG, "settings_defaults": defaults(SETTINGS_SCHEMA),
-            "world": world_data_urls()}
+            "world": world_data_urls(),
+            # Start framing per region (the client fits each box to the map zone with this padding).
+            "regions": {r.id: r.to_client() for r in REGIONS.regions}, "region_padding": REGIONS.padding}
 
 
 @bp.get("/")

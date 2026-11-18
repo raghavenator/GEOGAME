@@ -4,8 +4,9 @@
    Highlight roles: a, b, found, revealed (Border Bridge) and target (Capital Quest),
    coloured from the --map-<role> tokens. Labels are drawn only for ids in state.names.
    Pinpoint adds pins (state.pins, --map-pin-<kind>) joined by dashed great-circle links
-   (state.links), centerLonLat() (the point under the middle of the view), and opt-in
-   drag inertia and flat-map world clamping (constructor options).
+   (state.links), centerLonLat() (the point under the middle of the view), opt-in
+   drag inertia and flat-map world clamping (constructor options), and region start
+   framing: boxCamera(box, padding) + showHome(fn).
    Exposes window.GeoMaps = { loadWorld, MapView } (window.BorderMaps is the same object). */
 (function () {
   "use strict";
@@ -96,7 +97,15 @@
       tol,
       land: polys.map((p) => {
         const rings = p.rings.map((r) => simplifyLine(r, tol, true)).filter(Boolean);
-        return rings.length ? { geom: { type: "Polygon", coordinates: rings }, v: p.v, r: p.r } : null;
+        if (!rings.length) return null;
+        let geom = { type: "Polygon", coordinates: rings };
+        // A tiny island simplified down to a few points can flip its winding; d3 then reads it as
+        // everything *outside* the island and floods the map with land. Keep such pieces exact.
+        if (tol && d3.geoArea(geom) > 2 * Math.PI) {
+          geom = { type: "Polygon", coordinates: p.rings };
+          if (d3.geoArea(geom) > 2 * Math.PI) return null;
+        }
+        return { geom, v: p.v, r: p.r };
       }).filter(Boolean),
       coast: coastLines.map((l) => ({ geom: { type: "LineString", coordinates: simplifyLine(l.line, tol, false) }, v: l.v, r: l.r })),
       borders: borderLines.map((l) => ({ geom: { type: "LineString", coordinates: simplifyLine(l.line, tol, false) }, v: l.v, r: l.r })),
@@ -157,6 +166,7 @@
       this.linkDraws = new Map();  // link index key -> draw-on start time
       this.tinyArea = tinyArea;
       this.home = null;  // camera to return to on resetView() when nothing is framed (see show())
+      this.homeFn = null;  // or a function of the view that computes it (see showHome()), redone on resize
       this.showBorders = true;
       this.appear = new Map();
       this.pulses = [];
@@ -212,6 +222,7 @@
       this._baseScale = this.baseScale();
       this.baseKey = "";
       if (this.target) this.camera = this.computeFrame(this.target);  // was hidden: jump, don't fly
+      else if (this.homeFn) this.camera = { ...(this.home = this.homeFn(this)) };
       else if (this.home) this.camera = { ...this.home };
       this.camera = this.limitCamera(this.camera);
       this.request();
@@ -266,6 +277,7 @@
     idle() {
       this.target = null;
       this.home = null;
+      this.homeFn = null;
       this.anim = null;
       this.camera = this.limitCamera(this.kind === "globe" ? { lon: this.camera.lon, lat: 18, k: 1 } : { lon: 10, lat: 15, k: 1 });
       this.autoRotate = this.kind === "globe" && !reducedMotion();
@@ -302,6 +314,7 @@
 
     resetView() {
       if (this.target) this.flyTo(this.computeFrame(this.target), true);
+      else if (this.homeFn && this.w) this.flyTo(this.home = this.homeFn(this), true);
       else if (this.home) this.flyTo(this.home, true);
     }
 
@@ -309,8 +322,60 @@
     show(camera, animate = true, durationMs) {
       this.autoRotate = false;
       this.target = null;
+      this.homeFn = null;
       this.home = { ...camera, k: clamp(camera.k, this.limits.kMin, this.limits.kMax) };
       this.flyTo(this.home, animate, durationMs);
+    }
+
+    /** Like show(), but the camera is cameraFn(view), recomputed whenever the view is resized
+        (or first shown: a hidden view has no size yet), e.g. view => view.boxCamera(box, 0.15). */
+    showHome(cameraFn, animate = true, durationMs) {
+      this.autoRotate = false;
+      this.target = null;
+      this.homeFn = cameraFn;
+      if (!this.w) { this.home = null; return; }   // resize() frames it once the view has a size
+      this.home = cameraFn(this);
+      this.flyTo(this.home, animate, durationMs);
+    }
+
+    /** The camera that fits a lon/lat box [west, south, east, north] in the view, keeping
+        padding (a share of the width and of the height, 0-0.5) clear on each side. West > east
+        crosses the antimeridian. Works for both views: the flat map turns so the box's middle
+        longitude is centred (so the antimeridian is never in the way) and the globe faces the
+        box. The box's edges are sampled, since lines of latitude curve in both projections.
+        The zoom stays within the view's limits, and the flat map is clamped as usual. */
+    boxCamera([west, south, east, north], padding = 0) {
+      const e = east > west ? east : east + 360;
+      const pts = [];
+      const N = 24;
+      for (let i = 0; i <= N; i++) {
+        const lon = west + ((e - west) * i) / N, lat = south + ((north - south) * i) / N;
+        pts.push([lon, south], [lon, north], [west, lat], [e, lat]);
+      }
+      let cam = { lon: wrapLon((west + e) / 2), lat: (south + north) / 2, k: 1 };
+      if (!this.w || !this.h) return cam;
+      const probe = this.makeProjection();
+      const room = Math.max(0.05, 1 - 2 * padding);
+      for (let pass = 0; pass < 3; pass++) {
+        this.applyCamera(probe, { ...cam, k: 1 });
+        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+        for (const p of pts) {
+          if (this.kind === "globe" && d3.geoDistance([cam.lon, cam.lat], p) > Math.PI / 2 - 0.01) continue;
+          const xy = probe(p);
+          if (!xy) continue;
+          x0 = Math.min(x0, xy[0]); x1 = Math.max(x1, xy[0]);
+          y0 = Math.min(y0, xy[1]); y1 = Math.max(y1, xy[1]);
+        }
+        if (!Number.isFinite(x0)) break;
+        const mid = probe.invert([(x0 + x1) / 2, (y0 + y1) / 2]);
+        cam = {
+          lon: mid ? wrapLon(mid[0]) : cam.lon,
+          lat: clamp(mid ? mid[1] : cam.lat, -80, 80),
+          k: clamp(Math.min((this.w * room) / Math.max(x1 - x0, 1), (this.h * room) / Math.max(y1 - y0, 1)),
+                   this.limits.kMin, this.limits.kMax),
+        };
+      }
+      return this.limitCamera(cam);
     }
 
     /** The whole-world camera for this view, turned towards lon/lat (the globe faces it;

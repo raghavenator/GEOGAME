@@ -48,6 +48,8 @@
         'maxPoints': config.max_points,
         'fullSpeedMs': (config.full_speed_seconds * 1000) | int,
         'minSpeed': config.min_speed_factor,
+        'regions': ctx.regions,
+        'regionPadding': ctx.region_padding,
      } | tojson | forceescape }})">
 
   <div class="visually-hidden" aria-live="polite" aria-atomic="true" x-text="announcement"></div>
@@ -121,7 +123,11 @@
   <section class="pp-play" x-show="screen === 'play'" {% if not feed %}x-cloak{% endif %}>
     <div class="card card--flat pp-hud">
       <div class="pp-hud__ask">
-        <span class="eyebrow">Find</span>
+        <span class="pp-hud__kicker">
+          <span class="eyebrow">Find</span>
+          <span class="pp-region-chip" x-show="regionChip" x-cloak
+                :title="'Only countries in ' + regionChip">{{ icon('map-pin', 'icon--sm') }}<span x-text="regionChip"></span></span>
+        </span>
         <h2 class="pp-hud__name" :class="{ 'is-blank': !q }">
           <span x-show="q" x-text="q && q.name"></span>
           <span class="pp-hud__blank" x-show="!q" aria-label="Hidden until you start"></span>
@@ -162,7 +168,7 @@
       <div class="pp-mapctl" role="group" aria-label="Map controls" x-show="phase !== 'ready'">
         <button type="button" class="pp-mapctl__btn" @click="zoomBy(1.5)" aria-label="Zoom in">{{ icon('plus', 'icon--sm') }}</button>
         <button type="button" class="pp-mapctl__btn" @click="zoomBy(1 / 1.5)" aria-label="Zoom out">{{ icon('minus', 'icon--sm') }}</button>
-        <button type="button" class="pp-mapctl__btn" @click="resetView()" aria-label="Reset view" title="Back to the whole map">{{ icon('locate-fixed', 'icon--sm') }}</button>
+        <button type="button" class="pp-mapctl__btn" @click="resetView()" aria-label="Reset view" :title="regionChip ? 'Back to ' + regionChip : 'Back to the whole map'">{{ icon('locate-fixed', 'icon--sm') }}</button>
       </div>
       <ul class="pp-legend" x-show="phase === 'result'" aria-hidden="true">
         <li><span class="pp-swatch pp-swatch--guess"></span>Your guess</li>

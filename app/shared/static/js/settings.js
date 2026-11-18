@@ -12,20 +12,45 @@
     const storageKey = `geo-arcade:settings:${gameId}`;
     const defaults = Object.fromEntries(schema.map((f) => [f.key, f.default]));
 
+    /** An int's maximum given the other values: its own max, or less when it has cap_by and the
+        choice picked there has a smaller count (e.g. questions <= countries in the region). */
+    function capOf(f, values) {
+      if (f.type !== "int" || !f.cap_by) return f.max;
+      const src = schema.find((x) => x.key === f.cap_by);
+      const choice = src && src.choices.find((c) => c.value === values[src.key]);
+      return choice && Number.isInteger(choice.count) ? Math.max(f.min, Math.min(f.max, choice.count)) : f.max;
+    }
+
+    function capNoteOf(f, values) {
+      const cap = capOf(f, values);
+      if (cap >= f.max) return "";
+      const src = schema.find((x) => x.key === f.cap_by);
+      const choice = src.choices.find((c) => c.value === values[src.key]);
+      return (f.cap_note || "{choice} allows at most {cap}.")
+        .split("{choice}").join(choice.label).split("{cap}").join(String(cap));
+    }
+
     function sanitize(values) {
       const out = {};
+      // Choices first (a stored value that's no longer offered falls back to the default),
+      // then ints, whose caps can depend on a choice.
       for (const f of schema) {
+        if (f.type !== "choice") continue;
+        const v = values[f.key];
+        out[f.key] = f.choices.some((c) => c.value === v) ? v : f.default;
+      }
+      for (const f of schema) {
+        if (f.type === "choice") continue;
         let v = values[f.key];
         if (f.type === "int") {
           v = Number(v);
           if (!Number.isFinite(v)) v = f.default;
-          v = Math.min(f.max, Math.max(f.min, Math.round(v)));
-        } else if (f.type === "choice") {
-          if (!f.choices.some((c) => c.value === v)) v = f.default;
+          v = Math.min(capOf(f, out), Math.max(f.min, Math.round(v)));
         }
         out[f.key] = v;
       }
-      return out;
+      // Keep the schema's key order (some callers iterate it).
+      return Object.fromEntries(schema.map((f) => [f.key, out[f.key]]));
     }
 
     function load() {
@@ -75,6 +100,8 @@
           const v = this.draft[f.key];
           if (f.type === "int" && (!Number.isInteger(v) || v < f.min || v > f.max)) {
             errors[f.key] = `${f.label} must be between ${f.min} and ${f.max}.`;
+          } else if (f.type === "int" && v > capOf(f, this.draft)) {
+            errors[f.key] = capNoteOf(f, this.draft);
           }
         }
         return errors;
@@ -86,6 +113,27 @@
         persist(this.values);
         this.close();
         window.dispatchEvent(new CustomEvent("settings-changed", { detail: { gameId, values: { ...this.values } } }));
+      },
+      /** The current maximum of an int setting in the draft (see capOf). */
+      capFor(key) {
+        const f = schema.find((x) => x.key === key);
+        return f ? capOf(f, this.draft) : 0;
+      },
+      /** "Caribbean has 13 countries, so the maximum is 13 questions." while a cap applies, else "". */
+      capNote(key) {
+        const f = schema.find((x) => x.key === key);
+        return f ? capNoteOf(f, this.draft) : "";
+      },
+      /** A choice changed: pull capped ints down to their new maximum. */
+      clampCaps() {
+        const errors = { ...this.errors };
+        for (const f of schema) {
+          if (f.type !== "int" || !f.cap_by) continue;
+          const cap = capOf(f, this.draft);
+          if (Number(this.draft[f.key]) > cap) this.draft[f.key] = cap;
+          delete errors[f.key];
+        }
+        this.errors = errors;
       },
       reset() {
         this.draft = { ...defaults };
